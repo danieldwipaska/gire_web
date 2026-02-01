@@ -9,9 +9,12 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "bcrypt": "^6.0.0",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.563.0",
-    "next": "16.1.4",
+    "mongoose": "^9.1.5",
+    "next": "^16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-is": "^19.2.3",
