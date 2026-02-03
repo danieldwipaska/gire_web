@@ -1,3 +1,4 @@
+import connectDB from '@/lib/mongodb';
 import Integration from '@/models/Integration';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -11,6 +12,8 @@ type IntegrationPayload = {
 };
 
 export async function POST(req: NextRequest) {
+  await connectDB();
+
   try {
     const { userId, provider, githubUsername, accessToken, lastSync, status }: IntegrationPayload = await req.json();
 
@@ -24,7 +27,7 @@ export async function POST(req: NextRequest) {
       provider,
       githubUsername,
       accessToken,
-      lastSync,
+      lastSync: lastSync ? new Date(lastSync) : new Date(),
       status,
     });
 

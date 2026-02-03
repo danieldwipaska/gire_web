@@ -1,6 +1,17 @@
 import { GitBranch, GitPullRequest, MessageSquare, Minus, Plus } from 'lucide-react';
 
-const PullRequestCard = () => {
+interface Props {
+  title: string;
+  state: string;
+  repoName: string;
+  additions: number;
+  deletions: number;
+  comments: number;
+  url: string;
+  mergedAt: string | null;
+}
+
+const PullRequestCard = ({ title, state, repoName, additions, deletions, comments, url, mergedAt }: Props) => {
   const getStatusColor = (status: any) => {
     switch (status) {
       case 'merged':
@@ -21,14 +32,16 @@ const PullRequestCard = () => {
 
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2 mb-2">
-              <h4 className="text-white font-medium line-clamp-2 hover:underline cursor-pointer">Fix authentication bug in login flow</h4>
-              <span className={`px-2 py-1 rounded-md text-xs font-medium border whitespace-nowrap ${getStatusColor('merged')}`}>merged</span>
+              <a href={url}>
+                <h4 className="text-white font-medium line-clamp-2 hover:underline cursor-pointer">{title}</h4>
+              </a>
+              <span className={`px-2 py-1 rounded-md text-xs font-medium border whitespace-nowrap ${getStatusColor(mergedAt ? 'merged' : state)}`}>{mergedAt ? 'merged' : state}</span>
             </div>
 
             <div className="flex items-center gap-4 text-sm text-white/60 mb-3">
               <span className="flex items-center gap-1">
                 <GitBranch className="w-4 h-4" />
-                company/main-app
+                {repoName}
               </span>
               <span>4 days ago</span>
             </div>
@@ -37,14 +50,15 @@ const PullRequestCard = () => {
               <div className="flex items-center gap-3 text-sm">
                 <span className="flex items-center gap-1 text-green-400">
                   <Plus className="w-4 h-4" />
-                  120
+                  {additions}
                 </span>
                 <span className="flex items-center gap-1 text-red-400">
                   <Minus className="w-4 h-4" />
-                  45
+                  {deletions}
                 </span>
                 <span className="flex items-center gap-1 text-white/60">
-                  <MessageSquare className="w-4 h-4" />5
+                  <MessageSquare className="w-4 h-4" />
+                  {comments}
                 </span>
               </div>
 

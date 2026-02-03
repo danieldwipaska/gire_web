@@ -8,6 +8,8 @@ const PRSchema = new mongoose.Schema({
   additions: Number,
   deletions: Number,
   changedFiles: Number,
+  comments: Number,
+  url: String,
   mergedAt: Date,
   updatedAt: Date,
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
