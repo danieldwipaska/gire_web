@@ -1,6 +1,13 @@
-import { GitBranch, GitPullRequest, MessageSquare, Minus, Plus } from 'lucide-react';
+import { getTimeAgo } from "@/lib/utils";
+import {
+  GitBranch,
+  GitPullRequest,
+  MessageSquare,
+  Minus,
+  Plus,
+} from "lucide-react";
 
-interface Props {
+export interface Props {
   title: string;
   state: string;
   repoName: string;
@@ -8,20 +15,32 @@ interface Props {
   deletions: number;
   comments: number;
   url: string;
+  updatedAt: string;
   mergedAt: string | null;
 }
 
-const PullRequestCard = ({ title, state, repoName, additions, deletions, comments, url, mergedAt }: Props) => {
-  const getStatusColor = (status: any) => {
+const PullRequestCard = ({
+  title,
+  state,
+  repoName,
+  additions,
+  deletions,
+  comments,
+  url,
+  updatedAt,
+  mergedAt,
+}: Props) => {
+  const getStatusColor = (status: "merged" | "open" | "closed") => {
     switch (status) {
-      case 'merged':
-        return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
-      case 'open':
-        return 'bg-green-500/20 text-green-400 border-green-500/30';
-      case 'closed':
-        return 'bg-red-500/20 text-red-400 border-red-500/30';
+      case "merged":
+        return "bg-purple-500/20 text-purple-400 border-purple-500/30";
+      case "open":
+        return "bg-green-500/20 text-green-400 border-green-500/30";
+      case "closed":
+        return "bg-red-500/20 text-red-400 border-red-500/30";
     }
   };
+
   return (
     <>
       <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-4 hover:bg-white/15 transition-all">
@@ -32,10 +51,18 @@ const PullRequestCard = ({ title, state, repoName, additions, deletions, comment
 
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2 mb-2">
-              <a href={url}>
-                <h4 className="text-white font-medium line-clamp-2 hover:underline cursor-pointer">{title}</h4>
+              <a href={url} target="_blank" rel="noopener noreferrer">
+                <h4 className="text-white font-medium line-clamp-2 hover:underline cursor-pointer">
+                  {title}
+                </h4>
               </a>
-              <span className={`px-2 py-1 rounded-md text-xs font-medium border whitespace-nowrap ${getStatusColor(mergedAt ? 'merged' : state)}`}>{mergedAt ? 'merged' : state}</span>
+              <span
+                className={`px-2 py-1 rounded-md text-xs font-medium border whitespace-nowrap ${getStatusColor(
+                  mergedAt ? "merged" : (state as "merged" | "open" | "closed")
+                )}`}
+              >
+                {mergedAt ? "merged" : state}
+              </span>
             </div>
 
             <div className="flex items-center gap-4 text-sm text-white/60 mb-3">
@@ -43,7 +70,7 @@ const PullRequestCard = ({ title, state, repoName, additions, deletions, comment
                 <GitBranch className="w-4 h-4" />
                 {repoName}
               </span>
-              <span>4 days ago</span>
+              <span>{getTimeAgo(updatedAt)}</span>
             </div>
 
             <div className="flex items-center justify-between">
@@ -63,10 +90,16 @@ const PullRequestCard = ({ title, state, repoName, additions, deletions, comment
               </div>
 
               <div className="flex -space-x-2">
-                <div className="w-6 h-6 rounded-full bg-linear-to-br from-blue-400 to-cyan-400 border-2 border-white/20 flex items-center justify-center text-xs font-semibold text-white" title={'Alice Johnson'}>
+                <div
+                  className="w-6 h-6 rounded-full bg-linear-to-br from-blue-400 to-cyan-400 border-2 border-white/20 flex items-center justify-center text-xs font-semibold text-white"
+                  title={"Alice Johnson"}
+                >
                   A
                 </div>
-                <div className="w-6 h-6 rounded-full bg-linear-to-br from-blue-400 to-cyan-400 border-2 border-white/20 flex items-center justify-center text-xs font-semibold text-white" title={'Alice Johnson'}>
+                <div
+                  className="w-6 h-6 rounded-full bg-linear-to-br from-blue-400 to-cyan-400 border-2 border-white/20 flex items-center justify-center text-xs font-semibold text-white"
+                  title={"Alice Johnson"}
+                >
                   A
                 </div>
               </div>

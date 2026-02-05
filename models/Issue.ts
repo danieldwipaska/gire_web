@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const IssueSchema = new mongoose.Schema({
   githubId: { type: Number, unique: true },
@@ -7,7 +7,7 @@ const IssueSchema = new mongoose.Schema({
   repoName: String,
   url: String,
   updatedAt: Date,
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 });
 
-export default mongoose.models.Issue || mongoose.model('Issue', IssueSchema);
+export default mongoose.models.Issue || mongoose.model("Issue", IssueSchema);

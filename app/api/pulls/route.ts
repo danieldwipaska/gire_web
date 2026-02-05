@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
 
-    const pulls = await PullRequest.find().select('title state repoName additions deletions comments url mergedAt').lean();
+    const pulls = await PullRequest.find().sort('-updatedAt').lean();
 
     return NextResponse.json(pulls, { status: 200, statusText: 'OK' });
   } catch (error) {

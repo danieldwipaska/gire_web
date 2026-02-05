@@ -66,7 +66,7 @@ export async function syncGitHubData(userId: string, token: string) {
           deletions: detail.deletions,
           changedFiles: detail.changed_files,
           comments: detail.comments,
-          url: detail.url,
+          url: detail.html_url,
           mergedAt: detail.merged_at,
           updatedAt: pr.updated_at,
           userId,
