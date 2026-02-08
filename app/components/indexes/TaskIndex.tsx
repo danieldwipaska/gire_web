@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import IssueList from '../Lists/IssueList';
-import PullRequestList from '../Lists/PullRequestList';
-import Tabs from '../Tabs';
+import IssueList from "../lists/IssueList";
+import PullRequestList from "../lists/PullRequestList";
+import Tabs from "../Tabs";
 
 const TaskIndex = () => {
   return (
@@ -11,15 +11,15 @@ const TaskIndex = () => {
         <Tabs
           tabs={[
             {
-              label: 'Today',
+              label: "Today",
               action: () => {},
             },
             {
-              label: 'This Week',
+              label: "This Week",
               action: () => {},
             },
             {
-              label: 'This Month',
+              label: "This Month",
               action: () => {},
             },
           ]}
