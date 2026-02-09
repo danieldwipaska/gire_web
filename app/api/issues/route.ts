@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     console.log(error);
     return NextResponse.json(
       { error: "Server Error" },
-      { status: 500, statusText: "INTERNAL SERVER ERROR" }
+      { status: 500, statusText: "INTERNAL SERVER ERROR" },
     );
   }
 }

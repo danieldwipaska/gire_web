@@ -1,6 +1,6 @@
-import Issue from '@/models/Issue';
-import PullRequest from '@/models/PullRequest';
-import { Octokit } from 'octokit';
+import Issue from "@/models/Issue";
+import PullRequest from "@/models/PullRequest";
+import { Octokit } from "octokit";
 
 export async function syncGitHubData(userId: string, token: string) {
   const octokit = new Octokit({ auth: token });
@@ -11,11 +11,14 @@ export async function syncGitHubData(userId: string, token: string) {
 
   try {
     // 1. SYNC ISSUES
-    const issues = await octokit.paginate(octokit.rest.issues.listForAuthenticatedUser, {
-      since: sinceDate.toISOString(),
-      state: 'all',
-      per_page: 100,
-    });
+    const issues = await octokit.paginate(
+      octokit.rest.issues.listForAuthenticatedUser,
+      {
+        since: sinceDate.toISOString(),
+        state: "all",
+        per_page: 100,
+      },
+    );
 
     for (const issue of issues) {
       if (issue.pull_request) continue; // Octokit menganggap PR sebagai Issue juga
@@ -36,10 +39,13 @@ export async function syncGitHubData(userId: string, token: string) {
     // 2. SYNC PULL REQUESTS
     // GitHub API tidak punya filter 'since' langsung di list PR,
     // jadi kita ambil yang terbaru dan filter manual.
-    const prs = await octokit.paginate(octokit.rest.search.issuesAndPullRequests, {
-      q: `author:@me type:pr updated:>${sinceDate.toISOString().split('T')[0]}`,
-      per_page: 100,
-    });
+    const prs = await octokit.paginate(
+      octokit.rest.search.issuesAndPullRequests,
+      {
+        q: `author:@me type:pr updated:>${sinceDate.toISOString().split("T")[0]}`,
+        per_page: 100,
+      },
+    );
 
     // Limit 1000 items
     const limitedPrs = prs.slice(0, 1000);
@@ -47,8 +53,11 @@ export async function syncGitHubData(userId: string, token: string) {
     for (const pr of limitedPrs) {
       // Ambil detail PR untuk mendapatkan additions/deletions
       // Format repo full name biasanya didapat dari field repository_url
-      const repoPath = pr.repository_url.replace('https://api.github.com/repos/', '');
-      const [owner, repo] = repoPath.split('/');
+      const repoPath = pr.repository_url.replace(
+        "https://api.github.com/repos/",
+        "",
+      );
+      const [owner, repo] = repoPath.split("/");
 
       const { data: detail } = await octokit.rest.pulls.get({
         owner,

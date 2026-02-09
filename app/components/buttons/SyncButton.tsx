@@ -2,11 +2,12 @@
 
 import Button from "./Button";
 import Modal from "../modals/Modal";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Spinner from "../spinners/Spinner";
 
 const SyncButton = () => {
   const [open, setOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const handleClose = () => {
     setOpen(false);
@@ -14,22 +15,21 @@ const SyncButton = () => {
 
   const handleSync = () => {
     setOpen(true);
-    sync();
 
-    setTimeout(() => {
-      setOpen(false);
-    }, 2000);
+    startTransition(() => {
+      sync();
+      location.reload();
+    });
   };
 
   const sync = async () => {
     try {
-      const response = await fetch("/api/sync/github", {
+      await fetch("/api/sync/github", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
       });
-      const data = await response.json();
     } catch (error) {
       console.log(error);
     }
@@ -37,7 +37,9 @@ const SyncButton = () => {
 
   return (
     <>
-      <Button onClick={handleSync}>Sync Now</Button>
+      <Button onClick={handleSync} disabled={isPending}>
+        Sync Now
+      </Button>
       <Modal
         open={open}
         title="Synchronizing..."

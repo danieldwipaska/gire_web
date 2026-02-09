@@ -1,16 +1,19 @@
-import connectDB from '@/lib/mongodb';
-import PullRequest from '@/models/PullRequest';
-import { NextRequest, NextResponse } from 'next/server';
+import connectDB from "@/lib/mongodb";
+import PullRequest from "@/models/PullRequest";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
 
-    const pulls = await PullRequest.find().sort('-updatedAt').lean();
+    const pulls = await PullRequest.find().sort("-updatedAt").lean();
 
-    return NextResponse.json(pulls, { status: 200, statusText: 'OK' });
+    return NextResponse.json(pulls, { status: 200, statusText: "OK" });
   } catch (error) {
     console.log(error);
-    return NextResponse.json({ error: 'Server Error' }, { status: 500, statusText: 'INTERNAL SERVER ERROR' });
+    return NextResponse.json(
+      { error: "Server Error" },
+      { status: 500, statusText: "INTERNAL SERVER ERROR" },
+    );
   }
 }

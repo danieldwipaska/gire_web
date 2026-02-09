@@ -42,9 +42,8 @@ const IssueCard = ({ title, state, repoName, url, updatedAt }: Props) => {
             </span>
           </div>
 
-          <div className="flex items-center gap-3 text-sm text-white/60 mb-3">
+          <div className="flex flex-col gap-1 text-sm text-white/60 mb-3">
             <span>{repoName}</span>
-            <span>•</span>
             <span>{getTimeAgo(updatedAt)}</span>
           </div>
 
