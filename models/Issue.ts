@@ -6,6 +6,9 @@ const IssueSchema = new mongoose.Schema({
   state: String,
   repoName: String,
   url: String,
+  mentionedInDescription: Boolean,
+  author: String,
+  assignee: String,
   updatedAt: Date,
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 });

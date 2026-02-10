@@ -4,8 +4,6 @@ import TaskIndex from "../components/indexes/TaskIndex";
 import ChartIndex from "../components/indexes/ChartIndex";
 import ReviewList from "../components/lists/ReviewList";
 import IntegrationList from "../components/lists/IntegrationList";
-import Button from "../components/buttons/Button";
-import Modal from "../components/modals/Modal";
 import SyncButton from "../components/buttons/SyncButton";
 
 const Dashboard = () => {
@@ -16,7 +14,7 @@ const Dashboard = () => {
           <div className="flex flex-col gap-2">
             <h2>Welcome, Daniel!</h2>
             <p className="text-lg text-white/70">
-              Here's what you've accomplished today
+              Here&apos;s what you&apos;ve accomplished today
             </p>
           </div>
           <div className="flex gap-3 h-fit">

@@ -2,12 +2,11 @@
 
 import Button from "./Button";
 import Modal from "../modals/Modal";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import Spinner from "../spinners/Spinner";
 
 const SyncButton = () => {
   const [open, setOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
 
   const handleClose = () => {
     setOpen(false);
@@ -15,11 +14,7 @@ const SyncButton = () => {
 
   const handleSync = () => {
     setOpen(true);
-
-    startTransition(() => {
-      sync();
-      location.reload();
-    });
+    sync();
   };
 
   const sync = async () => {
@@ -30,6 +25,8 @@ const SyncButton = () => {
           "Content-Type": "application/json",
         },
       });
+
+      location.reload();
     } catch (error) {
       console.log(error);
     }
@@ -37,7 +34,7 @@ const SyncButton = () => {
 
   return (
     <>
-      <Button onClick={handleSync} disabled={isPending}>
+      <Button onClick={handleSync} disabled={open}>
         Sync Now
       </Button>
       <Modal
