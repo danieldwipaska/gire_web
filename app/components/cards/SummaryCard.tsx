@@ -1,7 +1,7 @@
 interface Props {
   title: string;
   desc: string;
-  value: string;
+  value: number;
   icon?: React.ReactNode;
   footer?: React.ReactNode;
 }

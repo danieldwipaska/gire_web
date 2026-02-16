@@ -31,7 +31,7 @@ const IssueCard = ({ title, state, repoName, url, updatedAt }: Props) => {
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-2">
             <a href={url} target="_blank" rel="noopener noreferrer">
-              <h5 className="text-white font-medium line-clamp-2 hover:underline cursor-pointer text-lg">
+              <h5 className="text-white font-medium line-clamp-1 hover:underline cursor-pointer text-lg">
                 {title}
               </h5>
             </a>
@@ -44,7 +44,7 @@ const IssueCard = ({ title, state, repoName, url, updatedAt }: Props) => {
 
           <div className="flex flex-col gap-1 text-sm text-white/60 mb-3">
             <span>{repoName}</span>
-            <span>{getTimeAgo(updatedAt)}</span>
+            <span suppressHydrationWarning>{getTimeAgo(updatedAt)}</span>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">

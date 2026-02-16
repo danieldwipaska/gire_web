@@ -1,15 +1,16 @@
-import { mockIntegrations } from '../../../mocks/data.mock';
 import IntegrationCard from '../cards/IntegrationCard';
 import ListContainer from './ListContainer';
 
-const IntegrationList = () => {
+const IntegrationList = ({ integrations, isLoading }: { integrations: any[]; isLoading: boolean }) => {
+  if (isLoading) return <div>Loading...</div>;
+
   const actions = [{ label: 'Add New', href: '#' }];
 
   return (
-    <ListContainer title="Integrations" actions={actions}>
+    <ListContainer title="Integrations" links={actions}>
       <div className="space-y-3 max-h-125 overflow-auto pr-2">
-        {mockIntegrations.map((integration) => (
-          <IntegrationCard key={integration.id} integration={integration} />
+        {integrations.map((integration, index) => (
+          <IntegrationCard key={index} integration={integration} />
         ))}
       </div>
     </ListContainer>

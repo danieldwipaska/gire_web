@@ -37,3 +37,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Server Error' }, { status: 500, statusText: 'INTERNAL SERVER ERROR' });
   }
 }
+
+export async function GET(req: NextRequest) {
+  await connectDB();
+
+  try {
+    const integrations = await Integration.find({
+      userId: process.env.USER_ID,
+    }).lean();
+
+    return NextResponse.json(integrations, { status: 200, statusText: 'OK' });
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json({ error: 'Server Error' }, { status: 500, statusText: 'INTERNAL SERVER ERROR' });
+  }
+}
+

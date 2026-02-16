@@ -2,8 +2,14 @@ import Issue from "@/models/Issue";
 import PullRequest from "@/models/PullRequest";
 import { Octokit } from "octokit";
 
-export async function syncGitHubData(userId: string, token: string) {
+export async function syncGitHubData(
+  userId: string,
+  token: string,
+  onProgress?: (progress: number, message: string) => void,
+) {
   const octokit = new Octokit({ auth: token });
+  
+  if (onProgress) onProgress(5, "Authenticating implementation...");
 
   // Get authenticated user's login needed for checking mentions
   const { data: user } = await octokit.rest.users.getAuthenticated();
@@ -15,6 +21,7 @@ export async function syncGitHubData(userId: string, token: string) {
 
   try {
     // 1. SYNC ISSUES
+    if (onProgress) onProgress(10, "Fetching issues...");
     // Kita perlu search issues karena listForAuthenticatedUser tidak support filter mentions dengan mudah
     // dan kita ingin menangkap issue dimana user di-mention juga.
     // Tapi untuk menjaga kompatibilitas dengan logika awal (listForAuthenticatedUser),
@@ -26,16 +33,26 @@ export async function syncGitHubData(userId: string, token: string) {
     // Default filter is 'assigned', 'created', 'mentioned', 'subscribed'. Jadi 'all' seharusnya sudah mencakup mentioned.
     
     const issues = await octokit.paginate(
-      octokit.rest.issues.listForAuthenticatedUser,
+      octokit.rest.issues.list,
       {
         since: sinceDate.toISOString(),
-        filter: "all", // assigned, created, mentioned, subscribed
+        filter: "assigned", 
         state: "all",
         per_page: 100,
       },
     );
 
+    const totalIssues = issues.length;
+    let processedIssues = 0;
+
     for (const issue of issues) {
+      processedIssues++;
+      if (onProgress) {
+        // Map 10% - 30% range for issues
+        const progress = 10 + Math.floor((processedIssues / totalIssues) * 20);
+        onProgress(progress, `Processing issue ${processedIssues}/${totalIssues}`);
+      }
+
       if (issue.pull_request) continue; // Octokit menganggap PR sebagai Issue juga
       
       const isMentioned = issue.body ? issue.body.includes(`@${username}`) : false;
@@ -58,6 +75,7 @@ export async function syncGitHubData(userId: string, token: string) {
     }
 
     // 2. SYNC PULL REQUESTS
+    if (onProgress) onProgress(35, "Fetching pull requests...");
     // GitHub API tidak punya filter 'since' langsung di list PR,
     // jadi kita ambil yang terbaru dan filter manual.
     // Kita update query untuk mengambil PR dimana user adalah author, mentioned, atau review-requested.
@@ -80,6 +98,7 @@ export async function syncGitHubData(userId: string, token: string) {
     );
 
     // Merge and deduplicate
+    if (onProgress) onProgress(40, "Processing pull requests...");
     const allPrs = [...prsInvolved, ...prsReviewRequested];
     const uniquePrsMap = new Map();
     for (const pr of allPrs) {
@@ -89,8 +108,17 @@ export async function syncGitHubData(userId: string, token: string) {
 
     // Limit 1000 items
     const limitedPrs = uniquePrs.slice(0, 1000);
+    const totalPrs = limitedPrs.length;
+    let processedPrs = 0;
 
     for (const pr of limitedPrs) {
+      processedPrs++;
+      if (onProgress) {
+        // Map 40% - 90% range for PRs
+        const progress = 40 + Math.floor((processedPrs / totalPrs) * 50);
+        onProgress(progress, `Processing PR ${processedPrs}/${totalPrs}`);
+      }
+
       // Ambil detail PR untuk mendapatkan additions/deletions
       // Format repo full name biasanya didapat dari field repository_url
       const repoPath = pr.repository_url.replace(
@@ -132,6 +160,8 @@ export async function syncGitHubData(userId: string, token: string) {
         { upsert: true },
       );
     }
+    
+    if (onProgress) onProgress(100, "Sync complete!");
   } catch (error) {
     throw error;
   }

@@ -52,7 +52,7 @@ const PullRequestCard = ({
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2 mb-2">
               <a href={url} target="_blank" rel="noopener noreferrer">
-                <h4 className="text-white font-medium line-clamp-2 hover:underline cursor-pointer">
+                <h4 className="text-white font-medium line-clamp-1 hover:underline cursor-pointer">
                   {title}
                 </h4>
               </a>
@@ -70,7 +70,7 @@ const PullRequestCard = ({
                 <GitBranch className="w-4 h-4" />
                 {repoName}
               </span>
-              <span>{getTimeAgo(updatedAt)}</span>
+              <span suppressHydrationWarning>{getTimeAgo(updatedAt)}</span>
             </div>
 
             <div className="flex items-center justify-between">

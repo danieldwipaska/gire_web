@@ -1,19 +1,10 @@
-"use client";
-
 import ListContainer from "./ListContainer";
 import PullRequestCard from "../cards/PullRequestCard";
-import { useEffect, useState } from "react";
 import { Props as PRProps } from "../cards/PullRequestCard";
 
-const PullRequestList = () => {
-  const [pullRequests, setPullRequests] = useState<PRProps[] | null>(null);
 
-  useEffect(() => {
-    fetch("http://localhost:3000/api/pulls")
-      .then((res) => res.json())
-      .then((data) => setPullRequests(data))
-      .catch((err) => console.log(err));
-  }, []);
+const PullRequestList = ({ pullRequests, isLoading }: { pullRequests: PRProps[]; isLoading: boolean }) => {
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <>

@@ -1,6 +1,5 @@
-import { Integration } from '../../../mocks/data.mock';
 import { formatDistanceToNow } from 'date-fns';
-import { Bug, CheckCircle2, Clock, MessageSquare, Sheet, Workflow, XCircle } from 'lucide-react';
+import { Bug, CheckCircle2, MessageSquare, Sheet, Workflow, XCircle } from 'lucide-react';
 
 const iconMap: Record<string, typeof Sheet> = {
   Sheet,
@@ -9,6 +8,15 @@ const iconMap: Record<string, typeof Sheet> = {
   Workflow,
 };
 
+export interface Integration {
+  id: string;
+  provider: string;
+  githubUsername: string;
+  accessToken: string;
+  status: 'active' | 'expired';
+  lastSync: Date;
+}
+
 interface Props {
   integration: Integration;
 }
@@ -16,26 +24,22 @@ interface Props {
 const IntegrationCard = ({ integration }: Props) => {
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'connected':
+      case 'active':
         return <CheckCircle2 className="w-5 h-5 text-green-400" />;
-      case 'disconnected':
+      case 'expired':
         return <XCircle className="w-5 h-5 text-red-400" />;
-      case 'pending':
-        return <Clock className="w-5 h-5 text-orange-400" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'connected':
+      case 'active':
         return 'bg-green-500/20 text-green-400 border-green-500/30';
-      case 'disconnected':
+      case 'expired':
         return 'bg-red-500/20 text-red-400 border-red-500/30';
-      case 'pending':
-        return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
     }
   };
-  const IconComponent = iconMap[integration.icon];
+  const IconComponent = iconMap[integration.provider];
   return (
     <div key={integration.id} className="backdrop-blur-md bg-white/5 border border-white/20 rounded-xl p-4 hover:bg-white/10 transition-all">
       <div className="flex items-center gap-3">
@@ -43,10 +47,10 @@ const IntegrationCard = ({ integration }: Props) => {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 mb-1">
-            <h5 className="text-white font-medium text-lg">{integration.name}</h5>
+            <h5 className="text-white font-medium text-lg">{integration.githubUsername}</h5>
             {getStatusIcon(integration.status)}
           </div>
-          <p className="text-white/60 text-sm">Last sync: {formatDistanceToNow(integration.lastSync, { addSuffix: true })}</p>
+          <p className="text-white/60 text-sm" suppressHydrationWarning>Last sync: {formatDistanceToNow(integration.lastSync, { addSuffix: true })}</p>
         </div>
 
         <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(integration.status)}`}>{integration.status}</span>

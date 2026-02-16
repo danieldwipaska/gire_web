@@ -13,12 +13,12 @@ import {
 } from "recharts";
 import ListContainer from "../lists/ListContainer";
 
-const ChartIndex = () => {
+const ChartIndex = ({ data }: { data: any }) => {
   return (
     <>
       <ListContainer title="Weekly Activity">
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={mockActivityData}>
+          <LineChart data={data}>
             <CartesianGrid
               strokeDasharray="3 3"
               stroke="rgba(255,255,255,0.1)"

@@ -1,25 +1,15 @@
-"use client";
-
 import IssueCard from "../cards/IssueCard";
 import ListContainer from "./ListContainer";
-import { useEffect, useState } from "react";
 import { Props as IssueProps } from "../cards/IssueCard";
 
-const IssueList = () => {
-  const [issues, setIssues] = useState<IssueProps[]>([]);
-
-  useEffect(() => {
-    fetch("http://localhost:3000/api/issues")
-      .then((res) => res.json())
-      .then((data) => setIssues(data))
-      .catch((err) => console.log(err));
-  }, []);
+const IssueList = ({ issues, isLoading }: { issues: IssueProps[]; isLoading: boolean }) => {
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <>
       <ListContainer title="Your Issues">
         <div className="space-y-3 max-h-125 overflow-auto pr-2">
-          {issues?.map((issue, index) => (
+          {issues?.map((issue: IssueProps, index: number) => (
             <IssueCard
               key={index}
               title={issue.title}
