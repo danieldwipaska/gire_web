@@ -13,7 +13,13 @@ import {
 } from "recharts";
 import ListContainer from "../lists/ListContainer";
 
-const ChartIndex = ({ data }: { data: any }) => {
+interface ChartData {
+  date: string;
+  prs: number;
+  reviews: number;
+}
+
+const ChartIndex = ({ data }: { data: ChartData[] }) => {
   return (
     <>
       <ListContainer title="Weekly Activity">

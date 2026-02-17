@@ -4,8 +4,9 @@ import { useState } from 'react';
 import IntegrationCard from '../cards/IntegrationCard';
 import ListContainer from './ListContainer';
 import AddIntegrationModal from '../modals/AddIntegrationModal';
+import { IIntegration } from '@/lib/types';
 
-const IntegrationList = ({ integrations, isLoading }: { integrations: any[]; isLoading: boolean }) => {
+const IntegrationList = ({ integrations, isLoading }: { integrations: IIntegration[]; isLoading: boolean }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (isLoading) return <div>Loading...</div>;

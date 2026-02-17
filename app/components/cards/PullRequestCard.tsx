@@ -15,8 +15,8 @@ export interface Props {
   deletions: number;
   comments: number;
   url: string;
-  updatedAt: string;
-  mergedAt: string | null;
+  updatedAt: string | Date;
+  mergedAt: string | Date | null;
 }
 
 const PullRequestCard = ({

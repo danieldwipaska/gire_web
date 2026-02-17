@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(newIntegration, { status: 200, statusText: 'OK' });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return NextResponse.json({ error: 'Server Error' }, { status: 500, statusText: 'INTERNAL SERVER ERROR' });
   }
 }
@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(integrations, { status: 200, statusText: 'OK' });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return NextResponse.json({ error: 'Server Error' }, { status: 500, statusText: 'INTERNAL SERVER ERROR' });
   }
 }

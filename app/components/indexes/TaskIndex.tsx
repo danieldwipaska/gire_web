@@ -3,22 +3,21 @@
 import IssueList from "../lists/IssueList";
 import PullRequestList from "../lists/PullRequestList";
 import Tabs from "../Tabs";
-import { Props as IssueProps } from "../cards/IssueCard";
-import { Props as PRProps } from "../cards/PullRequestCard";
+import { IIssue, IPullRequest } from "@/lib/types";
 import { useEffect, useState } from "react";
 
 const TaskIndex = ({
   issues,
   pullRequests,
 }: {
-  issues: IssueProps[];
-  pullRequests: PRProps[];
+  issues: IIssue[];
+  pullRequests: IPullRequest[];
 }) => {
-  const [filteredPullRequests, setFilteredPullRequests] = useState<PRProps[]>([]);
+  const [filteredPullRequests, setFilteredPullRequests] = useState<IPullRequest[]>([]);
   const [selectedTab, setSelectedTab] = useState<string>("Today");
 
   useEffect(() => {
-    const selectedPullRequests = pullRequests.filter((pr: PRProps) => {
+    const selectedPullRequests = pullRequests.filter((pr: IPullRequest) => {
       if (selectedTab === "Today") return new Date(pr.updatedAt) > new Date(Date.now() - 24 * 60 * 60 * 1000);
       if (selectedTab === "Last Week") return new Date(pr.updatedAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
       if (selectedTab === "Last Month") return new Date(pr.updatedAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);

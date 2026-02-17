@@ -12,6 +12,8 @@ import {
   YAxis,
 } from "recharts";
 
+import { ICodeChurnData } from "@/lib/types";
+
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
@@ -26,7 +28,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   );
 };
 
-const CodeChurnChartIndex = ({ data }: { data: any }) => {
+const CodeChurnChartIndex = ({ data }: { data: ICodeChurnData[] }) => {
   return (
     <>
       <ListContainer title="Code Churn per Day">

@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const secretKey = process.env.JWT_SECRET || 'your-secret-key';
 const key = new TextEncoder().encode(secretKey);
 
-export async function signToken(payload: any) {
+export async function signToken(payload: SessionPayload) {
   return await new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
@@ -18,7 +18,7 @@ export interface SessionPayload {
   email: string;
   name: string;
   role: string;
-  [key: string]: any;
+  [key: string]: unknown; // Changed any to unknown for safer access
 }
 
 export async function verifyToken(token: string): Promise<SessionPayload | null> {

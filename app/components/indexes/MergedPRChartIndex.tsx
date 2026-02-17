@@ -11,6 +11,8 @@ import {
 } from "recharts";
 import ListContainer from "../lists/ListContainer";
 
+import { IMergedPRData } from "@/lib/types";
+
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
@@ -25,7 +27,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   );
 };
 
-const MergedPRChartIndex = ({ data }: { data: any }) => {
+const MergedPRChartIndex = ({ data }: { data: IMergedPRData[] }) => {
   return (
     <>
       <ListContainer title="Merged PR Timeline">

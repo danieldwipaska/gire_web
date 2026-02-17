@@ -3,9 +3,11 @@
 import ListContainer from "../lists/ListContainer";
 import { ResponsiveContainer, PieChart, Pie, Tooltip, Cell } from "recharts";
 
-const DonutLegend = ({ data }: { data: any }) => (
+import { ITaskChartData } from "@/lib/types";
+
+const DonutLegend = ({ data }: { data: ITaskChartData[] }) => (
   <div className="mt-3 space-y-2">
-    {data.map(({ name, fraction, color }: any) => (
+    {data.map(({ name, fraction, color }: ITaskChartData) => (
       <div key={name} className="flex items-center justify-between text-sm">
         <div className="flex items-center gap-2">
           <div
@@ -20,7 +22,7 @@ const DonutLegend = ({ data }: { data: any }) => (
   </div>
 );
 
-const TaskChartIndex = ({ data }: { data: any }) => {
+const TaskChartIndex = ({ data }: { data: ITaskChartData[] }) => {
   return (
     <>
       <ListContainer title="Total PRs Created and Reviews Requested">

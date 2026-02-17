@@ -2,6 +2,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Bug, CheckCircle2, MessageSquare, Sheet, Trash2, Workflow, XCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { IIntegration } from '@/lib/types';
 
 const iconMap: Record<string, typeof Sheet> = {
   Sheet,
@@ -10,18 +11,8 @@ const iconMap: Record<string, typeof Sheet> = {
   Workflow,
 };
 
-export interface Integration {
-  _id: string; // Use _id from MongoDB
-  id?: string;
-  provider: string;
-  githubUsername: string;
-  accessToken: string;
-  status: 'active' | 'expired';
-  lastSync: Date;
-}
-
 interface Props {
-  integration: Integration;
+  integration: IIntegration;
 }
 
 const IntegrationCard = ({ integration }: Props) => {
@@ -38,7 +29,7 @@ const IntegrationCard = ({ integration }: Props) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id: integration._id || integration.id }),
+        body: JSON.stringify({ id: integration._id}),
       });
 
       if (res.ok) {
@@ -73,7 +64,7 @@ const IntegrationCard = ({ integration }: Props) => {
   };
   const IconComponent = iconMap[integration.provider];
   return (
-    <div key={integration._id || integration.id} className="backdrop-blur-md bg-white/5 border border-white/20 rounded-xl p-4 hover:bg-white/10 transition-all group">
+    <div key={integration._id} className="backdrop-blur-md bg-white/5 border border-white/20 rounded-xl p-4 hover:bg-white/10 transition-all group">
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 bg-linear-to-br from-blue-400 to-cyan-400 rounded-lg flex items-center justify-center shrink-0">{IconComponent && <IconComponent className="w-5 h-5 text-white" />}</div>
 

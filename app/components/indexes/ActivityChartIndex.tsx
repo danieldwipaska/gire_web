@@ -12,6 +12,7 @@ import {
   Legend,
 } from "recharts";
 import { Target } from "lucide-react";
+import { IActivityData } from "@/lib/types";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
@@ -27,7 +28,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   );
 };
 
-const ActivityChartIndex = ({ data }: { data: any }) => {
+const ActivityChartIndex = ({ data }: { data: IActivityData[] }) => {
   return (
     <>
       <ListContainer title="Activity by Repository">
@@ -76,7 +77,7 @@ const ActivityChartIndex = ({ data }: { data: any }) => {
             </BarChart>
           </ResponsiveContainer>
           <div className="space-y-3 justify-center flex flex-col">
-            {data.map(({ repo, prs, merged, issues }: any) => {
+            {data.map(({ repo, prs, merged, issues }: IActivityData) => {
               const rate = Math.round((merged / prs) * 100);
               return (
                 <div key={repo} className="flex items-center gap-3">

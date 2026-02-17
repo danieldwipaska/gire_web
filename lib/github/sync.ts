@@ -15,23 +15,15 @@ export async function syncGitHubData(
   const { data: user } = await octokit.rest.users.getAuthenticated();
   const username = user.login;
 
-  // Tentukan batas waktu (misal: 14 hari ke belakang atau sejak sync terakhir)
+  // Set time limit (e.g., last 30 days)
   const sinceDate = new Date();
   sinceDate.setDate(sinceDate.getDate() - 30);
 
   try {
     // 1. SYNC ISSUES
     if (onProgress) onProgress(10, "Fetching issues...");
-    // Kita perlu search issues karena listForAuthenticatedUser tidak support filter mentions dengan mudah
-    // dan kita ingin menangkap issue dimana user di-mention juga.
-    // Tapi untuk menjaga kompatibilitas dengan logika awal (listForAuthenticatedUser),
-    // kita bisa tetap pakai listForAuthenticatedUser tapi ini hanya issues yang assigned/created/mentioned authenticated user.
-    // Dokumentasi: "List issues assigned to the authenticated user".
-    // "List issues across owned and member repositories assigned to the authenticated user."
-    // Jadi defaultnya sudah mencakup assigned.
-    // Untuk 'mentioned', kita sebaiknya gunakan search API agar lebih pasti atau pastikan filter 'filter' parameter benar.
-    // Default filter is 'assigned', 'created', 'mentioned', 'subscribed'. Jadi 'all' seharusnya sudah mencakup mentioned.
     
+    // Fetch assigned issues. The default 'assigned' filter covers what we need.
     const issues = await octokit.paginate(
       octokit.rest.issues.list,
       {
@@ -53,7 +45,7 @@ export async function syncGitHubData(
         onProgress(progress, `Processing issue ${processedIssues}/${totalIssues}`);
       }
 
-      if (issue.pull_request) continue; // Octokit menganggap PR sebagai Issue juga
+      if (issue.pull_request) continue; // Skip PRs (Octokit treats PRs as issues)
       
       const isMentioned = issue.body ? issue.body.includes(`@${username}`) : false;
 
@@ -76,9 +68,10 @@ export async function syncGitHubData(
 
     // 2. SYNC PULL REQUESTS
     if (onProgress) onProgress(35, "Fetching pull requests...");
-    // GitHub API tidak punya filter 'since' langsung di list PR,
-    // jadi kita ambil yang terbaru dan filter manual.
-    // Kita update query untuk mengambil PR dimana user adalah author, mentioned, atau review-requested.
+    
+    // Fetch PRs where user is author, mentioned, or review requested.
+    // GitHub API doesn't support 'since' filter for PR lists directly, so we use search.
+
     // Query 1: Involves (author, assignee, mentions, commenter)
     const prsInvolved = await octokit.paginate(
       octokit.rest.search.issuesAndPullRequests,
@@ -119,8 +112,7 @@ export async function syncGitHubData(
         onProgress(progress, `Processing PR ${processedPrs}/${totalPrs}`);
       }
 
-      // Ambil detail PR untuk mendapatkan additions/deletions
-      // Format repo full name biasanya didapat dari field repository_url
+      // Fetch PR details for stats (additions/deletions)
       const repoPath = pr.repository_url.replace(
         "https://api.github.com/repos/",
         "",

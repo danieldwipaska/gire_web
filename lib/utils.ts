@@ -1,6 +1,6 @@
-export const getTimeAgo = (ISOString: string) => {
+export const getTimeAgo = (date: string | Date) => {
   const now = new Date();
-  const past = new Date(ISOString);
+  const past = new Date(date);
 
   const diffMs = now.getTime() - past.getTime();
   const diffSeconds = Math.floor(diffMs / 1000);

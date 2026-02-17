@@ -13,6 +13,7 @@ import { getStartDate } from "@/lib/dates";
 import Integration from "@/models/Integration";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { IIssue, IPullRequest, IIntegration, ICodeChurnData, ITaskChartData, IMergedPRData, IActivityData } from "@/lib/types";
 
 interface Props {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -20,10 +21,10 @@ interface Props {
 
 const getGithubIntegration = async (userId: string) => {
   await connectDB();
-  const integration = await Integration.findOne({
+  const integration: IIntegration | null = await Integration.findOne({
     userId: userId,
     provider: "github",
-  });
+  }).lean();
   return integration;
 };
 
@@ -42,12 +43,10 @@ const getAnalyticsData = async (userId: string, range: string = "this-month") =>
     }).lean(),
   ]);
 
-  console.log(pullRequests.length);
-
-  return { issues, pullRequests };
+  return { issues: issues as IIssue[], pullRequests: pullRequests as IPullRequest[] };
 };
 
-const calculateCodeChurn = (prs: any[]) => {
+const calculateCodeChurn = (prs: IPullRequest[]): ICodeChurnData[] => {
   // If no PRs, return empty array
   if (!prs.length) return [];
 
@@ -83,7 +82,7 @@ const calculateCodeChurn = (prs: any[]) => {
   );
 };
 
-const calculatePrMergedAndPrReviewsRequested = (prs: any[], githubUsername: string) => {
+const calculatePrMergedAndPrReviewsRequested = (prs: IPullRequest[], githubUsername: string): ITaskChartData[] => {
   let merged = 0;
   let reviewsRequested = 0;
   for (const pr of prs) {
@@ -99,7 +98,7 @@ const calculatePrMergedAndPrReviewsRequested = (prs: any[], githubUsername: stri
   ];
 };
 
-const calculateMergedTimeline = (prs: any[]) => {
+const calculateMergedTimeline = (prs: IPullRequest[]): IMergedPRData[] => {
   const timelineMap = new Map();
 
   prs.forEach((pr) => {
@@ -127,7 +126,7 @@ const calculateMergedTimeline = (prs: any[]) => {
   );
 };
 
-const calculateRepoActivity = (prs: any[], issues: any[], githubUsername: string) => {
+const calculateRepoActivity = (prs: IPullRequest[], issues: IIssue[], githubUsername: string): IActivityData[] => {
   const repoMap = new Map();
 
   const initRepo = (repo: string) => {
@@ -181,16 +180,16 @@ const Analytics = async ({ searchParams }: Props) => {
 
   // Summary Metrics
   const totalPRsMerged = pullRequests.filter(
-    (pr: any) =>
+    (pr) =>
       pr.author === githubIntegration.githubUsername &&
       pr.state === "closed" &&
       pr.mergedAt,
   ).length;
 
   const totalLinesChanged = pullRequests
-    .filter((pr: any) => pr.author === githubIntegration.githubUsername)
+    .filter((pr) => pr.author === githubIntegration.githubUsername)
     .reduce(
-      (acc: any, pr: any) => {
+      (acc, pr) => {
         acc.added += pr.additions || 0;
         acc.removed += pr.deletions || 0;
         return acc;
@@ -199,11 +198,11 @@ const Analytics = async ({ searchParams }: Props) => {
     );
 
   const reviewRequestedCount = pullRequests.filter(
-    (pr: any) => pr.reviewRequested || pr.mentionedInDescription,
+    (pr) => pr.reviewRequested || pr.mentionedInDescription,
   ).length;
 
   const closedIssuesCount = issues.filter(
-    (i: any) => i.state === "closed",
+    (i) => i.state === "closed",
   ).length;
 
   // Chart Data

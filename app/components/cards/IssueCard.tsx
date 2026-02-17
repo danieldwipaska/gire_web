@@ -6,7 +6,7 @@ export interface Props {
   state: string;
   repoName: string;
   url: string;
-  updatedAt: string;
+  updatedAt: string | Date;
 }
 
 const IssueCard = ({ title, state, repoName, url, updatedAt }: Props) => {

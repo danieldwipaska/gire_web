@@ -1,7 +1,8 @@
 import PullRequestCard from '../cards/PullRequestCard';
 import ListContainer from './ListContainer';
+import { IPullRequest } from '@/lib/types';
 
-const ReviewList = ({ reviews, isLoading }: { reviews: any[]; isLoading: boolean }) => {
+const ReviewList = ({ reviews, isLoading }: { reviews: IPullRequest[]; isLoading: boolean }) => {
   if (isLoading) return <div>Loading...</div>;
 
   return (

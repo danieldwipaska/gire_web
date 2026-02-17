@@ -1,16 +1,16 @@
 import ListContainer from "./ListContainer";
 import PullRequestCard from "../cards/PullRequestCard";
-import { Props as PRProps } from "../cards/PullRequestCard";
+import { IPullRequest } from "@/lib/types";
 
 
-const PullRequestList = ({ pullRequests, isLoading }: { pullRequests: PRProps[]; isLoading: boolean }) => {
+const PullRequestList = ({ pullRequests, isLoading }: { pullRequests: IPullRequest[]; isLoading: boolean }) => {
   if (isLoading) return <div>Loading...</div>;
 
   return (
     <>
       <ListContainer title="Today's PRs">
         <div className="space-y-3 max-h-125 overflow-auto pr-2">
-          {pullRequests?.map((pullRequest: PRProps, index: number) => (
+      {pullRequests?.map((pullRequest: IPullRequest, index: number) => (
             <PullRequestCard
               key={index}
               title={pullRequest.title}
