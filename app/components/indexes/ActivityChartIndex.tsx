@@ -31,7 +31,7 @@ const ActivityChartIndex = ({ data }: { data: any }) => {
   return (
     <>
       <ListContainer title="Activity by Repository">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={data} layout="vertical" barSize={12}>
               <CartesianGrid
@@ -51,7 +51,7 @@ const ActivityChartIndex = ({ data }: { data: any }) => {
                 tick={{ fill: "#9ca3af", fontSize: 12 }}
                 axisLine={false}
                 tickLine={false}
-                width={62}
+                width={180}
               />
               <Tooltip content={<CustomTooltip />} />
               <Legend wrapperStyle={{ fontSize: "12px", color: "#9ca3af" }} />
@@ -80,7 +80,7 @@ const ActivityChartIndex = ({ data }: { data: any }) => {
               const rate = Math.round((merged / prs) * 100);
               return (
                 <div key={repo} className="flex items-center gap-3">
-                  <div className="flex items-center gap-2 w-24 shrink-0">
+                  <div className="flex items-center gap-2 w-48 shrink-0">
                     <Target className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                     <span className="text-xs text-gray-300 truncate">
                       {repo}
@@ -95,7 +95,7 @@ const ActivityChartIndex = ({ data }: { data: any }) => {
                   <span className="text-xs text-gray-400 w-9 text-right shrink-0">
                     {rate || 0}%
                   </span>
-                  <span className="text-xs text-gray-500 w-20 text-right shrink-0">
+                  <span className="text-xs text-gray-500 w-32 text-right shrink-0">
                     {merged}/{prs} PR · {issues} Issues
                   </span>
                 </div>

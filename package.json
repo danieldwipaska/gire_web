@@ -9,9 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@types/bcrypt": "^6.0.0",
     "bcrypt": "^6.0.0",
     "date-fns": "^4.1.0",
+    "jose": "^6.1.3",
     "lucide-react": "^0.563.0",
     "mongoose": "^9.1.5",
     "next": "^16.1.6",
@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

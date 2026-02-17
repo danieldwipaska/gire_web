@@ -3,12 +3,19 @@ import Integration from "@/models/Integration";
 import PullRequest from "@/models/PullRequest";
 import { NextRequest, NextResponse } from "next/server";
 
+import { verifyAuth } from "@/lib/auth";
+
 export async function GET(req: NextRequest) {
   try {
+    const session = await verifyAuth(req);
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
 
     const githubIntegration = await Integration.findOne({
-      userId: process.env.USER_ID,
+      userId: session.id,
       type: "github",
     });
 

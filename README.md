@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GiRe Web
+
+GiRe Web is a Next.js application designed to track and visualize your GitHub activity. It provides a dashboard and analytics to help you monitor your pull requests, issues, and overall contributions.
+
+## Features
+
+- **Dashboard:** Overview of your daily and weekly GitHub activity.
+- **Analytics:** Detailed charts and metrics on your code contributions, including code churn, merged PRs, and review requests.
+- **GitHub Sync:** Synchronize your data from GitHub to keep your local dashboard up-to-date.
+- **Authentication:** Secure login and registration system.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Node.js (v18 or higher recommended)
+- MongoDB (running locally or a cloud instance)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1.  Clone the repository:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+    ```bash
+    git clone https://github.com/yourusername/gire_web.git
+    cd gire_web
+    ```
 
-## Learn More
+2.  Install dependencies:
 
-To learn more about Next.js, take a look at the following resources:
+    ```bash
+    npm install
+    # or
+    yarn install
+    # or
+    pnpm install
+    ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3.  Set up environment variables:
+    Create a `.env.local` file in the root directory and add the following variables:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+    ```env
+    # MongoDB Connection String
+    MONGODB_URI=mongodb://127.0.0.1:27017/gireWeb
 
-## Deploy on Vercel
+    # JWT Secret for Authentication
+    JWT_SECRET=your_super_secret_jwt_key
+    ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4.  Run the development server:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+    ```bash
+    npm run dev
+    # or
+    yarn dev
+    # or
+    pnpm dev
+    ```
+
+5.  Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Usage
+
+1.  **Register:** Create a new account.
+2.  **Add Integration:** Go to the Dashboard, scroll to "Integrations", click "Add New", and enter your GitHub username and a Personal Access Token (with `repo` scope).
+3.  **Sync Data:** Click the "Sync Now" button to fetch your data from GitHub.
+4.  **Explore:** View your Dashboard and Analytics pages.
+
+## License
+
+This project is licensed under the MIT License.
+
+## Contribute & Donate
+
+If you find this project useful and would like to contribute or support its development, please feel free to reach out!
+
+- **Instagram:** [@nielnimation](https://www.instagram.com/nielnimation/)
+- **LinkedIn:** [daniel-w-k](https://www.linkedin.com/in/daniel-w-k/)
+
+We welcome clear bug reports, feature requests, and pull requests.

@@ -24,9 +24,6 @@ const Navbar = () => {
               <Link href="/analytics" className={`px-4 py-2 ${pathname.startsWith("/analytics") ? "bg-white/10 border border-white/20 rounded-lg text-white font-medium" : "hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-all"}`}>
                 Analytics
               </Link>
-              <Link href="/integrations" className={`px-4 py-2 ${pathname.startsWith("/integrations") ? "bg-white/10 border border-white/20 rounded-lg text-white font-medium" : "hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-all"}`}>
-                Integrations
-              </Link>
             </nav>
           </div>
 
@@ -45,9 +42,15 @@ const Navbar = () => {
               </div>
               <span className="text-white text-sm hidden md:block">You</span>
             </button>
-            <Link href="/" className="p-2 hover:bg-white/10 rounded-lg transition-all text-white/70 hover:text-white">
+            <button 
+              onClick={async () => {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                window.location.href = '/login';
+              }}
+              className="p-2 hover:bg-white/10 rounded-lg transition-all text-white/70 hover:text-white"
+            >
               <LogOut className="w-5 h-5" />
-            </Link>
+            </button>
           </div>
         </div>
       </div>

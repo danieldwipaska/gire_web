@@ -10,23 +10,35 @@ import connectDB from "@/lib/mongodb";
 import Issue from "@/models/Issue";
 import PullRequest from "@/models/PullRequest";
 import { getStartDate } from "@/lib/dates";
+import Integration from "@/models/Integration";
+import { getSession } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 interface Props {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-const getAnalyticsData = async (range: string = "this-month") => {
+const getGithubIntegration = async (userId: string) => {
+  await connectDB();
+  const integration = await Integration.findOne({
+    userId: userId,
+    provider: "github",
+  });
+  return integration;
+};
+
+const getAnalyticsData = async (userId: string, range: string = "this-month") => {
   await connectDB();
   const startDate = getStartDate(range);
 
   const [issues, pullRequests] = await Promise.all([
     Issue.find({
       updatedAt: { $gte: startDate },
-      userId: process.env.USER_ID,
+      userId: userId,
     }).lean(),
     PullRequest.find({
       updatedAt: { $gte: startDate },
-      userId: process.env.USER_ID,
+      userId: userId,
     }).lean(),
   ]);
 
@@ -71,19 +83,19 @@ const calculateCodeChurn = (prs: any[]) => {
   );
 };
 
-const calculatePrMergedAndPrReviewsRequested = (prs: any[]) => {
+const calculatePrMergedAndPrReviewsRequested = (prs: any[], githubUsername: string) => {
   let merged = 0;
   let reviewsRequested = 0;
   for (const pr of prs) {
-    if (pr.author === process.env.GITHUB_USERNAME && pr.mergedAt) {
+    if (pr.author === githubUsername && pr.mergedAt) {
       merged++;
       continue;
     }
     if (pr.reviewRequested || pr.mentionedInDescription) reviewsRequested++;
   }
   return [
-    { name: "Merged", value: merged, color: "#3b82f6" },
-    { name: "Reviews Requested", value: reviewsRequested, color: "#22c55e" },
+    { name: "Merged", value: merged, fraction: merged / (merged + reviewsRequested), color: "#3b82f6" },
+    { name: "Reviews Requested", value: reviewsRequested, fraction: reviewsRequested / (merged + reviewsRequested), color: "#22c55e" },
   ];
 };
 
@@ -115,7 +127,7 @@ const calculateMergedTimeline = (prs: any[]) => {
   );
 };
 
-const calculateRepoActivity = (prs: any[], issues: any[]) => {
+const calculateRepoActivity = (prs: any[], issues: any[], githubUsername: string) => {
   const repoMap = new Map();
 
   const initRepo = (repo: string) => {
@@ -125,7 +137,7 @@ const calculateRepoActivity = (prs: any[], issues: any[]) => {
   };
 
   prs.forEach((pr) => {
-    if (pr.repoName && pr.author === process.env.GITHUB_USERNAME) {
+    if (pr.repoName && pr.author === githubUsername) {
       initRepo(pr.repoName);
       const entry = repoMap.get(pr.repoName);
       entry.prs++;
@@ -134,7 +146,7 @@ const calculateRepoActivity = (prs: any[], issues: any[]) => {
   });
 
   issues.forEach((issue) => {
-    if (issue.repoName && issue.assignee === process.env.GITHUB_USERNAME) {
+    if (issue.repoName && issue.assignee === githubUsername) {
       initRepo(issue.repoName);
       repoMap.get(issue.repoName).issues++;
     }
@@ -146,20 +158,37 @@ const calculateRepoActivity = (prs: any[], issues: any[]) => {
 };
 
 const Analytics = async ({ searchParams }: Props) => {
+  const session = await getSession();
+  if (!session) {
+    redirect("/login");
+  }
+
   const params = await searchParams;
   const range = (params.range as string) || "this-month";
-  const { issues, pullRequests } = await getAnalyticsData(range);
+  const { issues, pullRequests } = await getAnalyticsData(session.id as string, range);
+  const githubIntegration = await getGithubIntegration(session.id as string);
+
+  if (!githubIntegration) {
+    return (
+      <div className="min-h-screen container">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-2xl font-bold text-white">Analytics</h1>
+          <p className="text-gray-400">No GitHub integration found</p>
+        </div>
+      </div>
+    );
+  }
 
   // Summary Metrics
   const totalPRsMerged = pullRequests.filter(
     (pr: any) =>
-      pr.author === process.env.GITHUB_USERNAME &&
+      pr.author === githubIntegration.githubUsername &&
       pr.state === "closed" &&
       pr.mergedAt,
   ).length;
 
   const totalLinesChanged = pullRequests
-    .filter((pr: any) => pr.author === process.env.GITHUB_USERNAME)
+    .filter((pr: any) => pr.author === githubIntegration.githubUsername)
     .reduce(
       (acc: any, pr: any) => {
         acc.added += pr.additions || 0;
@@ -180,9 +209,9 @@ const Analytics = async ({ searchParams }: Props) => {
   // Chart Data
   const codeChurnData = calculateCodeChurn(pullRequests);
   const prMergedAndPrReviewsRequested =
-    calculatePrMergedAndPrReviewsRequested(pullRequests);
+    calculatePrMergedAndPrReviewsRequested(pullRequests, githubIntegration.githubUsername);
   const mergedTimeline = calculateMergedTimeline(pullRequests);
-  const repoActivity = calculateRepoActivity(pullRequests, issues);
+  const repoActivity = calculateRepoActivity(pullRequests, issues, githubIntegration.githubUsername);
 
   return (
     <div className="min-h-screen container">

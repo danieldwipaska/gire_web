@@ -9,7 +9,8 @@ interface Props {
 
 interface Action {
   label: string;
-  href: string;
+  href?: string;
+  onClick?: () => void;
 }
 
 const ListContainer = ({ children, title, links }: Props) => {
@@ -19,15 +20,25 @@ const ListContainer = ({ children, title, links }: Props) => {
         <h2 className="text-xl font-semibold text-white">{title}</h2>
         {links && links.length > 0 && (
           <div className="flex items-center gap-3">
-            {links.map((link, index) => (
-              <Link
-                key={index}
-                href={link.href}
-                className="px-4 py-2 backdrop-blur-md bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-sm transition-all"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {links.map((link, index) =>
+              link.href ? (
+                <Link
+                  key={index}
+                  href={link.href}
+                  className="px-4 py-2 backdrop-blur-md bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-sm transition-all"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <button
+                  key={index}
+                  onClick={link.onClick}
+                  className="px-4 py-2 backdrop-blur-md bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-sm transition-all cursor-pointer"
+                >
+                  {link.label}
+                </button>
+              ),
+            )}
           </div>
         )}
       </div>

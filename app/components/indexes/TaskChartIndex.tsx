@@ -5,7 +5,7 @@ import { ResponsiveContainer, PieChart, Pie, Tooltip, Cell } from "recharts";
 
 const DonutLegend = ({ data }: { data: any }) => (
   <div className="mt-3 space-y-2">
-    {data.map(({ name, value, color }: any) => (
+    {data.map(({ name, fraction, color }: any) => (
       <div key={name} className="flex items-center justify-between text-sm">
         <div className="flex items-center gap-2">
           <div
@@ -14,7 +14,7 @@ const DonutLegend = ({ data }: { data: any }) => (
           />
           <span className="text-gray-300">{name}</span>
         </div>
-        <span className="text-white font-medium">{value}%</span>
+        <span className="text-white font-medium">{Math.round(fraction * 100)} %</span>
       </div>
     ))}
   </div>

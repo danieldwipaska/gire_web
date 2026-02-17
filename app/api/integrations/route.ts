@@ -11,19 +11,26 @@ type IntegrationPayload = {
   status: 'active' | 'expired';
 };
 
+import { verifyAuth } from '@/lib/auth';
+
 export async function POST(req: NextRequest) {
+  const session = await verifyAuth(req);
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   await connectDB();
 
   try {
-    const { userId, provider, githubUsername, accessToken, lastSync, status }: IntegrationPayload = await req.json();
+    const { provider, githubUsername, accessToken, lastSync, status }: IntegrationPayload = await req.json();
 
     // CHECK UNIQUE PROVIDER
-    const integration = await Integration.exists({ provider });
+    const integration = await Integration.exists({ provider, userId: session.id });
     if (integration) return NextResponse.json({ error: 'Integration Already Exists' }, { status: 400, statusText: 'BAD REQUEST' });
 
     // ADD TO DATABASE
     const newIntegration = await Integration.create({
-      userId,
+      userId: session.id,
       provider,
       githubUsername,
       accessToken,
@@ -39,11 +46,16 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  const session = await verifyAuth(req);
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   await connectDB();
 
   try {
     const integrations = await Integration.find({
-      userId: process.env.USER_ID,
+      userId: session.id,
     }).lean();
 
     return NextResponse.json(integrations, { status: 200, statusText: 'OK' });

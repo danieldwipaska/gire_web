@@ -10,15 +10,17 @@ import Issue from "@/models/Issue";
 import PullRequest from "@/models/PullRequest";
 import Integration from "@/models/Integration";
 import { getStartDate } from "@/lib/dates";
+import { getSession } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
-const getIssues = async () => {
+const getIssues = async (userId: string) => {
   await connectDB();
 
   const issues = await Issue.find({
     updatedAt: {
       $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     },
-    userId: process.env.USER_ID,
+    userId: userId,
   })
     .sort({ updatedAt: -1 })
     .limit(1000)
@@ -27,14 +29,14 @@ const getIssues = async () => {
   return issues;
 };
 
-const getPullRequests = async () => {
+const getPullRequests = async (userId: string) => {
   await connectDB();
 
   const pullRequests = await PullRequest.find({
     updatedAt: {
       $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     },
-    userId: process.env.USER_ID,
+    userId: userId,
   })
     .sort({ updatedAt: -1 })
     .limit(1000)
@@ -43,15 +45,15 @@ const getPullRequests = async () => {
   return pullRequests;
 };
 
-const getMyPRsThisMonth = async () => {
+const getMyPRsThisMonth = async (userId: string, githubUsername: string) => {
   await connectDB();
 
   const pullRequests = await PullRequest.find({
     updatedAt: {
       $gte: getStartDate("this-month"),
     },
-    userId: process.env.USER_ID,
-    author: process.env.GITHUB_USERNAME,
+    userId: userId,
+    author: githubUsername,
   })
     .sort({ updatedAt: -1 })
     .limit(1000)
@@ -60,11 +62,11 @@ const getMyPRsThisMonth = async () => {
   return pullRequests;
 };
 
-const getIntegrations = async () => {
+const getIntegrations = async (userId: string) => {
   await connectDB();
 
   const integrations = await Integration.find({
-    userId: process.env.USER_ID,
+    userId: userId,
   }).lean();
 
   return integrations;
@@ -107,12 +109,21 @@ const getChartData = (prs: any[]) => {
 };
 
 const Dashboard = async () => {
+  const session = await getSession();
+  if (!session) {
+    redirect("/login");
+  }
+
+  // Integrations
+  const integrations = await getIntegrations(session.id);
+  const serializedIntegrations = JSON.parse(JSON.stringify(integrations));
+
   // Issues
-  const issues = await getIssues();
+  const issues = await getIssues(session.id);
   const serializedIssues = JSON.parse(JSON.stringify(issues));
 
   // Pull Requests
-  const pullRequests = await getPullRequests();
+  const pullRequests = await getPullRequests(session.id);
   const weeklyPullRequests = pullRequests.filter((pr: any) => {
     return pr.updatedAt >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   });
@@ -130,8 +141,9 @@ const Dashboard = async () => {
     }
   });
 
+  const githubIntegration = integrations.find((integration: any) => integration.provider === "github");
   const userPullRequests = pullRequests.filter((pr: any) => {
-    return pr.author === process.env.GITHUB_USERNAME;
+    return pr.author === githubIntegration?.githubUsername;
   });
   const serializedPullRequests = JSON.parse(JSON.stringify(userPullRequests));
 
@@ -145,12 +157,8 @@ const Dashboard = async () => {
   const chartData = getChartData(weeklyPullRequests);
   const serializedChartData = JSON.parse(JSON.stringify(chartData));
 
-  // Integrations
-  const integrations = await getIntegrations();
-  const serializedIntegrations = JSON.parse(JSON.stringify(integrations));
-
   // My PRs This Month
-  const myPRsThisMonth = await getMyPRsThisMonth();
+  const myPRsThisMonth = githubIntegration ? await getMyPRsThisMonth(session.id, githubIntegration.githubUsername) : [];
 
   return (
     <div className="min-h-screen container">

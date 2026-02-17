@@ -3,6 +3,8 @@ import User from '@/models/User';
 import * as bcrypt from 'bcrypt';
 import { NextRequest, NextResponse } from 'next/server';
 
+import { verifyAuth } from '@/lib/auth';
+
 type UserPayload = {
   name: string;
   email: string;
@@ -10,6 +12,11 @@ type UserPayload = {
 };
 
 export async function POST(req: NextRequest) {
+  const session = await verifyAuth(req);
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   await connectDB();
   try {
     const { name, email, password }: UserPayload = await req.json();

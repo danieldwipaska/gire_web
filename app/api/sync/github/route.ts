@@ -2,13 +2,19 @@ import { syncGitHubData } from "@/lib/github/sync";
 import connectDB from "@/lib/mongodb";
 import Integration from "@/models/Integration";
 import { NextRequest, NextResponse } from "next/server";
+import { verifyAuth } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await verifyAuth(req);
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
 
     const githubIntegration = await Integration.findOne({
-      userId: process.env.USER_ID,
+      userId: session.id,
       provider: "github",
     });
 
@@ -26,7 +32,7 @@ export async function POST(req: NextRequest) {
     // Start sync in background (or rather, concurrently with response stream)
     // We don't await here because we want to return the stream immediately
     syncGitHubData(
-      githubIntegration.userId,
+      githubIntegration.userId.toString(),
       githubIntegration.accessToken,
       async (progress, message) => {
         try {
