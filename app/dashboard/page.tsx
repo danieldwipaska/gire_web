@@ -164,7 +164,7 @@ const Dashboard = async () => {
     <div className="min-h-screen container">
       <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between">
         <div className="flex flex-col gap-2">
-          <h2>Welcome, Daniel!</h2>
+          <h2>Welcome, {session.name || "User"}!</h2>
           <p className="text-lg text-white/70">
             Here&apos;s what you&apos;ve accomplished today
           </p>

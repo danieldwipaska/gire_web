@@ -65,3 +65,30 @@ export async function GET(req: NextRequest) {
   }
 }
 
+
+export async function DELETE(req: NextRequest) {
+  const session = await verifyAuth(req);
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  await connectDB();
+
+  try {
+    const { id } = await req.json();
+
+    const result = await Integration.deleteOne({
+      _id: id,
+      userId: session.id,
+    });
+
+    if (result.deletedCount === 0) {
+      return NextResponse.json({ error: 'Integration not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'Integration deleted' }, { status: 200 });
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json({ error: 'Server Error' }, { status: 500 });
+  }
+}
