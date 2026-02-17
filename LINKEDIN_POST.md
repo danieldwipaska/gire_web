@@ -14,7 +14,12 @@ GiRe Web is your personal command center for GitHub activity. 🛠️
 🔄 Smart Sync: Seamlessly pull your latest data from GitHub.
 🛡️ Secure & Private: Built with Next.js & MongoDB to keep your data yours.
 
-It's fully Open Source and available under the MIT License! 📜 I'd love for you to try it out, star the repo, or even contribute if you have cool ideas!
+It's fully Open Source and available under the MIT License! 📜
+
+⚠️ Honest Disclaimer: This project is still very much a Work In Progress! 🚧
+There are bugs to squash, features to build, and rough edges to polish. It's far from perfect—and that's exactly why I'm sharing it early!
+
+I'm looking for fellow developers to help fix those bugs and implement missing features. If you've been looking for an open-source project to contribute to, check out the issues tab! PRs are more than welcome! 🙌 I'd love to build this together with the community.
 
 🔗 Check out the code: https://github.com/danieldwipaska/gire_web
 
