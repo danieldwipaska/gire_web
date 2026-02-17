@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 
     // Start sync in background (or rather, concurrently with response stream)
     // We don't await here because we want to return the stream immediately
-    const syncPromise = syncGitHubData(
+    syncGitHubData(
       githubIntegration.userId,
       githubIntegration.accessToken,
       async (progress, message) => {

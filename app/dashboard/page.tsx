@@ -9,6 +9,7 @@ import connectDB from "@/lib/mongodb";
 import Issue from "@/models/Issue";
 import PullRequest from "@/models/PullRequest";
 import Integration from "@/models/Integration";
+import { getStartDate } from "@/lib/dates";
 
 const getIssues = async () => {
   await connectDB();
@@ -34,6 +35,23 @@ const getPullRequests = async () => {
       $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     },
     userId: process.env.USER_ID,
+  })
+    .sort({ updatedAt: -1 })
+    .limit(1000)
+    .lean();
+
+  return pullRequests;
+};
+
+const getMyPRsThisMonth = async () => {
+  await connectDB();
+
+  const pullRequests = await PullRequest.find({
+    updatedAt: {
+      $gte: getStartDate("this-month"),
+    },
+    userId: process.env.USER_ID,
+    author: process.env.GITHUB_USERNAME,
   })
     .sort({ updatedAt: -1 })
     .limit(1000)
@@ -105,7 +123,7 @@ const Dashboard = async () => {
   let openCount = 0;
 
   todayPullRequests.forEach((pr: any) => {
-    if (pr.state === "merged") {
+    if (pr.state === "closed" && pr.mergedAt) {
       mergedCount++;
     } else {
       openCount++;
@@ -131,9 +149,12 @@ const Dashboard = async () => {
   const integrations = await getIntegrations();
   const serializedIntegrations = JSON.parse(JSON.stringify(integrations));
 
+  // My PRs This Month
+  const myPRsThisMonth = await getMyPRsThisMonth();
+
   return (
     <div className="min-h-screen container">
-      <div className="flex justify-between">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between">
         <div className="flex flex-col gap-2">
           <h2>Welcome, Daniel!</h2>
           <p className="text-lg text-white/70">
@@ -146,7 +167,7 @@ const Dashboard = async () => {
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-4 gap-6 my-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 my-6">
         <SummaryCard
           title="Today's PRs"
           desc={`${mergedCount} merged, ${openCount} open`}
@@ -192,7 +213,7 @@ const Dashboard = async () => {
         <SummaryCard
           title="This Month"
           desc="Total PRs"
-          value={userPullRequests.length}
+          value={myPRsThisMonth.length}
           icon={
             <>
               <div className="w-12 h-12 bg-linear-to-br from-purple-400 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -214,7 +235,7 @@ const Dashboard = async () => {
       </div>
 
       {/* Reviews & Integrations */}
-      <div className="flex gap-6">
+      <div className="flex flex-col md:flex-row gap-6">
         <div className="flex-1">
           <ReviewList reviews={serializedReviews} isLoading={false} />
         </div>

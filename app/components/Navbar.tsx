@@ -1,7 +1,12 @@
-import { Bell, LogOut, Settings, Target, User } from 'lucide-react';
-import Link from 'next/link';
+"use client";
+
+import { Bell, LogOut, Settings, Target, User } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const Navbar = () => {
+  const pathname = usePathname();
+
   return (
     <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/5 border-b border-white/10">
       <div className="container">
@@ -13,13 +18,13 @@ const Navbar = () => {
             </Link>
 
             <nav className="hidden md:flex items-center gap-1">
-              <Link href="/dashboard" className="px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white font-medium">
+              <Link href="/dashboard" className={`px-4 py-2 ${pathname.startsWith("/dashboard") ? "bg-white/10 border border-white/20 rounded-lg text-white font-medium" : "hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-all"}`}>
                 Dashboard
               </Link>
-              <Link href="" className="px-4 py-2 hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-all">
+              <Link href="/analytics" className={`px-4 py-2 ${pathname.startsWith("/analytics") ? "bg-white/10 border border-white/20 rounded-lg text-white font-medium" : "hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-all"}`}>
                 Analytics
               </Link>
-              <Link href="" className="px-4 py-2 hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-all">
+              <Link href="/integrations" className={`px-4 py-2 ${pathname.startsWith("/integrations") ? "bg-white/10 border border-white/20 rounded-lg text-white font-medium" : "hover:bg-white/10 rounded-lg text-white/70 hover:text-white transition-all"}`}>
                 Integrations
               </Link>
             </nav>

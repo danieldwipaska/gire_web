@@ -30,7 +30,7 @@ const IssueCard = ({ title, state, repoName, url, updatedAt }: Props) => {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-2">
-            <a href={url} target="_blank" rel="noopener noreferrer">
+            <a href={url} target="_blank" rel="noopener noreferrer" className="max-w-[calc(100%-70px)]" title={title}>
               <h5 className="text-white font-medium line-clamp-1 hover:underline cursor-pointer text-lg">
                 {title}
               </h5>

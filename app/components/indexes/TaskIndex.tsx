@@ -20,8 +20,8 @@ const TaskIndex = ({
   useEffect(() => {
     const selectedPullRequests = pullRequests.filter((pr: PRProps) => {
       if (selectedTab === "Today") return new Date(pr.updatedAt) > new Date(Date.now() - 24 * 60 * 60 * 1000);
-      if (selectedTab === "This Week") return new Date(pr.updatedAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-      if (selectedTab === "This Month") return new Date(pr.updatedAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      if (selectedTab === "Last Week") return new Date(pr.updatedAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      if (selectedTab === "Last Month") return new Date(pr.updatedAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     });
     setFilteredPullRequests(selectedPullRequests);
   }, [selectedTab]);
@@ -39,28 +39,28 @@ const TaskIndex = ({
               isActive: selectedTab === "Today",
             },
             {
-              label: "This Week",
+              label: "Last Week",
               action: () => {
-                setSelectedTab("This Week");
+                setSelectedTab("Last Week");
               },
-              isActive: selectedTab === "This Week",
+              isActive: selectedTab === "Last Week",
             },
             {
-              label: "This Month",
+              label: "Last Month",
               action: () => {
-                setSelectedTab("This Month");
+                setSelectedTab("Last Month");
               },
-              isActive: selectedTab === "This Month",
+              isActive: selectedTab === "Last Month",
             },
           ]}
         />
 
         {/* PR Items */}
-        <div className="grid grid-cols-5 gap-6">
-          <div className="col-span-3">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+          <div className="col-span-1 md:col-span-3">
             <PullRequestList pullRequests={filteredPullRequests} isLoading={false} />
           </div>
-          <div className="col-span-2">
+          <div className="col-span-1 md:col-span-2">
             <IssueList issues={issues} isLoading={false} />
           </div>
         </div>
