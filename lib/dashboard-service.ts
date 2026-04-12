@@ -16,6 +16,7 @@ export const getDashboardData = async (userId: string): Promise<IDashboardData> 
   const issues: IIssue[] = await Issue.find({
     updatedAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
     userId,
+    state: "open",
   })
     .sort({ updatedAt: -1 })
     .limit(1000)
@@ -37,6 +38,8 @@ export const getDashboardData = async (userId: string): Promise<IDashboardData> 
       updatedAt: { $gte: getStartDate("this-month") },
       userId,
       author: githubIntegration.githubUsername,
+      mentionedInDescription: false,
+      reviewRequested: false,
     })
       .sort({ updatedAt: -1 })
       .limit(1000)
@@ -51,7 +54,7 @@ export const getDashboardData = async (userId: string): Promise<IDashboardData> 
   });
 
   const todayPullRequests = pullRequests.filter((pr) => {
-    return new Date(pr.updatedAt).getTime() >= Date.now() - 24 * 60 * 60 * 1000;
+    return (new Date(pr.updatedAt).getTime() >= Date.now() - 24 * 60 * 60 * 1000) && !pr.mentionedInDescription && !pr.reviewRequested;
   });
 
   let mergedCount = 0;

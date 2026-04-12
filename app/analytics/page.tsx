@@ -183,11 +183,13 @@ const Analytics = async ({ searchParams }: Props) => {
     (pr) =>
       pr.author === githubIntegration.githubUsername &&
       pr.state === "closed" &&
+      !pr.mentionedInDescription &&
+      !pr.reviewRequested &&
       pr.mergedAt,
   ).length;
 
   const totalLinesChanged = pullRequests
-    .filter((pr) => pr.author === githubIntegration.githubUsername)
+    .filter((pr) => pr.author === githubIntegration.githubUsername && !pr.mentionedInDescription && !pr.reviewRequested)
     .reduce(
       (acc, pr) => {
         acc.added += pr.additions || 0;
@@ -206,7 +208,7 @@ const Analytics = async ({ searchParams }: Props) => {
   ).length;
 
   // Chart Data
-  const codeChurnData = calculateCodeChurn(pullRequests);
+  const codeChurnData = calculateCodeChurn(pullRequests.filter((pr) => !pr.mentionedInDescription && !pr.reviewRequested));
   const prMergedAndPrReviewsRequested =
     calculatePrMergedAndPrReviewsRequested(pullRequests, githubIntegration.githubUsername);
   const mergedTimeline = calculateMergedTimeline(pullRequests);
