@@ -1,58 +1,66 @@
-import { BarChart3, FileText, Target } from "lucide-react";
-import Image from "next/image";
+import { BarChart3, FileText, GitPullRequest } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="max-w-7xl mx-auto px-4 pt-20 pb-16 text-center">
-        <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-          Report Your Tasks
-          <span className="block text-transparent bg-clip-text bg-linear-to-r from-purple-400 to-pink-400 mt-2">
-            Automatically & Easily
-          </span>
+    <div className="min-h-screen bg-[#0b0f19]">
+      <div className="max-w-5xl mx-auto px-6 pt-24 pb-20 text-center">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-100 tracking-tight mb-6">
+          Automate & Track Your <br className="hidden sm:inline" />
+          <span className="text-indigo-400">GitHub Pull Requests</span>
         </h1>
-        <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
-          Sync your GitHub Pull Requests directly to Google Spreadsheet. Save
-          time on daily task reporting with smart automation.
+        <p className="text-lg text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+          Effortlessly sync your GitHub pull requests, track code activity metrics, and streamline daily task reporting with a clean, unified dashboard.
         </p>
-        <a
-          href="/login"
-          className="bg-linear-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-2xl hover:shadow-purple-500/50 transition-all transform hover:scale-105"
-        >
-          Get Started
-        </a>
-        <div className="grid md:grid-cols-3 gap-8 mt-24">
+        <div className="flex items-center justify-center gap-4">
+          <a
+            href="/login"
+            className="bg-indigo-600 hover:bg-indigo-500 text-white px-7 py-3 rounded-xl text-base font-semibold transition-all shadow-md"
+          >
+            Get Started
+          </a>
+          <a
+            href="/dashboard"
+            className="bg-[#131924] hover:bg-slate-800 border border-slate-800 text-slate-200 px-7 py-3 rounded-xl text-base font-semibold transition-all"
+          >
+            Go to Dashboard
+          </a>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6 mt-20 text-left">
           {[
             {
-              icon: Target,
-              color: "purple",
+              icon: GitPullRequest,
+              iconColor: "text-indigo-400",
+              bgColor: "bg-indigo-950/60 border-indigo-500/30",
               title: "GitHub Integration",
-              desc: "Automatically detect all Pull Requests you worked on today",
+              desc: "Automatically detect, organize, and categorize all PRs and reviews you worked on.",
             },
             {
               icon: FileText,
-              color: "pink",
-              title: "Google Sheets (Soon)",
-              desc: "Sync directly to your company spreadsheet in one click",
+              iconColor: "text-sky-400",
+              bgColor: "bg-sky-950/60 border-sky-500/30",
+              title: "Google Sheets Sync",
+              desc: "Sync pull requests directly to team spreadsheets in one click for daily standups.",
             },
             {
               icon: BarChart3,
-              color: "blue",
-              title: "Dashboard Analytics",
-              desc: "Visualize your progress and performance over time",
+              iconColor: "text-emerald-400",
+              bgColor: "bg-emerald-950/60 border-emerald-500/30",
+              title: "Analytics & Code Churn",
+              desc: "Visualize merged PR velocity, repository activity, and line churn over time.",
             },
-          ].map(({ icon: Icon, color, title, desc }) => (
+          ].map(({ icon: Icon, iconColor, bgColor, title, desc }) => (
             <div
               key={title}
-              className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-all flex flex-col items-center"
+              className="bg-[#131924] border border-slate-800/80 rounded-2xl p-6 hover:border-slate-700 transition-all"
             >
               <div
-                className={`w-14 h-14 bg-${color}-500/20 rounded-xl flex items-center justify-center mb-4`}
+                className={`w-11 h-11 border rounded-xl flex items-center justify-center mb-4 ${bgColor}`}
               >
-                <Icon className={`w-8 h-8 text-${color}-400`} />
+                <Icon className={`w-5 h-5 ${iconColor}`} />
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
-              <p className="text-gray-400">{desc}</p>
+              <h3 className="text-lg font-bold text-slate-100 mb-2">{title}</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
             </div>
           ))}
         </div>

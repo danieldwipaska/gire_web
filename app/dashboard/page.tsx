@@ -27,11 +27,11 @@ const Dashboard = async () => {
 
   return (
     <div className="min-h-screen container">
-      <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between">
-        <div className="flex flex-col gap-2">
-          <h2>Welcome, {session.name || "User"}!</h2>
-          <p className="text-lg text-white/70">
-            Here&apos;s what you&apos;ve accomplished today
+      <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between items-start md:items-center">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-2xl font-bold text-slate-100">Welcome, {session.name || "User"}</h2>
+          <p className="text-sm text-slate-400">
+            Overview of your active pull requests, reviews, and issues
           </p>
         </div>
         <div className="flex gap-3 h-fit">
@@ -46,11 +46,9 @@ const Dashboard = async () => {
           desc={`${todayStats.merged} merged, ${todayStats.open} open`}
           value={todayStats.total}
           icon={
-            <>
-              <div className="w-12 h-12 bg-linear-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
-                <GitPullRequest className="w-6 h-6 text-white" size={48} />
-              </div>
-            </>
+            <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center justify-center">
+              <GitPullRequest className="w-5 h-5 text-emerald-400" />
+            </div>
           }
         />
         <SummaryCard
@@ -58,11 +56,9 @@ const Dashboard = async () => {
           desc="Awaiting your review"
           value={reviews.length}
           icon={
-            <>
-              <div className="w-12 h-12 bg-linear-to-br from-orange-400 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
-                <MessageSquareCode className="w-6 h-6 text-white" size={48} />
-              </div>
-            </>
+            <div className="w-10 h-10 bg-amber-500/10 border border-amber-500/20 rounded-lg flex items-center justify-center">
+              <MessageSquareCode className="w-5 h-5 text-amber-400" />
+            </div>
           }
         />
         <SummaryCard
@@ -70,23 +66,19 @@ const Dashboard = async () => {
           desc="Assigned to you"
           value={issues.length}
           icon={
-            <>
-              <div className="w-12 h-12 bg-linear-to-br from-blue-400 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
-                <CircleDot className="w-6 h-6 text-white" size={48} />
-              </div>
-            </>
+            <div className="w-10 h-10 bg-sky-500/10 border border-sky-500/20 rounded-lg flex items-center justify-center">
+              <CircleDot className="w-5 h-5 text-sky-400" />
+            </div>
           }
         />
         <SummaryCard
           title="This Month"
-          desc="Total PRs"
+          desc="Total PRs created"
           value={myPRsThisMonthCount}
           icon={
-            <>
-              <div className="w-12 h-12 bg-linear-to-br from-purple-400 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-                <MessageSquareCode className="w-6 h-6 text-white" size={48} />
-              </div>
-            </>
+            <div className="w-10 h-10 bg-indigo-500/10 border border-indigo-500/20 rounded-lg flex items-center justify-center">
+              <GitPullRequest className="w-5 h-5 text-indigo-400" />
+            </div>
           }
         />
       </div>

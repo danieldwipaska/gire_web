@@ -38,8 +38,6 @@ export const getDashboardData = async (userId: string): Promise<IDashboardData> 
       updatedAt: { $gte: getStartDate("this-month") },
       userId,
       author: githubIntegration.githubUsername,
-      mentionedInDescription: false,
-      reviewRequested: false,
     })
       .sort({ updatedAt: -1 })
       .limit(1000)
@@ -47,14 +45,21 @@ export const getDashboardData = async (userId: string): Promise<IDashboardData> 
   }
 
   // 5. Process Data
+  const githubUsername = githubIntegration?.githubUsername;
 
-  // Weekly & Today PRs
+  // Weekly PRs & Reviews
   const weeklyPullRequests = pullRequests.filter((pr) => {
     return new Date(pr.updatedAt).getTime() >= Date.now() - 7 * 24 * 60 * 60 * 1000;
   });
 
-  const todayPullRequests = pullRequests.filter((pr) => {
-    return (new Date(pr.updatedAt).getTime() >= Date.now() - 24 * 60 * 60 * 1000) && !pr.mentionedInDescription && !pr.reviewRequested;
+  // User Specific PRs (Authored by user)
+  const userPullRequests = pullRequests.filter((pr) => {
+    return pr.author === githubUsername;
+  });
+
+  // Today's PRs authored by user
+  const todayPullRequests = userPullRequests.filter((pr) => {
+    return new Date(pr.updatedAt).getTime() >= Date.now() - 24 * 60 * 60 * 1000;
   });
 
   let mergedCount = 0;
@@ -67,18 +72,17 @@ export const getDashboardData = async (userId: string): Promise<IDashboardData> 
     }
   });
 
-  // User Specific PRs (Authored by user)
-  const userPullRequests = pullRequests.filter((pr) => {
-    return pr.author === githubIntegration?.githubUsername;
-  });
-
-  // Reviews needed
+  // Reviews needed (Authored by someone else, where review requested or mentioned)
   const reviews = pullRequests.filter((pr) => {
-    return (pr.reviewRequested || pr.mentionedInDescription) && pr.state === "open";
+    return (
+      pr.author !== githubUsername &&
+      (pr.reviewRequested || pr.mentionedInDescription) &&
+      pr.state === "open"
+    );
   });
 
   // Chart Data Calculation
-  const chartData = calculateChartData(weeklyPullRequests);
+  const chartData = calculateChartData(weeklyPullRequests, githubUsername);
 
   // Return everything needed for the dashboard
   return {
@@ -98,26 +102,33 @@ export const getDashboardData = async (userId: string): Promise<IDashboardData> 
 };
 
 // Helper for chart data
-const calculateChartData = (prs: IPullRequest[]) => {
-  const prsAndReviewsByDate = prs.reduce((acc: Record<string, { prs: number; reviews: number }>, pr) => {
-    const date = pr.mergedAt
-      ? new Date(pr.mergedAt).toDateString()
-      : new Date(pr.updatedAt).toDateString();
-    
-    // only take month and date e.g. "Feb 18"
-    const monthDate = date.split(" ").slice(1, 3).join(" ");
+const calculateChartData = (prs: IPullRequest[], username?: string) => {
+  const prsAndReviewsByDate = prs.reduce(
+    (acc: Record<string, { prs: number; reviews: number }>, pr) => {
+      const date = pr.mergedAt
+        ? new Date(pr.mergedAt).toDateString()
+        : new Date(pr.updatedAt).toDateString();
 
-    if (!acc[monthDate]) {
-      acc[monthDate] = { prs: 0, reviews: 0 };
-    }
+      // only take month and date e.g. "Feb 18"
+      const monthDate = date.split(" ").slice(1, 3).join(" ");
 
-    if (pr.reviewRequested || pr.mentionedInDescription) {
-      acc[monthDate].reviews++;
-    } else {
-      acc[monthDate].prs++;
-    }
-    return acc;
-  }, {});
+      if (!acc[monthDate]) {
+        acc[monthDate] = { prs: 0, reviews: 0 };
+      }
+
+      if (
+        username &&
+        pr.author !== username &&
+        (pr.reviewRequested || pr.mentionedInDescription)
+      ) {
+        acc[monthDate].reviews++;
+      } else if (!username || pr.author === username) {
+        acc[monthDate].prs++;
+      }
+      return acc;
+    },
+    {},
+  );
 
   const data = [];
   for (let i = 6; i >= 0; i--) {

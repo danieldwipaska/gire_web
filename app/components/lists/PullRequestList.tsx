@@ -4,15 +4,17 @@ import { IPullRequest } from "@/lib/types";
 
 
 const PullRequestList = ({ pullRequests, isLoading }: { pullRequests: IPullRequest[]; isLoading: boolean }) => {
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div className="text-slate-400 text-sm py-4">Loading pull requests...</div>;
 
   return (
-    <>
-      <ListContainer title="Today's PRs">
-        <div className="space-y-3 max-h-125 overflow-auto pr-2">
-      {pullRequests?.map((pullRequest: IPullRequest, index: number) => (
+    <ListContainer title="My Pull Requests">
+      <div className="space-y-3 max-h-125 overflow-auto pr-2">
+        {(!pullRequests || pullRequests.length === 0) ? (
+          <p className="text-slate-400 text-sm py-4">No pull requests found.</p>
+        ) : (
+          pullRequests.map((pullRequest: IPullRequest, index: number) => (
             <PullRequestCard
-              key={index}
+              key={pullRequest._id || index}
               title={pullRequest.title}
               state={pullRequest.state}
               repoName={pullRequest.repoName}
@@ -22,11 +24,12 @@ const PullRequestList = ({ pullRequests, isLoading }: { pullRequests: IPullReque
               url={pullRequest.url}
               updatedAt={pullRequest.updatedAt}
               mergedAt={pullRequest.mergedAt}
+              author={pullRequest.author}
             />
-          ))}
-        </div>
-      </ListContainer>
-    </>
+          ))
+        )}
+      </div>
+    </ListContainer>
   );
 };
 

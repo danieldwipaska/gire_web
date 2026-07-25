@@ -62,30 +62,36 @@ const IntegrationCard = ({ integration }: Props) => {
         return 'bg-red-500/20 text-red-400 border-red-500/30';
     }
   };
-  const IconComponent = iconMap[integration.provider];
+  const IconComponent = iconMap[integration.provider] || Sheet;
   return (
-    <div key={integration._id} className="backdrop-blur-md bg-white/5 border border-white/20 rounded-xl p-4 hover:bg-white/10 transition-all group">
+    <div key={integration._id} className="bg-[#131924] border border-slate-800/80 rounded-xl p-4 hover:border-slate-700 hover:bg-[#172030] transition-all group">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-linear-to-br from-blue-400 to-cyan-400 rounded-lg flex items-center justify-center shrink-0">{IconComponent && <IconComponent className="w-5 h-5 text-white" />}</div>
+        <div className="w-9 h-9 bg-indigo-950/60 border border-indigo-500/30 rounded-lg flex items-center justify-center shrink-0">
+          <IconComponent className="w-4 h-4 text-indigo-400" />
+        </div>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-2 mb-1">
-            <h5 className="text-white font-medium text-lg">{integration.githubUsername}</h5>
+          <div className="flex items-center justify-between gap-2 mb-0.5">
+            <h5 className="text-slate-100 font-semibold text-base">@{integration.githubUsername}</h5>
             {getStatusIcon(integration.status)}
           </div>
-          <p className="text-white/60 text-sm" suppressHydrationWarning>Last sync: {formatDistanceToNow(new Date(integration.lastSync), { addSuffix: true })}</p>
+          <p className="text-slate-400 text-xs" suppressHydrationWarning>
+            Last sync: {formatDistanceToNow(new Date(integration.lastSync), { addSuffix: true })}
+          </p>
         </div>
 
         <div className="flex items-center gap-2">
-           <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(integration.status)}`}>{integration.status}</span>
-           <button 
-             onClick={handleDelete} 
-             disabled={isDeleting}
-             className="p-1.5 hover:bg-red-500/20 rounded-lg text-gray-400 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
-             title="Delete Integration"
-           >
-             <Trash2 className="w-4 h-4" />
-           </button>
+          <span className={`px-2.5 py-0.5 rounded-md text-xs font-semibold uppercase tracking-wider border ${getStatusColor(integration.status)}`}>
+            {integration.status}
+          </span>
+          <button 
+            onClick={handleDelete} 
+            disabled={isDeleting}
+            className="p-1.5 hover:bg-rose-500/20 rounded-lg text-slate-500 hover:text-rose-400 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+            title="Delete Integration"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </div>

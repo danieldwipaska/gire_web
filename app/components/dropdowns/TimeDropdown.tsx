@@ -30,28 +30,31 @@ const TimeDropdown = () => {
 
   return (
     <>
-      <Button className="flex gap-2 items-center" onClick={() => setRangeOpen((o) => !o)} >
-        <Calendar className="w-4 h-4 text-purple-400" />
-        <span className="text-sm text-gray-300">{currentLabel}</span>
+      <button
+        className="px-3.5 py-1.5 bg-[#131924] hover:bg-slate-800 border border-slate-800/80 hover:border-slate-700 rounded-lg text-xs font-semibold text-slate-200 transition-all flex items-center gap-2 cursor-pointer shadow-sm"
+        onClick={() => setRangeOpen((o) => !o)}
+      >
+        <Calendar className="w-3.5 h-3.5 text-indigo-400" />
+        <span className="text-slate-200">{currentLabel}</span>
         <ChevronDown
-          className={`w-4 h-4 text-gray-400 transition-transform ${rangeOpen ? "rotate-180" : ""}`}
+          className={`w-3.5 h-3.5 text-slate-400 transition-transform ${rangeOpen ? "rotate-180" : ""}`}
         />
-      </Button>
+      </button>
       {rangeOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-slate-800 border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
+        <div className="absolute right-0 top-full mt-1.5 w-48 bg-[#131924] border border-slate-800 rounded-xl shadow-xl z-50 overflow-hidden py-1">
           {RANGE_OPTIONS.map((opt) => (
             <button
               key={opt.value}
               onClick={() => handleSelect(opt.value)}
-              className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between ${
+              className={`w-full text-left px-3.5 py-2 text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer ${
                 currentRange === opt.value
-                  ? "bg-purple-500/20 text-purple-300"
-                  : "text-gray-300 hover:bg-white/5 hover:text-white"
+                  ? "bg-indigo-950/60 text-indigo-300"
+                  : "text-slate-300 hover:bg-slate-800/60 hover:text-slate-100"
               }`}
             >
               {opt.label}
               {currentRange === opt.value && (
-                <CheckCircle className="w-3.5 h-3.5 text-purple-400" />
+                <CheckCircle className="w-3.5 h-3.5 text-indigo-400" />
               )}
             </button>
           ))}

@@ -88,21 +88,22 @@ const calculatePrMergedAndPrReviewsRequested = (prs: IPullRequest[], githubUsern
   for (const pr of prs) {
     if (pr.author === githubUsername && pr.mergedAt) {
       merged++;
-      continue;
+    } else if (pr.author !== githubUsername && (pr.reviewRequested || pr.mentionedInDescription)) {
+      reviewsRequested++;
     }
-    if (pr.reviewRequested || pr.mentionedInDescription) reviewsRequested++;
   }
+  const total = merged + reviewsRequested || 1;
   return [
-    { name: "Merged", value: merged, fraction: merged / (merged + reviewsRequested), color: "#3b82f6" },
-    { name: "Reviews Requested", value: reviewsRequested, fraction: reviewsRequested / (merged + reviewsRequested), color: "#22c55e" },
+    { name: "My Merged PRs", value: merged, fraction: merged / total, color: "#10b981" },
+    { name: "PR Reviews Needed", value: reviewsRequested, fraction: reviewsRequested / total, color: "#f59e0b" },
   ];
 };
 
-const calculateMergedTimeline = (prs: IPullRequest[]): IMergedPRData[] => {
+const calculateMergedTimeline = (prs: IPullRequest[], githubUsername: string): IMergedPRData[] => {
   const timelineMap = new Map();
 
   prs.forEach((pr) => {
-    if (pr.state === "closed" && pr.mergedAt) {
+    if (pr.author === githubUsername && pr.state === "closed" && pr.mergedAt) {
       const d = new Date(pr.mergedAt);
       // Get week start (Monday)
       const day = d.getDay() || 7;
@@ -140,7 +141,7 @@ const calculateRepoActivity = (prs: IPullRequest[], issues: IIssue[], githubUser
       initRepo(pr.repoName);
       const entry = repoMap.get(pr.repoName);
       entry.prs++;
-      if (pr.state === "closed") entry.merged++;
+      if (pr.state === "closed" && pr.mergedAt) entry.merged++;
     }
   });
 
@@ -172,55 +173,54 @@ const Analytics = async ({ searchParams }: Props) => {
       <div className="min-h-screen container">
         <div className="flex flex-col gap-2">
           <h1 className="text-2xl font-bold text-white">Analytics</h1>
-          <p className="text-gray-400">No GitHub integration found</p>
+          <p className="text-slate-400">No GitHub integration found</p>
         </div>
       </div>
     );
   }
 
+  const username = githubIntegration.githubUsername;
+
+  // Filter My PRs vs PR Reviews
+  const myPullRequests = pullRequests.filter((pr) => pr.author === username);
+  const reviewPullRequests = pullRequests.filter(
+    (pr) => pr.author !== username && (pr.reviewRequested || pr.mentionedInDescription),
+  );
+
   // Summary Metrics
-  const totalPRsMerged = pullRequests.filter(
-    (pr) =>
-      pr.author === githubIntegration.githubUsername &&
-      pr.state === "closed" &&
-      !pr.mentionedInDescription &&
-      !pr.reviewRequested &&
-      pr.mergedAt,
+  const totalPRsMerged = myPullRequests.filter(
+    (pr) => pr.state === "closed" && pr.mergedAt,
   ).length;
 
-  const totalLinesChanged = pullRequests
-    .filter((pr) => pr.author === githubIntegration.githubUsername && !pr.mentionedInDescription && !pr.reviewRequested)
-    .reduce(
-      (acc, pr) => {
-        acc.added += pr.additions || 0;
-        acc.removed += pr.deletions || 0;
-        return acc;
-      },
-      { added: 0, removed: 0 },
-    );
+  const totalLinesChanged = myPullRequests.reduce(
+    (acc, pr) => {
+      acc.added += pr.additions || 0;
+      acc.removed += pr.deletions || 0;
+      return acc;
+    },
+    { added: 0, removed: 0 },
+  );
 
-  const reviewRequestedCount = pullRequests.filter(
-    (pr) => pr.reviewRequested || pr.mentionedInDescription,
-  ).length;
+  const reviewRequestedCount = reviewPullRequests.length;
 
   const closedIssuesCount = issues.filter(
     (i) => i.state === "closed",
   ).length;
 
   // Chart Data
-  const codeChurnData = calculateCodeChurn(pullRequests.filter((pr) => !pr.mentionedInDescription && !pr.reviewRequested));
+  const codeChurnData = calculateCodeChurn(myPullRequests);
   const prMergedAndPrReviewsRequested =
-    calculatePrMergedAndPrReviewsRequested(pullRequests, githubIntegration.githubUsername);
-  const mergedTimeline = calculateMergedTimeline(pullRequests);
-  const repoActivity = calculateRepoActivity(pullRequests, issues, githubIntegration.githubUsername);
+    calculatePrMergedAndPrReviewsRequested(pullRequests, username);
+  const mergedTimeline = calculateMergedTimeline(pullRequests, username);
+  const repoActivity = calculateRepoActivity(pullRequests, issues, username);
 
   return (
     <div className="min-h-screen container">
       <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between">
-        <div className="flex flex-col gap-2">
-          <h2>Analytics</h2>
-          <p className="text-lg text-white/70">
-            Here&apos;s an overview of your Github activity
+        <div className="flex flex-col gap-1">
+          <h2 className="text-2xl font-bold text-slate-100">Analytics</h2>
+          <p className="text-sm text-slate-400">
+            Overview of your GitHub pull requests and activity metrics
           </p>
         </div>
         <div className="flex gap-3 h-fit relative">
@@ -228,17 +228,16 @@ const Analytics = async ({ searchParams }: Props) => {
           <TimeDropdown />
         </div>
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 my-6">
         <SummaryCard
           title="PRs Merged"
           desc="Total PRs merged"
           value={totalPRsMerged}
           icon={
-            <>
-              <div className="w-12 h-12 bg-linear-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
-                <Merge className="w-6 h-6 text-white" size={48} />
-              </div>
-            </>
+            <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center justify-center">
+              <Merge className="w-5 h-5 text-emerald-400" />
+            </div>
           }
         />
         <SummaryCard
@@ -246,22 +245,16 @@ const Analytics = async ({ searchParams }: Props) => {
           desc="Total lines added and removed"
           value={totalLinesChanged.added + totalLinesChanged.removed}
           icon={
-            <>
-              <div className="w-12 h-12 bg-linear-to-br from-blue-400 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                <Activity className="w-6 h-6 text-white" size={48} />
-              </div>
-            </>
+            <div className="w-10 h-10 bg-indigo-500/10 border border-indigo-500/20 rounded-lg flex items-center justify-center">
+              <Activity className="w-5 h-5 text-indigo-400" />
+            </div>
           }
           footer={
-            <>
-              <span className="text-sm font-semibold text-green-400">
-                +{totalLinesChanged.added}
-              </span>
-              <span className="text-white/60 text-sm">/</span>
-              <span className="text-sm font-semibold text-red-400">
-                -{totalLinesChanged.removed}
-              </span>
-            </>
+            <div className="flex items-center gap-1.5 text-xs font-semibold">
+              <span className="text-emerald-400">+{totalLinesChanged.added}</span>
+              <span className="text-slate-600">/</span>
+              <span className="text-rose-400">-{totalLinesChanged.removed}</span>
+            </div>
           }
         />
         <SummaryCard
@@ -269,11 +262,9 @@ const Analytics = async ({ searchParams }: Props) => {
           desc="Total PRs that need your review"
           value={reviewRequestedCount}
           icon={
-            <>
-              <div className="w-12 h-12 bg-linear-to-br from-orange-400 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
-                <MessageSquareCode className="w-6 h-6 text-white" size={48} />
-              </div>
-            </>
+            <div className="w-10 h-10 bg-amber-500/10 border border-amber-500/20 rounded-lg flex items-center justify-center">
+              <MessageSquareCode className="w-5 h-5 text-amber-400" />
+            </div>
           }
         />
         <SummaryCard
@@ -281,14 +272,13 @@ const Analytics = async ({ searchParams }: Props) => {
           desc="Closed issues assigned to you"
           value={closedIssuesCount}
           icon={
-            <>
-              <div className="w-12 h-12 bg-linear-to-br from-purple-400 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-                <CircleDot className="w-6 h-6 text-white" size={48} />
-              </div>
-            </>
+            <div className="w-10 h-10 bg-sky-500/10 border border-sky-500/20 rounded-lg flex items-center justify-center">
+              <CircleDot className="w-5 h-5 text-sky-400" />
+            </div>
           }
         />
       </div>
+
       <div className="mb-6">
         <CodeChurnChartIndex data={codeChurnData} />
       </div>

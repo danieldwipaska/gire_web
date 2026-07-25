@@ -15,17 +15,17 @@ interface Action {
 
 const ListContainer = ({ children, title, links }: Props) => {
   return (
-    <div className="flex-1 backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-white">{title}</h2>
+    <div className="flex-1 bg-[#131924] border border-slate-800/80 rounded-xl p-5">
+      <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800/60">
+        <h2 className="text-lg font-bold text-slate-100">{title}</h2>
         {links && links.length > 0 && (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {links.map((link, index) =>
               link.href ? (
                 <Link
                   key={index}
                   href={link.href}
-                  className="px-4 py-2 backdrop-blur-md bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-sm transition-all"
+                  className="px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 rounded-lg text-slate-200 text-xs font-semibold transition-all"
                 >
                   {link.label}
                 </Link>
@@ -33,7 +33,7 @@ const ListContainer = ({ children, title, links }: Props) => {
                 <button
                   key={index}
                   onClick={link.onClick}
-                  className="px-4 py-2 backdrop-blur-md bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white text-sm transition-all cursor-pointer"
+                  className="px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 rounded-lg text-slate-200 text-xs font-semibold transition-all cursor-pointer"
                 >
                   {link.label}
                 </button>

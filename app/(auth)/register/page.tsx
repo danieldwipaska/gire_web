@@ -72,38 +72,20 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-[#0b0f19] flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-14 h-14 bg-linear-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/30">
-            <Target className="w-8 h-8 text-white" />
+          <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-sm text-white font-bold text-xl">
+            G
           </div>
-          <h2 className="text-3xl font-bold text-white mb-1">Welcome back</h2>
-          <p className="text-gray-300 text-sm">
-            Sign in to your PR Reporter account
+          <h2 className="text-2xl font-bold text-slate-100 mb-1">Create an account</h2>
+          <p className="text-slate-400 text-sm">
+            Sign up to get started with GiRe
           </p>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-8">
-          {/* OAuth */}
-          {/* <div className="grid grid-cols-2 gap-3 mb-6">
-            <button className="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white py-2.5 px-4 rounded-xl text-sm font-medium transition-all">
-              <Target className="w-4 h-4" /> GitHub
-            </button>
-            <button className="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white py-2.5 px-4 rounded-xl text-sm font-medium transition-all">
-              <span className="text-base leading-none font-bold">G</span> Google
-            </button>
-          </div>
-
-          <div className="relative flex items-center mb-6">
-            <div className="flex-1 border-t border-white/20" />
-            <span className="px-3 text-xs text-gray-300">
-              or continue with email
-            </span>
-            <div className="flex-1 border-t border-white/20" />
-          </div> */}
-
+        <div className="bg-[#131924] border border-slate-800/80 rounded-2xl p-8 shadow-xl">
           {/* Form */}
           <div className="space-y-4">
             <Field
@@ -137,8 +119,9 @@ export default function RegisterPage() {
               error={errors.password}
               right={
                 <button
+                  type="button"
                   onClick={() => setShowPw((v) => !v)}
-                  className="text-gray-300 hover:text-white transition-colors text-xs font-medium"
+                  className="text-slate-400 hover:text-slate-200 transition-colors text-xs font-semibold cursor-pointer"
                 >
                   {showPw ? "Hide" : "Show"}
                 </button>
@@ -148,9 +131,10 @@ export default function RegisterPage() {
 
           {/* Submit */}
           <button
+            type="button"
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full mt-6 bg-linear-to-r from-purple-500 to-pink-500 text-white py-3 rounded-xl font-semibold hover:shadow-lg hover:shadow-purple-500/40 transition-all disabled:opacity-60 flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full mt-6 bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-semibold transition-all disabled:opacity-60 flex items-center justify-center gap-2 cursor-pointer shadow-sm"
           >
             {loading ? (
               <>
@@ -163,11 +147,11 @@ export default function RegisterPage() {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-sm text-gray-300 mt-6">
+        <p className="text-center text-sm text-slate-400 mt-6">
           Already have an account?{" "}
           <Link
             href="/login"
-            className="text-purple-300 hover:text-purple-200 font-semibold transition-colors"
+            className="text-indigo-400 hover:text-indigo-300 font-semibold transition-colors"
           >
             Sign in
           </Link>
