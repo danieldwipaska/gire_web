@@ -1,14 +1,19 @@
 "use client";
 
-import { Calendar, LogOut, Target, User } from "lucide-react";
+import { Calendar, LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Suspense } from "react";
+import TopProgressBar from "./TopProgressBar";
 
 const Navbar = ({ session }: { session: any }) => {
   const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-50 bg-[#0b0f19]/90 backdrop-blur-md border-b border-slate-800/80">
+      <Suspense fallback={null}>
+        <TopProgressBar />
+      </Suspense>
       <div className="container py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-8">

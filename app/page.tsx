@@ -26,7 +26,7 @@ export default function Home() {
           </a>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 mt-20 text-left">
+        <div className="grid grid-cols-1 md:grid-cols-2 max-w-3xl mx-auto gap-6 mt-20 text-left">
           {[
             {
               icon: GitPullRequest,
@@ -35,13 +35,13 @@ export default function Home() {
               title: "GitHub Integration",
               desc: "Automatically detect, organize, and categorize all PRs and reviews you worked on.",
             },
-            {
-              icon: FileText,
-              iconColor: "text-sky-400",
-              bgColor: "bg-sky-950/60 border-sky-500/30",
-              title: "Google Sheets Sync",
-              desc: "Sync pull requests directly to team spreadsheets in one click for daily standups.",
-            },
+            // {
+            //   icon: FileText,
+            //   iconColor: "text-sky-400",
+            //   bgColor: "bg-sky-950/60 border-sky-500/30",
+            //   title: "Google Sheets Sync",
+            //   desc: "Sync pull requests directly to team spreadsheets in one click for daily standups.",
+            // },
             {
               icon: BarChart3,
               iconColor: "text-emerald-400",
