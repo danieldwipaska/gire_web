@@ -4,12 +4,18 @@ import TaskIndex from "../components/indexes/TaskIndex";
 import ChartIndex from "../components/indexes/ChartIndex";
 import ReviewList from "../components/lists/ReviewList";
 import IntegrationList from "../components/lists/IntegrationList";
+import DelegatedTaskList from "../components/lists/DelegatedTaskList";
 import SyncButton from "../components/buttons/SyncButton";
 import ContextFilterDropdown from "../components/dropdowns/ContextFilterDropdown";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getDashboardData } from "@/lib/dashboard-service";
 import { getContextScope } from "@/lib/project-filter";
+import connectDB from "@/lib/mongodb";
+import Task from "@/models/Task";
+import User from "@/models/User";
+import Note from "@/models/Note";
+import { ITask } from "@/lib/types";
 
 interface Props {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -33,6 +39,55 @@ const Dashboard = async ({ searchParams }: Props) => {
     projectParam,
   );
 
+  await connectDB();
+
+  const [dashboardData, rawTasks] = await Promise.all([
+    getDashboardData(session.id, allowedRepos),
+    Task.find({
+      assignedTo: session.id,
+      status: { $ne: "done" },
+      ...(projectParam ? { projectId: projectParam } : {}),
+    })
+      .sort({ updatedAt: -1 })
+      .limit(20)
+      .lean(),
+  ]);
+
+  const creatorIds = Array.from(
+    new Set(rawTasks.map((t) => t.createdBy.toString())),
+  );
+  const noteIds = Array.from(
+    new Set(
+      rawTasks
+        .map((t) => t.sourceNoteId?.toString())
+        .filter((id): id is string => Boolean(id)),
+    ),
+  );
+
+  const [creators, sourceNotes] = await Promise.all([
+    creatorIds.length > 0
+      ? User.find({ _id: { $in: creatorIds } }).select("_id name").lean()
+      : Promise.resolve([]),
+    noteIds.length > 0
+      ? Note.find({ _id: { $in: noteIds } }).select("_id title").lean()
+      : Promise.resolve([]),
+  ]);
+
+  const creatorMap = new Map(creators.map((u) => [u._id.toString(), u.name]));
+  const projectMap = new Map(projects.map((p) => [p._id, p.name]));
+  const noteMap = new Map(sourceNotes.map((n) => [n._id.toString(), n.title]));
+
+  const delegatedTasks: ITask[] = JSON.parse(JSON.stringify(rawTasks)).map(
+    (t: ITask) => ({
+      ...t,
+      createdByName: creatorMap.get(t.createdBy) || "Teammate",
+      projectName: t.projectId ? projectMap.get(t.projectId) || null : null,
+      sourceNoteTitle: t.sourceNoteId
+        ? noteMap.get(t.sourceNoteId) || null
+        : null,
+    }),
+  );
+
   const {
     integrations,
     issues,
@@ -41,7 +96,7 @@ const Dashboard = async ({ searchParams }: Props) => {
     todayStats,
     reviews,
     chartData,
-  } = await getDashboardData(session.id, allowedRepos);
+  } = dashboardData;
 
   return (
     <div className="min-h-screen container">
@@ -115,7 +170,7 @@ const Dashboard = async ({ searchParams }: Props) => {
       </div>
 
       {/* Reviews & Integrations */}
-      <div className="flex flex-col md:flex-row gap-6">
+      <div className="flex flex-col md:flex-row gap-6 mb-6">
         <div className="flex-1">
           <ReviewList reviews={reviews} isLoading={false} />
         </div>
@@ -123,6 +178,9 @@ const Dashboard = async ({ searchParams }: Props) => {
           <IntegrationList integrations={integrations} isLoading={false} />
         </div>
       </div>
+
+      {/* Delegated Tasks */}
+      <DelegatedTaskList tasks={delegatedTasks} />
     </div>
   );
 };

@@ -4,15 +4,19 @@ import { getSession } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import ActivityEvent from "@/models/ActivityEvent";
 import Issue from "@/models/Issue";
+import Note from "@/models/Note";
 import Project from "@/models/Project";
 import PullRequest from "@/models/PullRequest";
+import Task from "@/models/Task";
 import User from "@/models/User";
 import {
   IActivityEvent,
   IIssue,
+  INote,
   IProject,
   IProjectMember,
   IPullRequest,
+  ITask,
 } from "@/lib/types";
 import ProjectDetailClient from "../../components/projects/ProjectDetailClient";
 
@@ -60,43 +64,60 @@ export default async function ProjectDetailPage({
 
   const repos: string[] = projectDoc.repos || [];
 
-  const [users, pullRequests, issues, events, prDistinct, issueDistinct, eventDistinct] =
-    await Promise.all([
-      User.find({ _id: { $in: memberIds } })
-        .select("_id name email")
-        .lean(),
-      repos.length > 0
-        ? PullRequest.find({
-            userId: session.id,
-            repoName: { $in: repos },
-          })
-            .sort({ updatedAt: -1 })
-            .limit(200)
-            .lean()
-        : Promise.resolve([]),
-      repos.length > 0
-        ? Issue.find({
-            userId: session.id,
-            repoName: { $in: repos },
-            state: "open",
-          })
-            .sort({ updatedAt: -1 })
-            .limit(200)
-            .lean()
-        : Promise.resolve([]),
-      repos.length > 0
-        ? ActivityEvent.find({
-            userId: session.id,
-            repoName: { $in: repos },
-          })
-            .sort({ occurredAt: -1 })
-            .limit(100)
-            .lean()
-        : Promise.resolve([]),
-      PullRequest.distinct("repoName", { userId: session.id }),
-      Issue.distinct("repoName", { userId: session.id }),
-      ActivityEvent.distinct("repoName", { userId: session.id }),
-    ]);
+  const [
+    users,
+    pullRequests,
+    issues,
+    events,
+    projectNotesRaw,
+    projectTasksRaw,
+    prDistinct,
+    issueDistinct,
+    eventDistinct,
+  ] = await Promise.all([
+    User.find({ _id: { $in: memberIds } })
+      .select("_id name email")
+      .lean(),
+    repos.length > 0
+      ? PullRequest.find({
+          userId: session.id,
+          repoName: { $in: repos },
+        })
+          .sort({ updatedAt: -1 })
+          .limit(200)
+          .lean()
+      : Promise.resolve([]),
+    repos.length > 0
+      ? Issue.find({
+          userId: session.id,
+          repoName: { $in: repos },
+          state: "open",
+        })
+          .sort({ updatedAt: -1 })
+          .limit(200)
+          .lean()
+      : Promise.resolve([]),
+    repos.length > 0
+      ? ActivityEvent.find({
+          userId: session.id,
+          repoName: { $in: repos },
+        })
+          .sort({ occurredAt: -1 })
+          .limit(100)
+          .lean()
+      : Promise.resolve([]),
+    Note.find({ projectId: id })
+      .sort({ isPinned: -1, updatedAt: -1 })
+      .limit(100)
+      .lean(),
+    Task.find({ projectId: id })
+      .sort({ updatedAt: -1 })
+      .limit(100)
+      .lean(),
+    PullRequest.distinct("repoName", { userId: session.id }),
+    Issue.distinct("repoName", { userId: session.id }),
+    ActivityEvent.distinct("repoName", { userId: session.id }),
+  ]);
 
   const userMap = new Map(
     users.map((u) => [u._id.toString(), { name: u.name, email: u.email }]),
@@ -128,6 +149,15 @@ export default async function ProjectDetailPage({
     members: populatedMembers,
   };
 
+  const projectNotes = JSON.parse(JSON.stringify(projectNotesRaw)) as INote[];
+  const projectTasks = (
+    JSON.parse(JSON.stringify(projectTasksRaw)) as ITask[]
+  ).map((t) => ({
+    ...t,
+    createdByName: userMap.get(t.createdBy)?.name || "User",
+    assignedToName: userMap.get(t.assignedTo)?.name || "User",
+  }));
+
   return (
     <ProjectDetailClient
       project={project}
@@ -135,8 +165,9 @@ export default async function ProjectDetailPage({
       pullRequests={JSON.parse(JSON.stringify(pullRequests)) as IPullRequest[]}
       issues={JSON.parse(JSON.stringify(issues)) as IIssue[]}
       events={JSON.parse(JSON.stringify(events)) as IActivityEvent[]}
+      projectNotes={projectNotes}
+      projectTasks={projectTasks}
       availableRepos={availableRepos}
     />
   );
 }
-

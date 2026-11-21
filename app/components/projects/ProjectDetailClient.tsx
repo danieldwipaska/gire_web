@@ -9,10 +9,12 @@ import {
   CircleDot,
   Edit3,
   Figma,
+  FileText,
   FolderGit2,
   GitBranch,
   GitPullRequest,
   Laptop,
+  ListTodo,
   Trash2,
   User,
   UserPlus,
@@ -22,8 +24,10 @@ import {
   IActivityEvent,
   IFigmaLink,
   IIssue,
+  INote,
   IProject,
   IPullRequest,
+  ITask,
   ProjectCategory,
   ProjectStatus,
 } from "@/lib/types";
@@ -35,7 +39,7 @@ import Modal from "../modals/Modal";
 import { useDetailDrawer } from "../drawer/DetailDrawerProvider";
 import FigmaEmbedViewer from "./FigmaEmbedViewer";
 
-type TabKey = "github" | "figma" | "members";
+type TabKey = "github" | "figma" | "notes" | "members";
 
 export default function ProjectDetailClient({
   project,
@@ -43,6 +47,8 @@ export default function ProjectDetailClient({
   pullRequests,
   issues,
   events,
+  projectNotes,
+  projectTasks,
   availableRepos,
 }: {
   project: IProject;
@@ -50,6 +56,8 @@ export default function ProjectDetailClient({
   pullRequests: IPullRequest[];
   issues: IIssue[];
   events: IActivityEvent[];
+  projectNotes: INote[];
+  projectTasks: ITask[];
   availableRepos: string[];
 }) {
   const router = useRouter();
@@ -264,6 +272,18 @@ export default function ProjectDetailClient({
         </button>
         <button
           type="button"
+          onClick={() => setActiveTab("notes")}
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+            activeTab === "notes"
+              ? "bg-indigo-600 text-white"
+              : "text-slate-400 hover:text-slate-200"
+          }`}
+        >
+          <FileText className="w-3.5 h-3.5 text-amber-400" />
+          Notes & Tasks ({projectNotes.length} · {projectTasks.length})
+        </button>
+        <button
+          type="button"
           onClick={() => setActiveTab("members")}
           className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
             activeTab === "members"
@@ -394,6 +414,90 @@ export default function ProjectDetailClient({
           figmaLinks={project.figmaLinks || []}
           onSaveLinks={handleSaveFigmaLinks}
         />
+      )}
+
+      {activeTab === "notes" && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-[#131924] border border-slate-800/80 rounded-2xl p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-indigo-400" />
+                Project Notes ({projectNotes.length})
+              </h3>
+              <Link
+                href={`/notes?projectId=${project._id}`}
+                className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-xs font-semibold text-white"
+              >
+                Open in Notes
+              </Link>
+            </div>
+            {projectNotes.length === 0 ? (
+              <p className="text-xs text-slate-500">
+                No notes linked to this project yet.
+              </p>
+            ) : (
+              <div className="space-y-2.5">
+                {projectNotes.map((note) => (
+                  <Link
+                    key={note._id}
+                    href={`/notes?noteId=${note._id}`}
+                    className="block bg-[#0b0f19] border border-slate-800 hover:border-indigo-500/40 rounded-xl p-3.5 transition-colors"
+                  >
+                    <p className="text-sm font-semibold text-slate-100 truncate">
+                      {note.title}
+                    </p>
+                    {note.updatedAt && (
+                      <p className="text-[11px] text-slate-500 mt-1" suppressHydrationWarning>
+                        Updated {getTimeAgo(note.updatedAt)}
+                      </p>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="bg-[#131924] border border-slate-800/80 rounded-2xl p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
+                <ListTodo className="w-4 h-4 text-emerald-400" />
+                Project Delegated Tasks ({projectTasks.length})
+              </h3>
+              <Link
+                href="/notes?tab=tasks"
+                className="text-xs font-semibold text-indigo-400 hover:text-indigo-300"
+              >
+                Manage All
+              </Link>
+            </div>
+            {projectTasks.length === 0 ? (
+              <p className="text-xs text-slate-500">
+                No tasks linked to this project yet.
+              </p>
+            ) : (
+              <div className="space-y-2.5">
+                {projectTasks.map((task) => (
+                  <div
+                    key={task._id}
+                    className="bg-[#0b0f19] border border-slate-800 rounded-xl p-3.5 flex items-center justify-between gap-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-slate-100 truncate">
+                        {task.title}
+                      </p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Assigned to {task.assignedToName} • {task.priority}
+                      </p>
+                    </div>
+                    <span className="px-2 py-0.5 rounded text-[11px] font-semibold uppercase bg-slate-800 text-slate-300 border border-slate-700 shrink-0">
+                      {task.status.replace("_", " ")}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       )}
 
       {activeTab === "members" && (

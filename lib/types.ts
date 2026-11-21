@@ -234,4 +234,49 @@ export interface IProject {
   };
 }
 
+export interface INoteUser {
+  _id: string;
+  name: string;
+  email: string;
+}
+
+export interface INote {
+  _id: string;
+  userId: string;
+  authorName?: string;
+  projectId?: string | null;
+  projectName?: string | null;
+  title: string;
+  content: string;
+  tags: string[];
+  sharedWith: string[];
+  isPinned: boolean;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+}
+
+export type TaskStatus = "todo" | "in_progress" | "in_review" | "done";
+export type TaskPriority = "low" | "medium" | "high" | "urgent";
+
+export interface ITask {
+  _id: string;
+  title: string;
+  description?: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  dueDate?: string | Date | null;
+  createdBy: string;
+  createdByName?: string;
+  assignedTo: string;
+  assignedToName?: string;
+  assignedToEmail?: string;
+  projectId?: string | null;
+  projectName?: string | null;
+  sourceNoteId?: string | null;
+  sourceNoteTitle?: string | null;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+}
+
+
 

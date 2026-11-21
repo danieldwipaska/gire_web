@@ -15,6 +15,7 @@ interface NavSession {
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/projects", label: "Projects" },
+  { href: "/notes", label: "Notes" },
   { href: "/activity", label: "Activity" },
   { href: "/analytics", label: "Analytics" },
 ];
