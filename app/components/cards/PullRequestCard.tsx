@@ -1,5 +1,8 @@
+"use client";
+
 import { getTimeAgo } from "@/lib/utils";
 import {
+  ExternalLink,
   GitBranch,
   GitPullRequest,
   MessageSquare,
@@ -7,6 +10,7 @@ import {
   Plus,
   User,
 } from "lucide-react";
+import { useDetailDrawer } from "../drawer/DetailDrawerProvider";
 
 export interface Props {
   title: string;
@@ -33,6 +37,8 @@ const PullRequestCard = ({
   mergedAt,
   author,
 }: Props) => {
+  const { openDetailByUrl } = useDetailDrawer();
+
   const getStatusColor = (status: "merged" | "open" | "closed") => {
     switch (status) {
       case "merged":
@@ -47,7 +53,10 @@ const PullRequestCard = ({
   const statusKey = mergedAt ? "merged" : (state as "merged" | "open" | "closed");
 
   return (
-    <div className="bg-[#131924] border border-slate-800/80 rounded-xl p-4 hover:border-slate-700 hover:bg-[#172030] transition-all">
+    <div
+      onClick={() => openDetailByUrl(url)}
+      className="bg-[#131924] border border-slate-800/80 rounded-xl p-4 hover:border-indigo-500/40 hover:bg-[#172030] transition-all cursor-pointer group"
+    >
       <div className="flex items-start gap-3">
         <div className="w-9 h-9 bg-indigo-950/60 border border-indigo-500/30 rounded-lg flex items-center justify-center shrink-0">
           <GitPullRequest className="w-4 h-4 text-indigo-400" />
@@ -55,18 +64,28 @@ const PullRequestCard = ({
 
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1.5">
-            <a href={url} target="_blank" rel="noopener noreferrer" className="truncate">
-              <h4 className="text-slate-100 font-semibold text-base truncate hover:text-indigo-400 transition-colors">
-                {title}
-              </h4>
-            </a>
-            <span
-              className={`px-2 py-0.5 rounded-md text-xs font-semibold uppercase tracking-wider border whitespace-nowrap ${getStatusColor(
-                statusKey,
-              )}`}
-            >
-              {mergedAt ? "merged" : state}
-            </span>
+            <h4 className="text-slate-100 font-semibold text-base truncate group-hover:text-indigo-400 transition-colors">
+              {title}
+            </h4>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span
+                className={`px-2 py-0.5 rounded-md text-xs font-semibold uppercase tracking-wider border whitespace-nowrap ${getStatusColor(
+                  statusKey,
+                )}`}
+              >
+                {mergedAt ? "merged" : state}
+              </span>
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="p-1 rounded-md text-slate-500 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+                title="Open on GitHub"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
           </div>
 
           <div className="flex items-center gap-3 text-xs text-slate-400 mb-3 flex-wrap">

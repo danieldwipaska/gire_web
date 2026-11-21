@@ -40,3 +40,16 @@ export const isPRNeedingReview = (pr: IPullRequest, username?: string | null): b
   if (pr.reviewRequested) return true;
   return Boolean(pr.mentionedInDescription && !pr.reviewedByMe);
 };
+
+export const parseGitHubUrl = (
+  url: string,
+): { kind: "pr" | "issue"; repo: string; number: number } | null => {
+  const match = url.match(/github\.com\/([^/]+\/[^/]+)\/(pull|issues)\/(\d+)/i);
+  if (!match) return null;
+  return {
+    repo: match[1],
+    kind: match[2].toLowerCase() === "pull" ? "pr" : "issue",
+    number: Number(match[3]),
+  };
+};
+
