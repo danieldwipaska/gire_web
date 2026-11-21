@@ -1,7 +1,7 @@
 import { verifyAuth } from "@/lib/auth";
+import { runWithRepoOctokit } from "@/lib/github/client";
 import connectDB from "@/lib/mongodb";
 import { IGitHubCheckRun, IGitHubComment, IGitHubDetail } from "@/lib/types";
-import Integration from "@/models/Integration";
 import Issue from "@/models/Issue";
 import PullRequest from "@/models/PullRequest";
 import { NextRequest, NextResponse } from "next/server";
@@ -32,67 +32,70 @@ export async function GET(req: NextRequest) {
 
     await connectDB();
 
-    const githubIntegration = await Integration.findOne({
-      userId: session.id,
-      provider: "github",
-    });
-
-    if (!githubIntegration) {
-      return NextResponse.json(
-        { error: "GitHub integration not found" },
-        { status: 404 },
-      );
-    }
-
     const [owner, repoName] = repo.split("/");
-    const octokit = new Octokit({ auth: githubIntegration.accessToken });
 
     if (kind === "pr") {
-      const [prRes, filesRes, reviewsRes, commentsRes] = await Promise.all([
-        octokit.rest.pulls.get({ owner, repo: repoName, pull_number: itemNumber }),
-        octokit.rest.pulls.listFiles({
-          owner,
-          repo: repoName,
-          pull_number: itemNumber,
-          per_page: 60,
-        }),
-        octokit.rest.pulls.listReviews({
-          owner,
-          repo: repoName,
-          pull_number: itemNumber,
-          per_page: 50,
-        }),
-        octokit.rest.issues.listComments({
-          owner,
-          repo: repoName,
-          issue_number: itemNumber,
-          per_page: 50,
-        }),
-      ]);
+      const { result } = await runWithRepoOctokit(
+        session.id,
+        repo,
+        async (candidate) => {
+          const octokit = new Octokit({ auth: candidate.accessToken });
+          const [prRes, filesRes, reviewsRes, commentsRes] = await Promise.all([
+            octokit.rest.pulls.get({ owner, repo: repoName, pull_number: itemNumber }),
+            octokit.rest.pulls.listFiles({
+              owner,
+              repo: repoName,
+              pull_number: itemNumber,
+              per_page: 60,
+            }),
+            octokit.rest.pulls.listReviews({
+              owner,
+              repo: repoName,
+              pull_number: itemNumber,
+              per_page: 50,
+            }),
+            octokit.rest.issues.listComments({
+              owner,
+              repo: repoName,
+              issue_number: itemNumber,
+              per_page: 50,
+            }),
+          ]);
 
-      const pr = prRes.data;
+          const pr = prRes.data;
+          let checks: IGitHubCheckRun[] = [];
+          try {
+            const checksRes = await octokit.rest.checks.listForRef({
+              owner,
+              repo: repoName,
+              ref: pr.head.sha,
+              per_page: 30,
+            });
+            checks = checksRes.data.check_runs.map((c) => ({
+              id: c.id,
+              name: c.name,
+              status: c.status,
+              conclusion: c.conclusion,
+              htmlUrl: c.html_url ?? undefined,
+            }));
+          } catch {
+            checks = [];
+          }
 
-      let checks: IGitHubCheckRun[] = [];
-      try {
-        const checksRes = await octokit.rest.checks.listForRef({
-          owner,
-          repo: repoName,
-          ref: pr.head.sha,
-          per_page: 30,
-        });
-        checks = checksRes.data.check_runs.map((c) => ({
-          id: c.id,
-          name: c.name,
-          status: c.status,
-          conclusion: c.conclusion,
-          htmlUrl: c.html_url ?? undefined,
-        }));
-      } catch {
-        checks = [];
-      }
+          return {
+            pr,
+            files: filesRes.data,
+            reviews: reviewsRes.data,
+            comments: commentsRes.data,
+            checks,
+          };
+        },
+      );
+
+      const { pr, files, reviews, comments, checks } = result;
 
       const timelineComments: IGitHubComment[] = [
-        ...commentsRes.data.map((c) => ({
+        ...comments.map((c) => ({
           id: c.id,
           user: c.user?.login || "unknown",
           avatarUrl: c.user?.avatar_url,
@@ -100,7 +103,7 @@ export async function GET(req: NextRequest) {
           createdAt: c.created_at,
           kind: "comment" as const,
         })),
-        ...reviewsRes.data
+        ...reviews
           .filter((r) => r.body || r.state !== "COMMENTED")
           .map((r) => ({
             id: r.id,
@@ -116,7 +119,6 @@ export async function GET(req: NextRequest) {
           new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
       );
 
-      // Keep local PR cache updated
       await PullRequest.findOneAndUpdate(
         { userId: session.id, githubId: pr.id },
         {
@@ -165,7 +167,7 @@ export async function GET(req: NextRequest) {
         mergeable: pr.mergeable,
         mergeableState: pr.mergeable_state,
         comments: timelineComments,
-        files: filesRes.data.map((f) => ({
+        files: files.map((f) => ({
           filename: f.filename,
           status: f.status,
           additions: f.additions,
@@ -180,17 +182,29 @@ export async function GET(req: NextRequest) {
     }
 
     // Issue
-    const [issueRes, commentsRes] = await Promise.all([
-      octokit.rest.issues.get({ owner, repo: repoName, issue_number: itemNumber }),
-      octokit.rest.issues.listComments({
-        owner,
-        repo: repoName,
-        issue_number: itemNumber,
-        per_page: 50,
-      }),
-    ]);
+    const { result } = await runWithRepoOctokit(
+      session.id,
+      repo,
+      async (candidate) => {
+        const octokit = new Octokit({ auth: candidate.accessToken });
+        const [issueRes, commentsRes] = await Promise.all([
+          octokit.rest.issues.get({
+            owner,
+            repo: repoName,
+            issue_number: itemNumber,
+          }),
+          octokit.rest.issues.listComments({
+            owner,
+            repo: repoName,
+            issue_number: itemNumber,
+            per_page: 50,
+          }),
+        ]);
+        return { issue: issueRes.data, comments: commentsRes.data };
+      },
+    );
 
-    const issue = issueRes.data;
+    const { issue, comments } = result;
 
     await Issue.findOneAndUpdate(
       { userId: session.id, githubId: issue.id },
@@ -225,7 +239,7 @@ export async function GET(req: NextRequest) {
         color: typeof l === "string" ? "64748b" : l.color || "64748b",
       })),
       assignees: (issue.assignees || []).map((a) => a.login),
-      comments: commentsRes.data.map((c) => ({
+      comments: comments.map((c) => ({
         id: c.id,
         user: c.user?.login || "unknown",
         avatarUrl: c.user?.avatar_url,
@@ -243,4 +257,3 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-

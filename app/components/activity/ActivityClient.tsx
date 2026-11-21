@@ -16,12 +16,13 @@ import {
   Search,
   ShieldCheck,
 } from "lucide-react";
-import { ActivityEventType, IActivityEvent, IPullRequest } from "@/lib/types";
+import { ActivityEventType, IActivityEvent, IProject, IPullRequest } from "@/lib/types";
 import { toLocalDateKey } from "@/lib/dates";
-import { getTimeAgo, isSameUser, parseGitHubUrl } from "@/lib/utils";
+import { getTimeAgo, isAnyUser, parseGitHubUrl } from "@/lib/utils";
 import SyncButton from "../buttons/SyncButton";
 import SummaryCard from "../cards/SummaryCard";
 import PullRequestCard from "../cards/PullRequestCard";
+import ContextFilterDropdown from "../dropdowns/ContextFilterDropdown";
 import { useDetailDrawer } from "../drawer/DetailDrawerProvider";
 
 type TimeFilter = "today" | "yesterday" | "this-week" | "this-month" | "all";
@@ -133,11 +134,13 @@ const formatGroupHeading = (dateKey: string) => {
 export default function ActivityClient({
   events,
   pullRequests,
-  githubUsername,
+  githubUsernames,
+  projects,
 }: {
   events: IActivityEvent[];
   pullRequests: IPullRequest[];
-  githubUsername: string | null;
+  githubUsernames: string[];
+  projects: IProject[];
 }) {
   const { openDetailByUrl } = useDetailDrawer();
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("today");
@@ -234,7 +237,7 @@ export default function ActivityClient({
         url: ev.url,
         mentionedInDescription: false,
         reviewRequested: false,
-        author: ev.actor || githubUsername || "",
+        author: ev.actor || githubUsernames[0] || "",
         assignee: null,
         mergedAt: ev.type === "pr_merged" ? ev.occurredAt : null,
         updatedAt: ev.occurredAt,
@@ -258,7 +261,7 @@ export default function ActivityClient({
     // 2. Also include user's own PRs updated in range (covers older PRs beyond GitHub's 300-event window)
     const q = search.trim().toLowerCase();
     for (const pr of pullRequests) {
-      if (!isSameUser(pr.author, githubUsername)) continue;
+      if (!isAnyUser(pr.author, githubUsernames)) continue;
       if (!isInTimeFilter(pr.updatedAt)) continue;
       if (q && !`${pr.title} ${pr.repoName}`.toLowerCase().includes(q)) continue;
 
@@ -286,7 +289,7 @@ export default function ActivityClient({
       (a, b) => b.lastTouchedAt.getTime() - a.lastTouchedAt.getTime(),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filteredEvents, pullRequests, githubUsername, timeFilter, categoryFilter, search]);
+  }, [filteredEvents, pullRequests, githubUsernames, timeFilter, categoryFilter, search]);
 
   const stats = useMemo(() => {
     let created = 0;
@@ -352,6 +355,7 @@ export default function ActivityClient({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
+          <ContextFilterDropdown projects={projects} />
           <button
             type="button"
             onClick={handleCopyStandup}

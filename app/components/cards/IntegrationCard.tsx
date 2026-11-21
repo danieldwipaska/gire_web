@@ -71,12 +71,19 @@ const IntegrationCard = ({ integration }: Props) => {
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-2 mb-0.5">
+          <div className="flex items-center gap-2 mb-0.5">
             <h5 className="text-slate-100 font-semibold text-base">@{integration.githubUsername}</h5>
+            {integration.label && (
+              <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-indigo-950/60 text-indigo-300 border border-indigo-700/40">
+                {integration.label}
+              </span>
+            )}
             {getStatusIcon(integration.status)}
           </div>
           <p className="text-slate-400 text-xs" suppressHydrationWarning>
-            Last sync: {formatDistanceToNow(new Date(integration.lastSync), { addSuffix: true })}
+            {integration.lastSync
+              ? `Last sync: ${formatDistanceToNow(new Date(integration.lastSync), { addSuffix: true })}`
+              : "Never synced yet"}
           </p>
         </div>
 

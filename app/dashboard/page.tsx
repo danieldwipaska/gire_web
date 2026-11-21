@@ -5,15 +5,33 @@ import ChartIndex from "../components/indexes/ChartIndex";
 import ReviewList from "../components/lists/ReviewList";
 import IntegrationList from "../components/lists/IntegrationList";
 import SyncButton from "../components/buttons/SyncButton";
+import ContextFilterDropdown from "../components/dropdowns/ContextFilterDropdown";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getDashboardData } from "@/lib/dashboard-service";
+import { getContextScope } from "@/lib/project-filter";
 
-const Dashboard = async () => {
+interface Props {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+const Dashboard = async ({ searchParams }: Props) => {
   const session = await getSession();
   if (!session) {
     redirect("/login");
   }
+
+  const params = await searchParams;
+  const contextParam =
+    typeof params.context === "string" ? params.context : undefined;
+  const projectParam =
+    typeof params.project === "string" ? params.project : undefined;
+
+  const { projects, allowedRepos } = await getContextScope(
+    session.id,
+    contextParam,
+    projectParam,
+  );
 
   const {
     integrations,
@@ -23,18 +41,21 @@ const Dashboard = async () => {
     todayStats,
     reviews,
     chartData,
-  } = await getDashboardData(session.id);
+  } = await getDashboardData(session.id, allowedRepos);
 
   return (
     <div className="min-h-screen container">
       <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between items-start md:items-center">
         <div className="flex flex-col gap-1">
-          <h2 className="text-2xl font-bold text-slate-100">Welcome, {session.name || "User"}</h2>
+          <h2 className="text-2xl font-bold text-slate-100">
+            Welcome, {session.name || "User"}
+          </h2>
           <p className="text-sm text-slate-400">
             Overview of your active pull requests, reviews, and issues
           </p>
         </div>
-        <div className="flex gap-3 h-fit">
+        <div className="flex flex-wrap gap-3 h-fit">
+          <ContextFilterDropdown projects={projects} />
           <SyncButton />
         </div>
       </div>

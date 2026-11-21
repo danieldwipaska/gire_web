@@ -4,7 +4,7 @@ import PullRequest from "@/models/PullRequest";
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuth } from "@/lib/auth";
 import { IPullRequest } from "@/lib/types";
-import { isSameUser } from "@/lib/utils";
+import { isAnyUser } from "@/lib/utils";
 
 export async function GET(req: NextRequest) {
   try {
@@ -15,21 +15,25 @@ export async function GET(req: NextRequest) {
 
     await connectDB();
 
-    const githubIntegration = await Integration.findOne({
+    const githubIntegrations = await Integration.find({
       userId: session.id,
       provider: "github",
     }).lean();
 
-    if (!githubIntegration) {
+    if (githubIntegrations.length === 0) {
       return NextResponse.json(
         { error: "GitHub integration not found" },
         { status: 404, statusText: "NOT FOUND" },
       );
     }
 
+    const usernames = githubIntegrations
+      .map((i) => i.githubUsername)
+      .filter(Boolean);
+
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const rawPulls: IPullRequest[] = await PullRequest.find({
-      userId: githubIntegration.userId,
+      userId: session.id,
       $or: [
         { updatedAt: { $gte: thirtyDaysAgo } },
         { githubCreatedAt: { $gte: thirtyDaysAgo } },
@@ -39,9 +43,7 @@ export async function GET(req: NextRequest) {
       .limit(1000)
       .lean();
 
-    const pulls = rawPulls.filter((pr) =>
-      isSameUser(pr.author, githubIntegration.githubUsername),
-    );
+    const pulls = rawPulls.filter((pr) => isAnyUser(pr.author, usernames));
 
     return NextResponse.json(pulls, { status: 200, statusText: "OK" });
   } catch (error) {

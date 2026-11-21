@@ -19,6 +19,7 @@ const PRSchema = new mongoose.Schema({
   closedAt: Date,
   mergedAt: Date,
   updatedAt: Date,
+  integrationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Integration' },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 });
 

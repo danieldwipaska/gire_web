@@ -52,6 +52,7 @@ async function syncUserActivityEvents(
   octokit: Octokit,
   userId: string,
   username: string,
+  integrationId?: string,
 ) {
   const allEvents: RawGitHubEvent[] = [];
 
@@ -198,6 +199,7 @@ async function syncUserActivityEvents(
         description,
         url,
         occurredAt: new Date(ev.created_at),
+        ...(integrationId ? { integrationId } : {}),
       },
       { upsert: true },
     );
@@ -320,6 +322,7 @@ export async function syncGitHubData(
           assignee: issue.assignee?.login || assignees[0] || null,
           assignees,
           mentionedInDescription: isMentioned,
+          ...(integration ? { integrationId: integration._id } : {}),
         },
         { upsert: true },
       );
@@ -435,6 +438,7 @@ export async function syncGitHubData(
               mentionedInDescription: isMentioned,
               reviewRequested: isReviewRequested,
               reviewedByMe,
+              ...(integration ? { integrationId: integration._id } : {}),
             },
             { upsert: true },
           );
@@ -450,7 +454,12 @@ export async function syncGitHubData(
 
     // 3. SYNC USER ACTIVITY EVENTS
     if (onProgress) onProgress(92, "Syncing your activity timeline...");
-    await syncUserActivityEvents(octokit, userId, username);
+    await syncUserActivityEvents(
+      octokit,
+      userId,
+      username,
+      integration?._id?.toString(),
+    );
 
     if (integration) {
       await Integration.findByIdAndUpdate(integration._id, {

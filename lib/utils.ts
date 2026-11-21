@@ -25,20 +25,63 @@ export const isSameUser = (a?: string | null, b?: string | null): boolean => {
   return Boolean(a && b && a.toLowerCase() === b.toLowerCase());
 };
 
-export const isIssueAssignedTo = (issue: IIssue, username?: string | null): boolean => {
-  if (!username) return false;
-  if (Array.isArray(issue.assignees) && issue.assignees.length > 0) {
-    return issue.assignees.some((a) => isSameUser(a, username));
-  }
-  return isSameUser(issue.assignee, username);
+export const isAnyUser = (
+  target?: string | null,
+  usernames: (string | null | undefined)[] = [],
+): boolean => {
+  if (!target) return false;
+  return usernames.some((u) => isSameUser(target, u));
 };
 
-export const isPRNeedingReview = (pr: IPullRequest, username?: string | null): boolean => {
-  if (!username) return false;
+export const isIssueAssignedTo = (
+  issue: IIssue,
+  usernameOrList?: string | string[] | null,
+): boolean => {
+  if (!usernameOrList) return false;
+  const usernames = Array.isArray(usernameOrList)
+    ? usernameOrList
+    : [usernameOrList];
+  if (usernames.length === 0) return false;
+
+  if (Array.isArray(issue.assignees) && issue.assignees.length > 0) {
+    return issue.assignees.some((a) => isAnyUser(a, usernames));
+  }
+  return isAnyUser(issue.assignee, usernames);
+};
+
+export const isPRNeedingReview = (
+  pr: IPullRequest,
+  usernameOrList?: string | string[] | null,
+): boolean => {
+  if (!usernameOrList) return false;
+  const usernames = Array.isArray(usernameOrList)
+    ? usernameOrList
+    : [usernameOrList];
+  if (usernames.length === 0) return false;
   if (pr.state !== "open") return false;
-  if (isSameUser(pr.author, username)) return false;
+  if (isAnyUser(pr.author, usernames)) return false;
   if (pr.reviewRequested) return true;
   return Boolean(pr.mentionedInDescription && !pr.reviewedByMe);
+};
+
+export const isValidFigmaUrl = (url: string): boolean => {
+  try {
+    const parsed = new URL(url.trim());
+    return (
+      parsed.protocol === "https:" &&
+      (parsed.hostname === "figma.com" || parsed.hostname.endsWith(".figma.com"))
+    );
+  } catch {
+    return false;
+  }
+};
+
+export const toFigmaEmbedUrl = (url: string): string => {
+  const trimmed = url.trim();
+  if (trimmed.includes("figma.com/embed")) {
+    return trimmed;
+  }
+  return `https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(trimmed)}`;
 };
 
 export const parseGitHubUrl = (

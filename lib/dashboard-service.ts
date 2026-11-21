@@ -4,35 +4,48 @@ import PullRequest from "@/models/PullRequest";
 import Integration from "@/models/Integration";
 import { getStartDate, getStartOfToday, toLocalDateKey } from "@/lib/dates";
 import { IDashboardData, IIntegration, IIssue, IPullRequest } from "@/lib/types";
-import { isIssueAssignedTo, isPRNeedingReview, isSameUser } from "@/lib/utils";
+import { isAnyUser, isIssueAssignedTo, isPRNeedingReview } from "@/lib/utils";
 
-export const getDashboardData = async (userId: string): Promise<IDashboardData> => {
+export const getDashboardData = async (
+  userId: string,
+  allowedRepos: string[] | null = null,
+): Promise<IDashboardData> => {
   await connectDB();
 
-  // 1. Fetch Integrations
+  // 1. Fetch Integrations (all GitHub accounts)
   const integrations: IIntegration[] = await Integration.find({ userId })
     .select("-accessToken")
     .lean();
-  const githubIntegration = integrations.find((i) => i.provider === "github");
-  const githubUsername = githubIntegration?.githubUsername;
+  const githubUsernames = integrations
+    .filter((i) => i.provider === "github")
+    .map((i) => i.githubUsername)
+    .filter(Boolean);
 
-  // 2. Fetch Open Issues (all open issues assigned to user, not limited to 30 days)
+  const repoFilter =
+    allowedRepos !== null ? { repoName: { $in: allowedRepos } } : {};
+
+  // 2. Fetch Open Issues
   const rawOpenIssues: IIssue[] = await Issue.find({
     userId,
     state: "open",
+    ...repoFilter,
   })
     .sort({ updatedAt: -1 })
     .limit(1000)
     .lean();
 
-  const issues = githubUsername
-    ? rawOpenIssues.filter((issue) => isIssueAssignedTo(issue, githubUsername))
-    : rawOpenIssues;
+  const issues =
+    githubUsernames.length > 0
+      ? rawOpenIssues.filter((issue) =>
+          isIssueAssignedTo(issue, githubUsernames),
+        )
+      : rawOpenIssues;
 
-  // 3. Fetch Pull Requests (last 30 days by createdAt/updatedAt OR still open for reviews)
+  // 3. Fetch Pull Requests (last 30 days OR still open for reviews)
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   const pullRequests: IPullRequest[] = await PullRequest.find({
     userId,
+    ...repoFilter,
     $or: [
       { updatedAt: { $gte: thirtyDaysAgo } },
       { githubCreatedAt: { $gte: thirtyDaysAgo } },
@@ -43,17 +56,18 @@ export const getDashboardData = async (userId: string): Promise<IDashboardData> 
     .limit(1000)
     .lean();
 
-  // 4. User Specific PRs (Authored by user, case-insensitive)
+  // 4. User Specific PRs (Authored by any connected GitHub account)
   const userPullRequests = pullRequests.filter((pr) =>
-    isSameUser(pr.author, githubUsername),
+    isAnyUser(pr.author, githubUsernames),
   );
 
-  // 5. My PRs Created This Month (based on githubCreatedAt)
+  // 5. My PRs Created This Month
   const startOfMonth = getStartDate("this-month");
   let myPRsThisMonthCount = 0;
-  if (githubUsername) {
+  if (githubUsernames.length > 0) {
     const myPRsThisYear: IPullRequest[] = await PullRequest.find({
       userId,
+      ...repoFilter,
       $or: [
         { githubCreatedAt: { $gte: startOfMonth } },
         { githubCreatedAt: { $exists: false }, updatedAt: { $gte: startOfMonth } },
@@ -63,11 +77,11 @@ export const getDashboardData = async (userId: string): Promise<IDashboardData> 
       .lean();
 
     myPRsThisMonthCount = myPRsThisYear.filter((pr) =>
-      isSameUser(pr.author, githubUsername),
+      isAnyUser(pr.author, githubUsernames),
     ).length;
   }
 
-  // 6. Today's PRs authored by user (created today since 00:00 local time)
+  // 6. Today's PRs authored by user (created today)
   const startOfToday = getStartOfToday();
   const todayPullRequests = userPullRequests.filter((pr) => {
     const createdDate = new Date(pr.githubCreatedAt || pr.updatedAt);
@@ -87,13 +101,13 @@ export const getDashboardData = async (userId: string): Promise<IDashboardData> 
     }
   });
 
-  // 7. Reviews needed (Open PRs authored by someone else, actively needing review)
+  // 7. Reviews needed
   const reviews = pullRequests.filter((pr) =>
-    isPRNeedingReview(pr, githubUsername),
+    isPRNeedingReview(pr, githubUsernames),
   );
 
   // 8. Chart Data Calculation (last 7 calendar days)
-  const chartData = calculateChartData(pullRequests, githubUsername);
+  const chartData = calculateChartData(pullRequests, githubUsernames);
 
   return {
     integrations: JSON.parse(JSON.stringify(integrations)),
@@ -112,19 +126,21 @@ export const getDashboardData = async (userId: string): Promise<IDashboardData> 
   };
 };
 
-// Helper for 7-day activity chart
-const calculateChartData = (prs: IPullRequest[], username?: string) => {
+const calculateChartData = (
+  prs: IPullRequest[],
+  usernames: string[],
+) => {
   const byDateKey: Record<string, { prs: number; reviews: number }> = {};
 
   for (const pr of prs) {
-    if (!username || isSameUser(pr.author, username)) {
+    if (usernames.length === 0 || isAnyUser(pr.author, usernames)) {
       const createdKey = toLocalDateKey(pr.githubCreatedAt || pr.updatedAt);
       if (!byDateKey[createdKey]) {
         byDateKey[createdKey] = { prs: 0, reviews: 0 };
       }
       byDateKey[createdKey].prs++;
     } else if (
-      !isSameUser(pr.author, username) &&
+      !isAnyUser(pr.author, usernames) &&
       (pr.reviewRequested || pr.mentionedInDescription)
     ) {
       const reviewKey = toLocalDateKey(pr.githubCreatedAt || pr.updatedAt);

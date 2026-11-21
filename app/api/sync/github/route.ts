@@ -14,19 +14,24 @@ export async function POST(req: NextRequest) {
     await connectDB();
 
     let fullSync = false;
+    let integrationId: string | undefined;
     try {
       const body = await req.json();
       fullSync = Boolean(body?.fullSync);
+      if (typeof body?.integrationId === "string" && body.integrationId) {
+        integrationId = body.integrationId;
+      }
     } catch {
       // Empty body is fine
     }
 
-    const githubIntegration = await Integration.findOne({
+    const integrations = await Integration.find({
       userId: session.id,
       provider: "github",
+      ...(integrationId ? { _id: integrationId } : {}),
     });
 
-    if (!githubIntegration) {
+    if (integrations.length === 0) {
       return NextResponse.json(
         { error: "GitHub integration not found" },
         { status: 404, statusText: "NOT FOUND" },
@@ -37,19 +42,37 @@ export async function POST(req: NextRequest) {
     const writer = writable.getWriter();
     const encoder = new TextEncoder();
 
-    syncGitHubData(
-      githubIntegration.userId.toString(),
-      githubIntegration.accessToken,
-      async (progress, message) => {
-        try {
-          const data = JSON.stringify({ progress, message }) + "\n";
-          await writer.write(encoder.encode(data));
-        } catch (error) {
-          console.error("Error writing to stream:", error);
-        }
-      },
-      { fullSync, integrationId: githubIntegration._id.toString() },
-    )
+    const runAllSyncs = async () => {
+      const total = integrations.length;
+      for (let idx = 0; idx < total; idx++) {
+        const account = integrations[idx];
+        const prefix =
+          total > 1 ? `[@${account.githubUsername} (${idx + 1}/${total})] ` : "";
+
+        await syncGitHubData(
+          account.userId.toString(),
+          account.accessToken,
+          async (progress, message) => {
+            try {
+              const overallProgress = Math.floor(
+                ((idx + progress / 100) / total) * 100,
+              );
+              const data =
+                JSON.stringify({
+                  progress: overallProgress,
+                  message: `${prefix}${message}`,
+                }) + "\n";
+              await writer.write(encoder.encode(data));
+            } catch (error) {
+              console.error("Error writing to stream:", error);
+            }
+          },
+          { fullSync, integrationId: account._id.toString() },
+        );
+      }
+    };
+
+    runAllSyncs()
       .then(async () => {
         await writer.close();
       })
@@ -62,7 +85,7 @@ export async function POST(req: NextRequest) {
           await writer.write(encoder.encode(data));
           await writer.close();
         } catch {
-          // Stream may already be closed if client aborted
+          // Stream may already be closed
         }
       });
 
