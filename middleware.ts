@@ -6,7 +6,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Paths that require authentication
-  const protectedPaths = ['/dashboard', '/projects', '/activity', '/analytics'];
+  const protectedPaths = ['/dashboard', '/projects', '/notes', '/activity', '/analytics'];
   
   // Paths that are for authentication (should redirect to dashboard if already logged in)
   const authPaths = ['/login', '/register'];
@@ -37,5 +37,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/projects/:path*', '/analytics/:path*', '/activity/:path*', '/login', '/register'],
+  matcher: ['/dashboard/:path*', '/projects/:path*', '/notes/:path*', '/analytics/:path*', '/activity/:path*', '/login', '/register'],
 };
