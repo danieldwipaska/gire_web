@@ -1,16 +1,28 @@
 "use client";
 
-import { Calendar, LogOut, User } from "lucide-react";
+import { Calendar, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense } from "react";
 import TopProgressBar from "./TopProgressBar";
 
-const Navbar = ({ session }: { session: any }) => {
+interface NavSession {
+  id?: string;
+  name?: string;
+  email?: string;
+}
+
+const NAV_ITEMS = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/activity", label: "Activity" },
+  { href: "/analytics", label: "Analytics" },
+];
+
+const Navbar = ({ session }: { session: NavSession | null }) => {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 bg-[#0b0f19]/90 backdrop-blur-md border-b border-slate-800/80">
+    <header className="sticky top-0 z-40 bg-[#0b0f19]/90 backdrop-blur-md border-b border-slate-800/80">
       <Suspense fallback={null}>
         <TopProgressBar />
       </Suspense>
@@ -25,26 +37,19 @@ const Navbar = ({ session }: { session: any }) => {
             </Link>
 
             <nav className="hidden md:flex items-center gap-1">
-              <Link
-                href="/dashboard"
-                className={`px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                  pathname.startsWith("/dashboard")
-                    ? "bg-slate-800 text-slate-100 border border-slate-700/80"
-                    : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
-                }`}
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/analytics"
-                className={`px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                  pathname.startsWith("/analytics")
-                    ? "bg-slate-800 text-slate-100 border border-slate-700/80"
-                    : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
-                }`}
-              >
-                Analytics
-              </Link>
+              {NAV_ITEMS.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                    pathname.startsWith(item.href)
+                      ? "bg-slate-800 text-slate-100 border border-slate-700/80"
+                      : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
             </nav>
           </div>
 
@@ -53,7 +58,7 @@ const Navbar = ({ session }: { session: any }) => {
               <>
                 <div className="hidden md:flex items-center space-x-2 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg">
                   <Calendar className="w-4 h-4 text-indigo-400" />
-                  <span className="text-xs font-medium text-slate-300">
+                  <span className="text-xs font-medium text-slate-300" suppressHydrationWarning>
                     {new Date().toLocaleDateString("en-US", {
                       weekday: "short",
                       year: "numeric",
@@ -82,15 +87,34 @@ const Navbar = ({ session }: { session: any }) => {
                 </button>
               </>
             ) : (
-              <a
+              <Link
                 href="/login"
                 className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm"
               >
                 Sign In
-              </a>
+              </Link>
             )}
           </div>
         </div>
+
+        {/* Mobile Nav */}
+        {session && (
+          <nav className="flex md:hidden items-center gap-1 mt-3 pt-2 border-t border-slate-800/60 overflow-x-auto">
+            {NAV_ITEMS.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+                  pathname.startsWith(item.href)
+                    ? "bg-slate-800 text-slate-100 border border-slate-700/80"
+                    : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/50"
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        )}
       </div>
     </header>
   );

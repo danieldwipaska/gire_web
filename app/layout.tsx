@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar";
+import { DetailDrawerProvider } from "./components/drawer/DetailDrawerProvider";
 import { getSession } from "@/lib/auth";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -25,8 +26,10 @@ export default async function RootLayout({
       <body
         className={`${plusJakartaSans.variable} font-sans antialiased bg-[#0b0f19] text-slate-100 min-h-screen selection:bg-indigo-500/30 selection:text-indigo-200`}
       >
-        <Navbar session={session} />
-        {children}
+        <DetailDrawerProvider>
+          <Navbar session={session} />
+          {children}
+        </DetailDrawerProvider>
       </body>
     </html>
   );

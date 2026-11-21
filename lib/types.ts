@@ -107,3 +107,91 @@ export interface IActivityData {
   issues: number;
   merged: number;
 }
+
+export type ActivityEventType =
+  | "pr_created"
+  | "pr_updated"
+  | "pr_reviewed"
+  | "pr_commented"
+  | "pr_merged"
+  | "pr_closed"
+  | "issue_opened"
+  | "issue_closed"
+  | "issue_commented"
+  | "pushed";
+
+export interface IActivityEvent {
+  _id: string;
+  userId: string;
+  githubEventId: string;
+  type: ActivityEventType;
+  rawType?: string;
+  action?: string;
+  actor?: string;
+  repoName: string;
+  targetType: "pr" | "issue" | "push";
+  targetNumber?: number;
+  title: string;
+  description?: string;
+  url: string;
+  occurredAt: string | Date;
+}
+
+export interface IGitHubComment {
+  id: number;
+  user: string;
+  avatarUrl?: string;
+  body: string;
+  createdAt: string;
+  kind: "comment" | "review";
+  reviewState?: string;
+}
+
+export interface IGitHubPRFile {
+  filename: string;
+  status: string;
+  additions: number;
+  deletions: number;
+  changes: number;
+  patch?: string;
+}
+
+export interface IGitHubCheckRun {
+  id: number;
+  name: string;
+  status: string;
+  conclusion: string | null;
+  htmlUrl?: string;
+}
+
+export interface IGitHubDetail {
+  kind: "pr" | "issue";
+  repo: string;
+  number: number;
+  title: string;
+  body: string;
+  state: string;
+  merged: boolean;
+  draft?: boolean;
+  url: string;
+  author: string;
+  authorAvatar?: string;
+  createdAt: string;
+  updatedAt: string;
+  mergedAt?: string | null;
+  closedAt?: string | null;
+  labels: { name: string; color: string }[];
+  assignees: string[];
+  requestedReviewers?: string[];
+  headBranch?: string;
+  baseBranch?: string;
+  additions?: number;
+  deletions?: number;
+  changedFiles?: number;
+  mergeable?: boolean | null;
+  mergeableState?: string;
+  comments: IGitHubComment[];
+  files?: IGitHubPRFile[];
+  checks?: IGitHubCheckRun[];
+}
+
