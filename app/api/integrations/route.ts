@@ -1,21 +1,22 @@
-import connectDB from '@/lib/mongodb';
-import Integration from '@/models/Integration';
-import { NextRequest, NextResponse } from 'next/server';
-import { verifyAuth } from '@/lib/auth';
+import connectDB from "@/lib/mongodb";
+import Integration from "@/models/Integration";
+import { NextRequest, NextResponse } from "next/server";
+import { verifyAuth } from "@/lib/auth";
+import { Octokit } from "octokit";
 
 type IntegrationPayload = {
-  userId: string;
-  provider: string | 'github';
-  githubUsername: string;
+  provider: string | "github";
+  label?: string;
+  githubUsername?: string;
   accessToken: string;
-  lastSync: string | Date;
-  status: 'active' | 'expired';
+  lastSync?: string | Date;
+  status?: "active" | "expired";
 };
 
 export async function POST(req: NextRequest) {
   const session = await verifyAuth(req);
   if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   await connectDB();
@@ -23,44 +24,83 @@ export async function POST(req: NextRequest) {
   try {
     await Integration.syncIndexes();
 
-    const { provider, githubUsername, accessToken, lastSync, status }: IntegrationPayload = await req.json();
-
-    // Check unique provider + username per user
-    const integration = await Integration.exists({
-      provider,
+    const {
+      provider = "github",
+      label = "Personal",
       githubUsername,
+      accessToken,
+      lastSync,
+      status = "active",
+    }: IntegrationPayload = await req.json();
+
+    if (!accessToken?.trim()) {
+      return NextResponse.json(
+        { error: "Access token is required" },
+        { status: 400 },
+      );
+    }
+
+    let resolvedUsername = (githubUsername || "").trim();
+
+    if (provider === "github") {
+      try {
+        const octokit = new Octokit({ auth: accessToken.trim() });
+        const { data: ghUser } = await octokit.rest.users.getAuthenticated();
+        resolvedUsername = ghUser.login;
+      } catch {
+        return NextResponse.json(
+          { error: "Invalid GitHub Personal Access Token" },
+          { status: 400 },
+        );
+      }
+    }
+
+    if (!resolvedUsername) {
+      return NextResponse.json(
+        { error: "GitHub username is required" },
+        { status: 400 },
+      );
+    }
+
+    const existing = await Integration.exists({
+      provider,
+      githubUsername: resolvedUsername,
       userId: session.id,
     });
-    if (integration) {
+    if (existing) {
       return NextResponse.json(
-        { error: 'Integration Already Exists' },
-        { status: 400, statusText: 'BAD REQUEST' },
+        { error: `GitHub account @${resolvedUsername} is already connected` },
+        { status: 400, statusText: "BAD REQUEST" },
       );
     }
 
     const newIntegration = await Integration.create({
       userId: session.id,
       provider,
-      githubUsername,
-      accessToken,
-      lastSync: lastSync ? new Date(lastSync) : new Date(),
+      label: label.trim() || "Personal",
+      githubUsername: resolvedUsername,
+      accessToken: accessToken.trim(),
+      lastSync: lastSync ? new Date(lastSync) : undefined,
       status,
     });
 
     const sanitized = newIntegration.toObject();
     delete sanitized.accessToken;
 
-    return NextResponse.json(sanitized, { status: 200, statusText: 'OK' });
+    return NextResponse.json(sanitized, { status: 200, statusText: "OK" });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: 'Server Error' }, { status: 500, statusText: 'INTERNAL SERVER ERROR' });
+    return NextResponse.json(
+      { error: "Server Error" },
+      { status: 500, statusText: "INTERNAL SERVER ERROR" },
+    );
   }
 }
 
 export async function GET(req: NextRequest) {
   const session = await verifyAuth(req);
   if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   await connectDB();
@@ -69,20 +109,23 @@ export async function GET(req: NextRequest) {
     const integrations = await Integration.find({
       userId: session.id,
     })
-      .select('-accessToken')
+      .select("-accessToken")
       .lean();
 
-    return NextResponse.json(integrations, { status: 200, statusText: 'OK' });
+    return NextResponse.json(integrations, { status: 200, statusText: "OK" });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: 'Server Error' }, { status: 500, statusText: 'INTERNAL SERVER ERROR' });
+    return NextResponse.json(
+      { error: "Server Error" },
+      { status: 500, statusText: "INTERNAL SERVER ERROR" },
+    );
   }
 }
 
 export async function DELETE(req: NextRequest) {
   const session = await verifyAuth(req);
   if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   await connectDB();
@@ -96,12 +139,15 @@ export async function DELETE(req: NextRequest) {
     });
 
     if (result.deletedCount === 0) {
-      return NextResponse.json({ error: 'Integration not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: "Integration not found" },
+        { status: 404 },
+      );
     }
 
-    return NextResponse.json({ message: 'Integration deleted' }, { status: 200 });
+    return NextResponse.json({ message: "Integration deleted" }, { status: 200 });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: 'Server Error' }, { status: 500 });
+    return NextResponse.json({ error: "Server Error" }, { status: 500 });
   }
 }

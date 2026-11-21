@@ -15,20 +15,24 @@ export async function GET(req: NextRequest) {
 
     await connectDB();
 
-    const githubIntegration = await Integration.findOne({
+    const githubIntegrations = await Integration.find({
       userId: session.id,
       provider: "github",
     }).lean();
 
-    if (!githubIntegration) {
+    if (githubIntegrations.length === 0) {
       return NextResponse.json(
         { error: "GitHub integration not found" },
         { status: 404, statusText: "NOT FOUND" },
       );
     }
 
+    const usernames = githubIntegrations
+      .map((i) => i.githubUsername)
+      .filter(Boolean);
+
     const rawIssues: IIssue[] = await Issue.find({
-      userId: githubIntegration.userId,
+      userId: session.id,
       state: "open",
     })
       .sort("-updatedAt")
@@ -36,7 +40,7 @@ export async function GET(req: NextRequest) {
       .lean();
 
     const issues = rawIssues.filter((issue) =>
-      isIssueAssignedTo(issue, githubIntegration.githubUsername),
+      isIssueAssignedTo(issue, usernames),
     );
 
     return NextResponse.json(issues, { status: 200, statusText: "OK" });

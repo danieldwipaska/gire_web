@@ -2,6 +2,7 @@ import { Activity, CircleDot, Merge, MessageSquareCode } from "lucide-react";
 import SyncButton from "../components/buttons/SyncButton";
 import SummaryCard from "../components/cards/SummaryCard";
 import TimeDropdown from "../components/dropdowns/TimeDropdown";
+import ContextFilterDropdown from "../components/dropdowns/ContextFilterDropdown";
 import CodeChurnChartIndex from "../components/indexes/CodeChurnChartIndex";
 import TaskChartIndex from "../components/indexes/TaskChartIndex";
 import MergedPRChartIndex from "../components/indexes/MergedPRChartIndex";
@@ -22,30 +23,38 @@ import {
   IMergedPRData,
   IActivityData,
 } from "@/lib/types";
-import { isIssueAssignedTo, isPRNeedingReview, isSameUser } from "@/lib/utils";
+import { isAnyUser, isIssueAssignedTo, isPRNeedingReview } from "@/lib/utils";
+import { getContextScope } from "@/lib/project-filter";
 
 interface Props {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-const getGithubIntegration = async (userId: string) => {
+const getGithubIntegrations = async (userId: string) => {
   await connectDB();
-  const integration: IIntegration | null = await Integration.findOne({
-    userId: userId,
+  const integrations: IIntegration[] = await Integration.find({
+    userId,
     provider: "github",
   })
     .select("-accessToken")
     .lean();
-  return integration;
+  return integrations;
 };
 
-const getAnalyticsData = async (userId: string, range: string = "this-month") => {
+const getAnalyticsData = async (
+  userId: string,
+  range: string = "this-month",
+  allowedRepos: string[] | null = null,
+) => {
   await connectDB();
   const startDate = getStartDate(range);
+  const repoFilter =
+    allowedRepos !== null ? { repoName: { $in: allowedRepos } } : {};
 
   const [issues, pullRequests] = await Promise.all([
     Issue.find({
       userId,
+      ...repoFilter,
       $or: [
         { closedAt: { $gte: startDate } },
         { githubCreatedAt: { $gte: startDate } },
@@ -54,6 +63,7 @@ const getAnalyticsData = async (userId: string, range: string = "this-month") =>
     }).lean(),
     PullRequest.find({
       userId,
+      ...repoFilter,
       $or: [
         { mergedAt: { $gte: startDate } },
         { githubCreatedAt: { $gte: startDate } },
@@ -149,7 +159,7 @@ const calculateRepoActivity = (
   myCreatedPrs: IPullRequest[],
   myMergedPrs: IPullRequest[],
   issuesInRange: IIssue[],
-  githubUsername: string,
+  githubUsernames: string[],
 ): IActivityData[] => {
   const repoMap = new Map<string, IActivityData>();
 
@@ -174,7 +184,7 @@ const calculateRepoActivity = (
   });
 
   issuesInRange.forEach((issue) => {
-    if (issue.repoName && isIssueAssignedTo(issue, githubUsername)) {
+    if (issue.repoName && isIssueAssignedTo(issue, githubUsernames)) {
       initRepo(issue.repoName);
       repoMap.get(issue.repoName)!.issues++;
     }
@@ -193,13 +203,17 @@ const Analytics = async ({ searchParams }: Props) => {
 
   const params = await searchParams;
   const range = (params.range as string) || "this-month";
-  const { startDate, issues, pullRequests } = await getAnalyticsData(
-    session.id as string,
-    range,
-  );
-  const githubIntegration = await getGithubIntegration(session.id as string);
+  const contextParam =
+    typeof params.context === "string" ? params.context : undefined;
+  const projectParam =
+    typeof params.project === "string" ? params.project : undefined;
 
-  if (!githubIntegration) {
+  const [{ projects, allowedRepos }, githubIntegrations] = await Promise.all([
+    getContextScope(session.id as string, contextParam, projectParam),
+    getGithubIntegrations(session.id as string),
+  ]);
+
+  if (githubIntegrations.length === 0) {
     return (
       <div className="min-h-screen container">
         <div className="flex flex-col gap-2">
@@ -210,11 +224,18 @@ const Analytics = async ({ searchParams }: Props) => {
     );
   }
 
-  const username = githubIntegration.githubUsername;
+  const { startDate, issues, pullRequests } = await getAnalyticsData(
+    session.id as string,
+    range,
+    allowedRepos,
+  );
 
-  // My PRs in the selected range
+  const usernames = githubIntegrations
+    .map((i) => i.githubUsername)
+    .filter(Boolean);
+
   const myPullRequests = pullRequests.filter((pr) =>
-    isSameUser(pr.author, username),
+    isAnyUser(pr.author, usernames),
   );
   const myMergedPRsInRange = myPullRequests.filter(
     (pr) =>
@@ -226,19 +247,16 @@ const Analytics = async ({ searchParams }: Props) => {
     (pr) => new Date(pr.githubCreatedAt || pr.updatedAt) >= startDate,
   );
 
-  // Open PRs currently needing my review
   const reviewPullRequests = pullRequests.filter((pr) =>
-    isPRNeedingReview(pr, username),
+    isPRNeedingReview(pr, usernames),
   );
 
-  // Issues assigned to me in the selected range
   const myIssuesInRange = issues.filter(
     (i) =>
-      isIssueAssignedTo(i, username) &&
+      isIssueAssignedTo(i, usernames) &&
       new Date(i.githubCreatedAt || i.updatedAt) >= startDate,
   );
 
-  // Summary Metrics
   const totalPRsMerged = myMergedPRsInRange.length;
 
   const totalLinesChanged = myMergedPRsInRange.reduce(
@@ -255,11 +273,10 @@ const Analytics = async ({ searchParams }: Props) => {
   const closedIssuesCount = issues.filter(
     (i) =>
       i.state === "closed" &&
-      isIssueAssignedTo(i, username) &&
+      isIssueAssignedTo(i, usernames) &&
       new Date(i.closedAt || i.updatedAt) >= startDate,
   ).length;
 
-  // Chart Data
   const codeChurnData = calculateCodeChurn(myMergedPRsInRange);
   const prMergedAndPrReviewsRequested =
     calculatePrMergedAndPrReviewsRequested(totalPRsMerged, reviewRequestedCount);
@@ -268,7 +285,7 @@ const Analytics = async ({ searchParams }: Props) => {
     myCreatedPRsInRange,
     myMergedPRsInRange,
     myIssuesInRange,
-    username,
+    usernames,
   );
 
   return (
@@ -280,7 +297,8 @@ const Analytics = async ({ searchParams }: Props) => {
             Overview of your GitHub pull requests and activity metrics
           </p>
         </div>
-        <div className="flex gap-3 h-fit relative">
+        <div className="flex flex-wrap gap-3 h-fit relative">
+          <ContextFilterDropdown projects={projects} />
           <SyncButton />
           <TimeDropdown />
         </div>

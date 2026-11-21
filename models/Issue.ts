@@ -13,6 +13,7 @@ const IssueSchema = new mongoose.Schema({
   githubCreatedAt: Date,
   closedAt: Date,
   updatedAt: Date,
+  integrationId: { type: mongoose.Schema.Types.ObjectId, ref: "Integration" },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 });
 

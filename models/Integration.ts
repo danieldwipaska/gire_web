@@ -8,6 +8,7 @@ const IntegrationSchema = new mongoose.Schema(
       required: true,
     },
     provider: { type: String, default: 'github' },
+    label: { type: String, default: 'Personal' },
     githubUsername: { type: String, required: true },
     accessToken: { type: String, required: true },
 

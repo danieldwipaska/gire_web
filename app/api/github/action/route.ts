@@ -1,7 +1,7 @@
 import { verifyAuth } from "@/lib/auth";
+import { runWithRepoOctokit } from "@/lib/github/client";
 import connectDB from "@/lib/mongodb";
 import ActivityEvent from "@/models/ActivityEvent";
-import Integration from "@/models/Integration";
 import Issue from "@/models/Issue";
 import PullRequest from "@/models/PullRequest";
 import { NextRequest, NextResponse } from "next/server";
@@ -39,32 +39,25 @@ export async function POST(req: NextRequest) {
 
     await connectDB();
 
-    const githubIntegration = await Integration.findOne({
-      userId: session.id,
-      provider: "github",
-    });
-
-    if (!githubIntegration) {
-      return NextResponse.json(
-        { error: "GitHub integration not found" },
-        { status: 404 },
-      );
-    }
-
     const [owner, repoName] = repo.split("/");
-    const octokit = new Octokit({ auth: githubIntegration.accessToken });
-    const username = githubIntegration.githubUsername;
 
     if (action === "comment") {
       if (!body?.trim()) {
         return NextResponse.json({ error: "Comment body is required" }, { status: 400 });
       }
-      await octokit.rest.issues.createComment({
-        owner,
-        repo: repoName,
-        issue_number: number,
-        body: body.trim(),
-      });
+      const { integration } = await runWithRepoOctokit(
+        session.id,
+        repo,
+        async (candidate) => {
+          const octokit = new Octokit({ auth: candidate.accessToken });
+          await octokit.rest.issues.createComment({
+            owner,
+            repo: repoName,
+            issue_number: number,
+            body: body.trim(),
+          });
+        },
+      );
 
       const url = `https://github.com/${repo}/${kind === "pr" ? "pull" : "issues"}/${number}`;
       await ActivityEvent.create({
@@ -73,7 +66,7 @@ export async function POST(req: NextRequest) {
         type: kind === "pr" ? "pr_commented" : "issue_commented",
         rawType: "IssueCommentEvent",
         action: "created",
-        actor: username,
+        actor: integration.githubUsername,
         repoName: repo,
         targetType: kind,
         targetNumber: number,
@@ -81,6 +74,7 @@ export async function POST(req: NextRequest) {
         description: body.trim().slice(0, 140),
         url,
         occurredAt: new Date(),
+        integrationId: integration._id,
       });
 
       return NextResponse.json({ message: "Comment posted" });
@@ -95,19 +89,26 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      await octokit.rest.pulls.createReview({
-        owner,
-        repo: repoName,
-        pull_number: number,
-        event,
-        body: body?.trim() || undefined,
-      });
-
-      const { data: updatedPr } = await octokit.rest.pulls.get({
-        owner,
-        repo: repoName,
-        pull_number: number,
-      });
+      const { result: updatedPr, integration } = await runWithRepoOctokit(
+        session.id,
+        repo,
+        async (candidate) => {
+          const octokit = new Octokit({ auth: candidate.accessToken });
+          await octokit.rest.pulls.createReview({
+            owner,
+            repo: repoName,
+            pull_number: number,
+            event,
+            body: body?.trim() || undefined,
+          });
+          const { data } = await octokit.rest.pulls.get({
+            owner,
+            repo: repoName,
+            pull_number: number,
+          });
+          return data;
+        },
+      );
 
       await PullRequest.findOneAndUpdate(
         { userId: session.id, githubId: updatedPr.id },
@@ -125,7 +126,7 @@ export async function POST(req: NextRequest) {
         type: "pr_reviewed",
         rawType: "PullRequestReviewEvent",
         action: "submitted",
-        actor: username,
+        actor: integration.githubUsername,
         repoName: repo,
         targetType: "pr",
         targetNumber: number,
@@ -135,24 +136,32 @@ export async function POST(req: NextRequest) {
           : `Submitted review (${event.toLowerCase().replace(/_/g, " ")})`,
         url: updatedPr.html_url,
         occurredAt: new Date(),
+        integrationId: integration._id,
       });
 
       return NextResponse.json({ message: "Review submitted" });
     }
 
     if (kind === "pr" && action === "merge") {
-      await octokit.rest.pulls.merge({
-        owner,
-        repo: repoName,
-        pull_number: number,
-        merge_method: mergeMethod || "merge",
-      });
-
-      const { data: updatedPr } = await octokit.rest.pulls.get({
-        owner,
-        repo: repoName,
-        pull_number: number,
-      });
+      const { result: updatedPr, integration } = await runWithRepoOctokit(
+        session.id,
+        repo,
+        async (candidate) => {
+          const octokit = new Octokit({ auth: candidate.accessToken });
+          await octokit.rest.pulls.merge({
+            owner,
+            repo: repoName,
+            pull_number: number,
+            merge_method: mergeMethod || "merge",
+          });
+          const { data } = await octokit.rest.pulls.get({
+            owner,
+            repo: repoName,
+            pull_number: number,
+          });
+          return data;
+        },
+      );
 
       await PullRequest.findOneAndUpdate(
         { userId: session.id, githubId: updatedPr.id },
@@ -170,7 +179,7 @@ export async function POST(req: NextRequest) {
         type: "pr_merged",
         rawType: "PullRequestEvent",
         action: "closed",
-        actor: username,
+        actor: integration.githubUsername,
         repoName: repo,
         targetType: "pr",
         targetNumber: number,
@@ -178,6 +187,7 @@ export async function POST(req: NextRequest) {
         description: `Merged pull request (${mergeMethod || "merge"})`,
         url: updatedPr.html_url,
         occurredAt: new Date(),
+        integrationId: integration._id,
       });
 
       return NextResponse.json({ message: "Pull request merged" });
@@ -187,12 +197,20 @@ export async function POST(req: NextRequest) {
       const nextState = action === "close" ? "closed" : "open";
 
       if (kind === "pr") {
-        const { data: updatedPr } = await octokit.rest.pulls.update({
-          owner,
-          repo: repoName,
-          pull_number: number,
-          state: nextState,
-        });
+        const { result: updatedPr, integration } = await runWithRepoOctokit(
+          session.id,
+          repo,
+          async (candidate) => {
+            const octokit = new Octokit({ auth: candidate.accessToken });
+            const { data } = await octokit.rest.pulls.update({
+              owner,
+              repo: repoName,
+              pull_number: number,
+              state: nextState,
+            });
+            return data;
+          },
+        );
 
         await PullRequest.findOneAndUpdate(
           { userId: session.id, githubId: updatedPr.id },
@@ -209,7 +227,7 @@ export async function POST(req: NextRequest) {
           type: action === "close" ? "pr_closed" : "pr_updated",
           rawType: "PullRequestEvent",
           action: action === "close" ? "closed" : "reopened",
-          actor: username,
+          actor: integration.githubUsername,
           repoName: repo,
           targetType: "pr",
           targetNumber: number,
@@ -218,14 +236,23 @@ export async function POST(req: NextRequest) {
             action === "close" ? "Closed pull request" : "Reopened pull request",
           url: updatedPr.html_url,
           occurredAt: new Date(),
+          integrationId: integration._id,
         });
       } else {
-        const { data: updatedIssue } = await octokit.rest.issues.update({
-          owner,
-          repo: repoName,
-          issue_number: number,
-          state: nextState,
-        });
+        const { result: updatedIssue, integration } = await runWithRepoOctokit(
+          session.id,
+          repo,
+          async (candidate) => {
+            const octokit = new Octokit({ auth: candidate.accessToken });
+            const { data } = await octokit.rest.issues.update({
+              owner,
+              repo: repoName,
+              issue_number: number,
+              state: nextState,
+            });
+            return data;
+          },
+        );
 
         await Issue.findOneAndUpdate(
           { userId: session.id, githubId: updatedIssue.id },
@@ -242,7 +269,7 @@ export async function POST(req: NextRequest) {
           type: action === "close" ? "issue_closed" : "issue_opened",
           rawType: "IssuesEvent",
           action: action === "close" ? "closed" : "reopened",
-          actor: username,
+          actor: integration.githubUsername,
           repoName: repo,
           targetType: "issue",
           targetNumber: number,
@@ -250,6 +277,7 @@ export async function POST(req: NextRequest) {
           description: action === "close" ? "Closed issue" : "Reopened issue",
           url: updatedIssue.html_url,
           occurredAt: new Date(),
+          integrationId: integration._id,
         });
       }
 
@@ -266,4 +294,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-

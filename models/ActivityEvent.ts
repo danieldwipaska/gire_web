@@ -29,6 +29,7 @@ const ActivityEventSchema = new mongoose.Schema({
   description: String,
   url: { type: String, required: true },
   occurredAt: { type: Date, required: true },
+  integrationId: { type: mongoose.Schema.Types.ObjectId, ref: "Integration" },
 });
 
 ActivityEventSchema.index({ userId: 1, githubEventId: 1 }, { unique: true });

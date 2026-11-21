@@ -11,6 +11,7 @@ export interface IIntegration {
   _id: string;
   userId: string;
   provider: string;
+  label?: string;
   githubUsername: string;
   accessToken?: string; // Optional because we might not send it to client
   lastSync: string | Date;
@@ -194,4 +195,43 @@ export interface IGitHubDetail {
   files?: IGitHubPRFile[];
   checks?: IGitHubCheckRun[];
 }
+
+export type ProjectCategory = "office" | "freelance" | "personal";
+export type ProjectStatus = "active" | "on_hold" | "completed" | "archived";
+
+export interface IFigmaLink {
+  _id?: string;
+  title: string;
+  url: string;
+  kind: "design" | "prototype";
+}
+
+export interface IProjectMember {
+  userId: string;
+  role: "owner" | "member";
+  name?: string;
+  email?: string;
+}
+
+export interface IProject {
+  _id: string;
+  name: string;
+  description?: string;
+  category: ProjectCategory;
+  clientOrTeam?: string;
+  status: ProjectStatus;
+  color?: string;
+  ownerId: string;
+  members: IProjectMember[];
+  repos: string[];
+  figmaLinks: IFigmaLink[];
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+  stats?: {
+    openPRs: number;
+    openIssues: number;
+    mergedPRs: number;
+  };
+}
+
 
