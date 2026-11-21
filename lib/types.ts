@@ -14,6 +14,7 @@ export interface IIntegration {
   githubUsername: string;
   accessToken?: string; // Optional because we might not send it to client
   lastSync: string | Date;
+  lastFullSync?: string | Date;
   status: 'active' | 'expired';
   createdAt?: string | Date;
   updatedAt?: string | Date;
@@ -29,6 +30,9 @@ export interface IIssue {
   mentionedInDescription: boolean;
   author: string;
   assignee: string | null;
+  assignees?: string[];
+  githubCreatedAt?: string | Date;
+  closedAt?: string | Date | null;
   updatedAt: string | Date;
   userId: string;
 }
@@ -46,8 +50,11 @@ export interface IPullRequest {
   url: string;
   mentionedInDescription: boolean;
   reviewRequested: boolean;
+  reviewedByMe?: boolean;
   author: string;
   assignee: string | null;
+  githubCreatedAt?: string | Date;
+  closedAt?: string | Date | null;
   mergedAt: string | Date | null;
   updatedAt: string | Date;
   userId: string;
@@ -62,6 +69,7 @@ export interface IDashboardData {
   todayStats: {
     merged: number;
     open: number;
+    closed: number;
     total: number;
   };
   reviews: IPullRequest[];

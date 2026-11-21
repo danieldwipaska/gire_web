@@ -9,11 +9,20 @@ import ActivityChartIndex from "../components/indexes/ActivityChartIndex";
 import connectDB from "@/lib/mongodb";
 import Issue from "@/models/Issue";
 import PullRequest from "@/models/PullRequest";
-import { getStartDate } from "@/lib/dates";
+import { formatShortMonthDay, getStartDate, toLocalDateKey } from "@/lib/dates";
 import Integration from "@/models/Integration";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { IIssue, IPullRequest, IIntegration, ICodeChurnData, ITaskChartData, IMergedPRData, IActivityData } from "@/lib/types";
+import {
+  IIssue,
+  IPullRequest,
+  IIntegration,
+  ICodeChurnData,
+  ITaskChartData,
+  IMergedPRData,
+  IActivityData,
+} from "@/lib/types";
+import { isIssueAssignedTo, isPRNeedingReview, isSameUser } from "@/lib/utils";
 
 interface Props {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -24,7 +33,9 @@ const getGithubIntegration = async (userId: string) => {
   const integration: IIntegration | null = await Integration.findOne({
     userId: userId,
     provider: "github",
-  }).lean();
+  })
+    .select("-accessToken")
+    .lean();
   return integration;
 };
 
@@ -34,101 +45,113 @@ const getAnalyticsData = async (userId: string, range: string = "this-month") =>
 
   const [issues, pullRequests] = await Promise.all([
     Issue.find({
-      updatedAt: { $gte: startDate },
-      userId: userId,
+      userId,
+      $or: [
+        { closedAt: { $gte: startDate } },
+        { githubCreatedAt: { $gte: startDate } },
+        { updatedAt: { $gte: startDate } },
+      ],
     }).lean(),
     PullRequest.find({
-      updatedAt: { $gte: startDate },
-      userId: userId,
+      userId,
+      $or: [
+        { mergedAt: { $gte: startDate } },
+        { githubCreatedAt: { $gte: startDate } },
+        { updatedAt: { $gte: startDate } },
+        { state: "open" },
+      ],
     }).lean(),
   ]);
 
-  return { issues: issues as IIssue[], pullRequests: pullRequests as IPullRequest[] };
+  return {
+    startDate,
+    issues: issues as IIssue[],
+    pullRequests: pullRequests as IPullRequest[],
+  };
 };
 
-const calculateCodeChurn = (prs: IPullRequest[]): ICodeChurnData[] => {
-  // If no PRs, return empty array
-  if (!prs.length) return [];
+const calculateCodeChurn = (mergedPrs: IPullRequest[]): ICodeChurnData[] => {
+  if (!mergedPrs.length) return [];
 
-  const churnMap = new Map();
+  const churnMap = new Map<string, ICodeChurnData>();
 
-  prs.forEach((pr) => {
-    const date = pr.updatedAt
-      ? new Date(pr.updatedAt).toISOString().split("T")[0]
-      : null;
-    if (date) {
-      if (!churnMap.has(date)) {
-        churnMap.set(date, {
-          day: new Date(date).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-          }),
-          additions: 0,
-          deletions: 0,
-          changedFiles: 0,
-          rawDate: date,
-        });
-      }
-      const entry = churnMap.get(date);
-      entry.additions += pr.additions || 0;
-      entry.deletions += pr.deletions || 0;
-      entry.changedFiles += pr.changedFiles || 0;
+  mergedPrs.forEach((pr) => {
+    if (!pr.mergedAt) return;
+    const dateKey = toLocalDateKey(pr.mergedAt);
+    if (!churnMap.has(dateKey)) {
+      churnMap.set(dateKey, {
+        day: formatShortMonthDay(pr.mergedAt),
+        additions: 0,
+        deletions: 0,
+        changedFiles: 0,
+        rawDate: dateKey,
+      });
     }
+    const entry = churnMap.get(dateKey)!;
+    entry.additions += pr.additions || 0;
+    entry.deletions += pr.deletions || 0;
+    entry.changedFiles += pr.changedFiles || 0;
   });
 
-  // Sort by date
-  return Array.from(churnMap.values()).sort((a: any, b: any) =>
+  return Array.from(churnMap.values()).sort((a, b) =>
     a.rawDate.localeCompare(b.rawDate),
   );
 };
 
-const calculatePrMergedAndPrReviewsRequested = (prs: IPullRequest[], githubUsername: string): ITaskChartData[] => {
-  let merged = 0;
-  let reviewsRequested = 0;
-  for (const pr of prs) {
-    if (pr.author === githubUsername && pr.mergedAt) {
-      merged++;
-    } else if (pr.author !== githubUsername && (pr.reviewRequested || pr.mentionedInDescription)) {
-      reviewsRequested++;
-    }
-  }
-  const total = merged + reviewsRequested || 1;
+const calculatePrMergedAndPrReviewsRequested = (
+  mergedCount: number,
+  reviewsRequestedCount: number,
+): ITaskChartData[] => {
+  const total = mergedCount + reviewsRequestedCount || 1;
   return [
-    { name: "My Merged PRs", value: merged, fraction: merged / total, color: "#10b981" },
-    { name: "PR Reviews Needed", value: reviewsRequested, fraction: reviewsRequested / total, color: "#f59e0b" },
+    {
+      name: "My Merged PRs",
+      value: mergedCount,
+      fraction: mergedCount / total,
+      color: "#10b981",
+    },
+    {
+      name: "PR Reviews Needed",
+      value: reviewsRequestedCount,
+      fraction: reviewsRequestedCount / total,
+      color: "#f59e0b",
+    },
   ];
 };
 
-const calculateMergedTimeline = (prs: IPullRequest[], githubUsername: string): IMergedPRData[] => {
-  const timelineMap = new Map();
+const calculateMergedTimeline = (mergedPrs: IPullRequest[]): IMergedPRData[] => {
+  const timelineMap = new Map<string, IMergedPRData>();
 
-  prs.forEach((pr) => {
-    if (pr.author === githubUsername && pr.state === "closed" && pr.mergedAt) {
-      const d = new Date(pr.mergedAt);
-      // Get week start (Monday)
-      const day = d.getDay() || 7;
-      if (day !== 1) d.setHours(-24 * (day - 1));
-      d.setHours(0, 0, 0, 0);
-      const weekLabel = `Week of ${d.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+  mergedPrs.forEach((pr) => {
+    if (!pr.mergedAt) return;
+    const d = new Date(pr.mergedAt);
+    const day = d.getDay() || 7;
+    if (day !== 1) d.setDate(d.getDate() - (day - 1));
+    d.setHours(0, 0, 0, 0);
 
-      if (!timelineMap.has(weekLabel)) {
-        timelineMap.set(weekLabel, {
-          week: weekLabel,
-          merged: 0,
-          rawDate: d.getTime(),
-        });
-      }
-      timelineMap.get(weekLabel).merged++;
+    const weekKey = toLocalDateKey(d);
+    const weekLabel = `Week of ${formatShortMonthDay(d)}`;
+
+    if (!timelineMap.has(weekKey)) {
+      timelineMap.set(weekKey, {
+        week: weekLabel,
+        merged: 0,
+        rawDate: d.getTime(),
+      });
     }
+    timelineMap.get(weekKey)!.merged++;
   });
 
-  return Array.from(timelineMap.values()).sort(
-    (a: any, b: any) => a.rawDate - b.rawDate,
-  );
+  return Array.from(timelineMap.values()).sort((a, b) => a.rawDate - b.rawDate);
 };
 
-const calculateRepoActivity = (prs: IPullRequest[], issues: IIssue[], githubUsername: string): IActivityData[] => {
-  const repoMap = new Map();
+const calculateRepoActivity = (
+  myCreatedPrs: IPullRequest[],
+  myMergedPrs: IPullRequest[],
+  issuesInRange: IIssue[],
+  githubUsername: string,
+): IActivityData[] => {
+  const repoMap = new Map<string, IActivityData>();
 
   const initRepo = (repo: string) => {
     if (!repoMap.has(repo)) {
@@ -136,24 +159,29 @@ const calculateRepoActivity = (prs: IPullRequest[], issues: IIssue[], githubUser
     }
   };
 
-  prs.forEach((pr) => {
-    if (pr.repoName && pr.author === githubUsername) {
+  myCreatedPrs.forEach((pr) => {
+    if (pr.repoName) {
       initRepo(pr.repoName);
-      const entry = repoMap.get(pr.repoName);
-      entry.prs++;
-      if (pr.state === "closed" && pr.mergedAt) entry.merged++;
+      repoMap.get(pr.repoName)!.prs++;
     }
   });
 
-  issues.forEach((issue) => {
-    if (issue.repoName && issue.assignee === githubUsername) {
+  myMergedPrs.forEach((pr) => {
+    if (pr.repoName) {
+      initRepo(pr.repoName);
+      repoMap.get(pr.repoName)!.merged++;
+    }
+  });
+
+  issuesInRange.forEach((issue) => {
+    if (issue.repoName && isIssueAssignedTo(issue, githubUsername)) {
       initRepo(issue.repoName);
-      repoMap.get(issue.repoName).issues++;
+      repoMap.get(issue.repoName)!.issues++;
     }
   });
 
   return Array.from(repoMap.values())
-    .sort((a: any, b: any) => b.prs - a.prs)
+    .sort((a, b) => b.prs + b.merged - (a.prs + a.merged))
     .slice(0, 5);
 };
 
@@ -165,7 +193,10 @@ const Analytics = async ({ searchParams }: Props) => {
 
   const params = await searchParams;
   const range = (params.range as string) || "this-month";
-  const { issues, pullRequests } = await getAnalyticsData(session.id as string, range);
+  const { startDate, issues, pullRequests } = await getAnalyticsData(
+    session.id as string,
+    range,
+  );
   const githubIntegration = await getGithubIntegration(session.id as string);
 
   if (!githubIntegration) {
@@ -181,18 +212,36 @@ const Analytics = async ({ searchParams }: Props) => {
 
   const username = githubIntegration.githubUsername;
 
-  // Filter My PRs vs PR Reviews
-  const myPullRequests = pullRequests.filter((pr) => pr.author === username);
-  const reviewPullRequests = pullRequests.filter(
-    (pr) => pr.author !== username && (pr.reviewRequested || pr.mentionedInDescription),
+  // My PRs in the selected range
+  const myPullRequests = pullRequests.filter((pr) =>
+    isSameUser(pr.author, username),
+  );
+  const myMergedPRsInRange = myPullRequests.filter(
+    (pr) =>
+      pr.state === "closed" &&
+      pr.mergedAt &&
+      new Date(pr.mergedAt) >= startDate,
+  );
+  const myCreatedPRsInRange = myPullRequests.filter(
+    (pr) => new Date(pr.githubCreatedAt || pr.updatedAt) >= startDate,
+  );
+
+  // Open PRs currently needing my review
+  const reviewPullRequests = pullRequests.filter((pr) =>
+    isPRNeedingReview(pr, username),
+  );
+
+  // Issues assigned to me in the selected range
+  const myIssuesInRange = issues.filter(
+    (i) =>
+      isIssueAssignedTo(i, username) &&
+      new Date(i.githubCreatedAt || i.updatedAt) >= startDate,
   );
 
   // Summary Metrics
-  const totalPRsMerged = myPullRequests.filter(
-    (pr) => pr.state === "closed" && pr.mergedAt,
-  ).length;
+  const totalPRsMerged = myMergedPRsInRange.length;
 
-  const totalLinesChanged = myPullRequests.reduce(
+  const totalLinesChanged = myMergedPRsInRange.reduce(
     (acc, pr) => {
       acc.added += pr.additions || 0;
       acc.removed += pr.deletions || 0;
@@ -204,15 +253,23 @@ const Analytics = async ({ searchParams }: Props) => {
   const reviewRequestedCount = reviewPullRequests.length;
 
   const closedIssuesCount = issues.filter(
-    (i) => i.state === "closed",
+    (i) =>
+      i.state === "closed" &&
+      isIssueAssignedTo(i, username) &&
+      new Date(i.closedAt || i.updatedAt) >= startDate,
   ).length;
 
   // Chart Data
-  const codeChurnData = calculateCodeChurn(myPullRequests);
+  const codeChurnData = calculateCodeChurn(myMergedPRsInRange);
   const prMergedAndPrReviewsRequested =
-    calculatePrMergedAndPrReviewsRequested(pullRequests, username);
-  const mergedTimeline = calculateMergedTimeline(pullRequests, username);
-  const repoActivity = calculateRepoActivity(pullRequests, issues, username);
+    calculatePrMergedAndPrReviewsRequested(totalPRsMerged, reviewRequestedCount);
+  const mergedTimeline = calculateMergedTimeline(myMergedPRsInRange);
+  const repoActivity = calculateRepoActivity(
+    myCreatedPRsInRange,
+    myMergedPRsInRange,
+    myIssuesInRange,
+    username,
+  );
 
   return (
     <div className="min-h-screen container">
@@ -232,7 +289,7 @@ const Analytics = async ({ searchParams }: Props) => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 my-6">
         <SummaryCard
           title="PRs Merged"
-          desc="Total PRs merged"
+          desc="Total PRs merged in period"
           value={totalPRsMerged}
           icon={
             <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center justify-center">
@@ -242,7 +299,7 @@ const Analytics = async ({ searchParams }: Props) => {
         />
         <SummaryCard
           title="Lines Changed"
-          desc="Total lines added and removed"
+          desc="Lines added & removed in merged PRs"
           value={totalLinesChanged.added + totalLinesChanged.removed}
           icon={
             <div className="w-10 h-10 bg-indigo-500/10 border border-indigo-500/20 rounded-lg flex items-center justify-center">
@@ -259,7 +316,7 @@ const Analytics = async ({ searchParams }: Props) => {
         />
         <SummaryCard
           title="Review Requested"
-          desc="Total PRs that need your review"
+          desc="Open PRs awaiting your review"
           value={reviewRequestedCount}
           icon={
             <div className="w-10 h-10 bg-amber-500/10 border border-amber-500/20 rounded-lg flex items-center justify-center">

@@ -43,7 +43,7 @@ const Dashboard = async () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 my-6">
         <SummaryCard
           title="Today's PRs"
-          desc={`${todayStats.merged} merged, ${todayStats.open} open`}
+          desc={`${todayStats.merged} merged, ${todayStats.open} open${todayStats.closed ? `, ${todayStats.closed} closed` : ""}`}
           value={todayStats.total}
           icon={
             <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center justify-center">
