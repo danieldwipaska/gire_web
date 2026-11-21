@@ -161,7 +161,12 @@ const Dashboard = async ({ searchParams }: Props) => {
 
       {/* PRs & Issues */}
       <div className="mb-8">
-        <TaskIndex issues={issues} pullRequests={userPullRequests} />
+        <TaskIndex
+          issues={issues}
+          pullRequests={userPullRequests}
+          projects={projects}
+          integrations={integrations}
+        />
       </div>
 
       {/* Analytics/Chart */}
@@ -172,7 +177,12 @@ const Dashboard = async ({ searchParams }: Props) => {
       {/* Reviews & Integrations */}
       <div className="flex flex-col md:flex-row gap-6 mb-6">
         <div className="flex-1">
-          <ReviewList reviews={reviews} isLoading={false} />
+          <ReviewList
+            reviews={reviews}
+            isLoading={false}
+            projects={projects}
+            integrations={integrations}
+          />
         </div>
         <div className="flex-1">
           <IntegrationList integrations={integrations} isLoading={false} />

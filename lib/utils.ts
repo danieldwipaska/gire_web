@@ -1,4 +1,4 @@
-import { IIssue, IPullRequest } from "./types";
+import { IIntegration, IIssue, IProject, IPullRequest, ProjectCategory } from "./types";
 
 export const getTimeAgo = (date: string | Date) => {
   const now = new Date();
@@ -82,6 +82,50 @@ export const toFigmaEmbedUrl = (url: string): string => {
     return trimmed;
   }
   return `https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(trimmed)}`;
+};
+
+export const buildCategoryMaps = (
+  projects: IProject[] = [],
+  integrations: IIntegration[] = [],
+) => {
+  const repoCategoriesMap: Record<string, ProjectCategory[]> = {};
+  for (const project of projects) {
+    for (const repo of project.repos || []) {
+      const key = repo.toLowerCase();
+      if (!repoCategoriesMap[key]) repoCategoriesMap[key] = [];
+      if (!repoCategoriesMap[key].includes(project.category)) {
+        repoCategoriesMap[key].push(project.category);
+      }
+    }
+  }
+
+  const integrationCategoryMap: Record<string, ProjectCategory> = {};
+  for (const integration of integrations) {
+    const label = integration.label?.trim().toLowerCase();
+    if (label === "office" || label === "freelance" || label === "personal") {
+      integrationCategoryMap[integration._id] = label;
+    }
+  }
+
+  return { repoCategoriesMap, integrationCategoryMap };
+};
+
+export const matchesCategoryFilter = (
+  item: { repoName?: string; integrationId?: string },
+  filter: "all" | ProjectCategory,
+  repoCategoriesMap: Record<string, ProjectCategory[]>,
+  integrationCategoryMap: Record<string, ProjectCategory>,
+): boolean => {
+  if (filter === "all") return true;
+  const repoKey = item.repoName?.toLowerCase() || "";
+  const repoCategories = repoCategoriesMap[repoKey];
+  if (repoCategories && repoCategories.length > 0) {
+    return repoCategories.includes(filter);
+  }
+  if (item.integrationId && integrationCategoryMap[item.integrationId]) {
+    return integrationCategoryMap[item.integrationId] === filter;
+  }
+  return false;
 };
 
 export const parseGitHubUrl = (

@@ -35,6 +35,7 @@ export interface IIssue {
   githubCreatedAt?: string | Date;
   closedAt?: string | Date | null;
   updatedAt: string | Date;
+  integrationId?: string;
   userId: string;
 }
 
@@ -58,6 +59,7 @@ export interface IPullRequest {
   closedAt?: string | Date | null;
   mergedAt: string | Date | null;
   updatedAt: string | Date;
+  integrationId?: string;
   userId: string;
 }
 

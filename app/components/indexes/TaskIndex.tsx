@@ -3,15 +3,19 @@
 import IssueList from "../lists/IssueList";
 import PullRequestList from "../lists/PullRequestList";
 import Tabs from "../Tabs";
-import { IIssue, IPullRequest } from "@/lib/types";
+import { IIntegration, IIssue, IProject, IPullRequest } from "@/lib/types";
 import { useMemo, useState } from "react";
 
 const TaskIndex = ({
   issues,
   pullRequests,
+  projects = [],
+  integrations = [],
 }: {
   issues: IIssue[];
   pullRequests: IPullRequest[];
+  projects?: IProject[];
+  integrations?: IIntegration[];
 }) => {
   const [selectedTab, setSelectedTab] = useState<string>("Today");
 
@@ -61,10 +65,20 @@ const TaskIndex = ({
       {/* PR Items */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         <div className="col-span-1 md:col-span-3">
-          <PullRequestList pullRequests={filteredPullRequests} isLoading={false} />
+          <PullRequestList
+            pullRequests={filteredPullRequests}
+            isLoading={false}
+            projects={projects}
+            integrations={integrations}
+          />
         </div>
         <div className="col-span-1 md:col-span-2">
-          <IssueList issues={issues} isLoading={false} />
+          <IssueList
+            issues={issues}
+            isLoading={false}
+            projects={projects}
+            integrations={integrations}
+          />
         </div>
       </div>
     </div>
