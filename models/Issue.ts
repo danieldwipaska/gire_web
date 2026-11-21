@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const IssueSchema = new mongoose.Schema({
-  githubId: { type: Number, unique: true },
+  githubId: { type: Number, required: true },
   title: String,
   state: String,
   repoName: String,
@@ -9,8 +9,13 @@ const IssueSchema = new mongoose.Schema({
   mentionedInDescription: Boolean,
   author: String,
   assignee: String,
+  assignees: { type: [String], default: [] },
+  githubCreatedAt: Date,
+  closedAt: Date,
   updatedAt: Date,
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 });
+
+IssueSchema.index({ userId: 1, githubId: 1 }, { unique: true });
 
 export default mongoose.models.Issue || mongoose.model("Issue", IssueSchema);

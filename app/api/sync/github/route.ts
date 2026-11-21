@@ -8,10 +8,18 @@ export async function POST(req: NextRequest) {
   try {
     const session = await verifyAuth(req);
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     await connectDB();
+
+    let fullSync = false;
+    try {
+      const body = await req.json();
+      fullSync = Boolean(body?.fullSync);
+    } catch {
+      // Empty body is fine
+    }
 
     const githubIntegration = await Integration.findOne({
       userId: session.id,
@@ -29,8 +37,6 @@ export async function POST(req: NextRequest) {
     const writer = writable.getWriter();
     const encoder = new TextEncoder();
 
-    // Start sync in background (or rather, concurrently with response stream)
-    // We don't await here because we want to return the stream immediately
     syncGitHubData(
       githubIntegration.userId.toString(),
       githubIntegration.accessToken,
@@ -41,22 +47,30 @@ export async function POST(req: NextRequest) {
         } catch (error) {
           console.error("Error writing to stream:", error);
         }
-      }
+      },
+      { fullSync, integrationId: githubIntegration._id.toString() },
     )
       .then(async () => {
         await writer.close();
       })
       .catch(async (error) => {
         console.error("Sync error:", error);
-        const data = JSON.stringify({ error: "Sync failed" }) + "\n";
-        await writer.write(encoder.encode(data));
-        await writer.close();
+        try {
+          const errorMessage =
+            error instanceof Error ? error.message : "Sync failed";
+          const data = JSON.stringify({ error: errorMessage }) + "\n";
+          await writer.write(encoder.encode(data));
+          await writer.close();
+        } catch {
+          // Stream may already be closed if client aborted
+        }
       });
 
     return new NextResponse(readable, {
       headers: {
         "Content-Type": "text/plain; charset=utf-8",
         "Transfer-Encoding": "chunked",
+        "Cache-Control": "no-store",
       },
     });
   } catch (error) {

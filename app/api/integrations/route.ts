@@ -1,6 +1,7 @@
 import connectDB from '@/lib/mongodb';
 import Integration from '@/models/Integration';
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyAuth } from '@/lib/auth';
 
 type IntegrationPayload = {
   userId: string;
@@ -11,8 +12,6 @@ type IntegrationPayload = {
   status: 'active' | 'expired';
 };
 
-import { verifyAuth } from '@/lib/auth';
-
 export async function POST(req: NextRequest) {
   const session = await verifyAuth(req);
   if (!session) {
@@ -22,13 +21,23 @@ export async function POST(req: NextRequest) {
   await connectDB();
 
   try {
+    await Integration.syncIndexes();
+
     const { provider, githubUsername, accessToken, lastSync, status }: IntegrationPayload = await req.json();
 
-    // CHECK UNIQUE PROVIDER
-    const integration = await Integration.exists({ provider, userId: session.id });
-    if (integration) return NextResponse.json({ error: 'Integration Already Exists' }, { status: 400, statusText: 'BAD REQUEST' });
+    // Check unique provider + username per user
+    const integration = await Integration.exists({
+      provider,
+      githubUsername,
+      userId: session.id,
+    });
+    if (integration) {
+      return NextResponse.json(
+        { error: 'Integration Already Exists' },
+        { status: 400, statusText: 'BAD REQUEST' },
+      );
+    }
 
-    // ADD TO DATABASE
     const newIntegration = await Integration.create({
       userId: session.id,
       provider,
@@ -38,7 +47,10 @@ export async function POST(req: NextRequest) {
       status,
     });
 
-    return NextResponse.json(newIntegration, { status: 200, statusText: 'OK' });
+    const sanitized = newIntegration.toObject();
+    delete sanitized.accessToken;
+
+    return NextResponse.json(sanitized, { status: 200, statusText: 'OK' });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Server Error' }, { status: 500, statusText: 'INTERNAL SERVER ERROR' });
@@ -56,7 +68,9 @@ export async function GET(req: NextRequest) {
   try {
     const integrations = await Integration.find({
       userId: session.id,
-    }).lean();
+    })
+      .select('-accessToken')
+      .lean();
 
     return NextResponse.json(integrations, { status: 200, statusText: 'OK' });
   } catch (error) {
@@ -64,7 +78,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Server Error' }, { status: 500, statusText: 'INTERNAL SERVER ERROR' });
   }
 }
-
 
 export async function DELETE(req: NextRequest) {
   const session = await verifyAuth(req);
@@ -88,7 +101,7 @@ export async function DELETE(req: NextRequest) {
 
     return NextResponse.json({ message: 'Integration deleted' }, { status: 200 });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return NextResponse.json({ error: 'Server Error' }, { status: 500 });
   }
 }

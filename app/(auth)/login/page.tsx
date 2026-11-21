@@ -35,6 +35,7 @@ export default function LoginPage() {
     const err = validate();
     if (Object.keys(err).length) {
       setErrors(err);
+      setLoading(false);
       return;
     }
 
