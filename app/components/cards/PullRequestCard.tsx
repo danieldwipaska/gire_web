@@ -42,9 +42,9 @@ const PullRequestCard = ({
   const getStatusColor = (status: "merged" | "open" | "closed") => {
     switch (status) {
       case "merged":
-        return "bg-[#5432EE]/12 text-[#5432EE] border-[#5432EE]/25";
+        return "bg-brand-violet/12 text-brand-violet border-brand-violet/25";
       case "open":
-        return "bg-[#69D7D8]/25 text-[#0F766E] border-[#69D7D8]/50";
+        return "bg-brand-mint/25 text-brand-mint-ink border-brand-mint/50";
       case "closed":
         return "bg-rose-100 text-rose-700 border-rose-200";
     }
@@ -55,16 +55,16 @@ const PullRequestCard = ({
   return (
     <div
       onClick={() => openDetailByUrl(url)}
-      className="bg-[#F9F9F9] border border-[#E2E2E2] rounded-2xl p-4 hover:border-[#5432EE]/45 hover:bg-[#FFFFFF] hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(28,28,31,0.06)] transition-all duration-200 cursor-pointer group"
+      className="bg-highlight border border-line rounded-2xl p-4 hover:border-brand-violet/45 hover:bg-white hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(28,28,31,0.06)] transition-all duration-200 cursor-pointer group"
     >
       <div className="flex items-start gap-3">
-        <div className="w-9 h-9 bg-[#5432EE]/10 border border-[#5432EE]/20 rounded-xl flex items-center justify-center shrink-0">
-          <GitPullRequest className="w-4 h-4 text-[#5432EE]" />
+        <div className="w-9 h-9 bg-brand-violet/10 border border-brand-violet/20 rounded-xl flex items-center justify-center shrink-0">
+          <GitPullRequest className="w-4 h-4 text-brand-violet" />
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1.5">
-            <h4 className="text-[#1C1C1F] font-bold text-sm sm:text-base truncate group-hover:text-[#5432EE] transition-colors">
+            <h4 className="text-ink font-bold text-sm sm:text-base truncate group-hover:text-brand-violet transition-colors">
               {title}
             </h4>
             <div className="flex items-center gap-1.5 shrink-0">
@@ -80,7 +80,7 @@ const PullRequestCard = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="p-1.5 rounded-full text-[#6E6E77] hover:text-[#1C1C1F] hover:bg-[#EEEEEE] transition-colors"
+                className="p-1.5 rounded-full text-ink-muted hover:text-ink hover:bg-card transition-colors"
                 title="Open on GitHub"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -88,27 +88,27 @@ const PullRequestCard = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-3 text-xs text-[#6E6E77] mb-3 flex-wrap">
-            <span className="flex items-center gap-1.5 font-medium text-[#1C1C1F]">
-              <GitBranch className="w-3.5 h-3.5 text-[#6E6E77]" />
+          <div className="flex items-center gap-3 text-xs text-ink-muted mb-3 flex-wrap">
+            <span className="flex items-center gap-1.5 font-medium text-ink">
+              <GitBranch className="w-3.5 h-3.5 text-ink-muted" />
               {repoName}
             </span>
-            <span className="text-[#C8C8CE]">•</span>
+            <span className="text-line-dashed">•</span>
             <span suppressHydrationWarning>{getTimeAgo(updatedAt)}</span>
             {author && (
               <>
-                <span className="text-[#C8C8CE]">•</span>
-                <span className="flex items-center gap-1 text-[#1C1C1F] font-medium bg-[#FFFFFF] px-2.5 py-0.5 rounded-full border border-[#E2E2E2]">
-                  <User className="w-3 h-3 text-[#6E6E77]" />
+                <span className="text-line-dashed">•</span>
+                <span className="flex items-center gap-1 text-ink font-medium bg-card px-2.5 py-0.5 rounded-full border border-line">
+                  <User className="w-3 h-3 text-ink-muted" />
                   @{author}
                 </span>
               </>
             )}
           </div>
 
-          <div className="flex items-center justify-between pt-2 border-t border-[#EEEEEE]">
+          <div className="flex items-center justify-between pt-2 border-t border-line">
             <div className="flex items-center gap-3 text-xs font-semibold">
-              <span className="flex items-center gap-1 text-[#0F766E]">
+              <span className="flex items-center gap-1 text-brand-mint-ink">
                 <Plus className="w-3.5 h-3.5" />
                 {additions}
               </span>
@@ -116,8 +116,8 @@ const PullRequestCard = ({
                 <Minus className="w-3.5 h-3.5" />
                 {deletions}
               </span>
-              <span className="flex items-center gap-1 text-[#6E6E77] bg-[#FFFFFF] px-2.5 py-0.5 rounded-full border border-[#E2E2E2]">
-                <MessageSquare className="w-3.5 h-3.5 text-[#6E6E77]" />
+              <span className="flex items-center gap-1 text-ink-muted bg-card px-2.5 py-0.5 rounded-full border border-line">
+                <MessageSquare className="w-3.5 h-3.5 text-ink-muted" />
                 {comments} {comments === 1 ? "comment" : "comments"}
               </span>
             </div>

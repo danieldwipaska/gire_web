@@ -176,17 +176,17 @@ export default function GitHubIntegrationPanel({ integrations }: Props) {
   const showAddForm = mode === "add" || integrations.length === 0;
 
   return (
-    <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-6 flex flex-col justify-between gap-5 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
+    <div className="bg-card border border-line rounded-3xl p-6 flex flex-col justify-between gap-5 shadow-[0_2px_12px_rgba(28,28,31,0.04)]">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#1C1C1F] flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-2xl bg-ink flex items-center justify-center shrink-0">
             <Github className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-[#1C1C1F] tracking-tight">
+            <h3 className="text-lg font-bold text-ink tracking-tight">
               GitHub Integration
             </h3>
-            <p className="text-xs text-[#6E6E77]">
+            <p className="text-xs text-ink-muted">
               Connect your GitHub username &amp; Personal Access Token
             </p>
           </div>
@@ -196,7 +196,7 @@ export default function GitHubIntegrationPanel({ integrations }: Props) {
           <button
             type="button"
             onClick={startAddMode}
-            className="text-xs font-semibold text-[#5432EE] hover:text-[#418CFF] flex items-center gap-1 cursor-pointer shrink-0"
+            className="text-xs font-semibold text-brand-violet hover:text-brand-blue flex items-center gap-1 cursor-pointer shrink-0"
           >
             <Plus className="w-3.5 h-3.5" />
             Add Account
@@ -220,8 +220,8 @@ export default function GitHubIntegrationPanel({ integrations }: Props) {
                 }}
                 className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors cursor-pointer ${
                   selected
-                    ? "bg-[#1C1C1F] border-[#1C1C1F] text-white"
-                    : "bg-[#F4F4F6] border-[#E2E2E2] text-[#6E6E77] hover:text-[#1C1C1F]"
+                    ? "bg-ink border-ink text-white"
+                    : "bg-highlight border-line text-ink-muted hover:text-ink"
                 }`}
               >
                 @{item.githubUsername}
@@ -238,7 +238,7 @@ export default function GitHubIntegrationPanel({ integrations }: Props) {
         </div>
       )}
       {notice && (
-        <div className="text-xs text-[#0F766E] bg-[#69D7D8]/20 border border-[#69D7D8]/40 rounded-2xl px-3.5 py-2.5 font-medium">
+        <div className="text-xs text-brand-mint-ink bg-brand-mint/20 border border-brand-mint/40 rounded-2xl px-3.5 py-2.5 font-medium">
           {notice}
         </div>
       )}
@@ -247,27 +247,27 @@ export default function GitHubIntegrationPanel({ integrations }: Props) {
         <form onSubmit={handleConnect} className="space-y-3.5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1C1C1F] mb-1">
+              <label className="block text-xs font-semibold text-ink mb-1">
                 GitHub Username{" "}
-                <span className="text-[#8A8A93] font-normal">(optional)</span>
+                <span className="text-ink-subtle font-normal">(optional)</span>
               </label>
               <input
                 type="text"
                 value={githubUsername}
                 onChange={(e) => setGithubUsername(e.target.value)}
                 placeholder="Auto-detected from token"
-                className="w-full px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F] placeholder-[#8A8A93] focus:outline-none focus:bg-white focus:border-[#5432EE]"
+                className="w-full px-3.5 py-2 bg-highlight border border-line rounded-2xl text-sm text-ink placeholder-ink-subtle focus:outline-none focus:bg-white focus:border-brand-violet"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#1C1C1F] mb-1">
+              <label className="block text-xs font-semibold text-ink mb-1">
                 Account Label
               </label>
               <select
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
-                className="w-full px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F] focus:outline-none focus:bg-white focus:border-[#5432EE]"
+                className="w-full px-3.5 py-2 bg-highlight border border-line rounded-2xl text-sm text-ink focus:outline-none focus:bg-white focus:border-brand-violet"
               >
                 <option value="Office">Office</option>
                 <option value="Freelance">Freelance</option>
@@ -277,7 +277,7 @@ export default function GitHubIntegrationPanel({ integrations }: Props) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1C1C1F] mb-1">
+            <label className="block text-xs font-semibold text-ink mb-1">
               Personal Access Token (Secret Key)
             </label>
             <input
@@ -286,10 +286,10 @@ export default function GitHubIntegrationPanel({ integrations }: Props) {
               value={accessToken}
               onChange={(e) => setAccessToken(e.target.value)}
               placeholder="ghp_..."
-              className="w-full px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F] placeholder-[#8A8A93] focus:outline-none focus:bg-white focus:border-[#5432EE]"
+              className="w-full px-3.5 py-2 bg-highlight border border-line rounded-2xl text-sm text-ink placeholder-ink-subtle focus:outline-none focus:bg-white focus:border-brand-violet"
             />
-            <p className="text-[11px] text-[#6E6E77] mt-1">
-              Requires <code className="px-1 py-0.5 bg-[#EEEEEE] rounded text-[#1C1C1F]">repo</code> scope in
+            <p className="text-[11px] text-ink-muted mt-1">
+              Requires <code className="px-1 py-0.5 bg-card rounded text-ink">repo</code> scope in
               GitHub Developer Settings.
             </p>
           </div>
@@ -302,7 +302,7 @@ export default function GitHubIntegrationPanel({ integrations }: Props) {
                   setMode("view");
                   setError("");
                 }}
-                className="px-3.5 py-2 text-xs font-semibold text-[#6E6E77] hover:text-[#1C1C1F] cursor-pointer"
+                className="px-3.5 py-2 text-xs font-semibold text-ink-muted hover:text-ink cursor-pointer"
                 disabled={saving}
               >
                 Cancel
@@ -317,25 +317,25 @@ export default function GitHubIntegrationPanel({ integrations }: Props) {
         <form onSubmit={handleUpdate} className="space-y-3.5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1C1C1F] mb-1">
+              <label className="block text-xs font-semibold text-ink mb-1">
                 GitHub Username
               </label>
               <input
                 type="text"
                 disabled
                 value={`@${activeIntegration.githubUsername}`}
-                className="w-full px-3.5 py-2 bg-[#EEEEEE] border border-[#E2E2E2] rounded-2xl text-sm text-[#6E6E77]"
+                className="w-full px-3.5 py-2 bg-card border border-canvas rounded-2xl text-sm text-ink-muted"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#1C1C1F] mb-1">
+              <label className="block text-xs font-semibold text-ink mb-1">
                 Account Label
               </label>
               <select
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
-                className="w-full px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F] focus:outline-none focus:bg-white focus:border-[#5432EE]"
+                className="w-full px-3.5 py-2 bg-highlight border border-line rounded-2xl text-sm text-ink focus:outline-none focus:bg-white focus:border-brand-violet"
               >
                 <option value="Office">Office</option>
                 <option value="Freelance">Freelance</option>
@@ -345,16 +345,16 @@ export default function GitHubIntegrationPanel({ integrations }: Props) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1C1C1F] mb-1">
+            <label className="block text-xs font-semibold text-ink mb-1">
               New Personal Access Token{" "}
-              <span className="text-[#8A8A93] font-normal">(leave blank to keep current)</span>
+              <span className="text-ink-subtle font-normal">(leave blank to keep current)</span>
             </label>
             <input
               type="password"
               value={accessToken}
               onChange={(e) => setAccessToken(e.target.value)}
               placeholder="ghp_..."
-              className="w-full px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F] placeholder-[#8A8A93] focus:outline-none focus:bg-white focus:border-[#5432EE]"
+              className="w-full px-3.5 py-2 bg-highlight border border-line rounded-2xl text-sm text-ink placeholder-ink-subtle focus:outline-none focus:bg-white focus:border-brand-violet"
             />
           </div>
 
@@ -365,7 +365,7 @@ export default function GitHubIntegrationPanel({ integrations }: Props) {
                 setMode("view");
                 setError("");
               }}
-              className="px-3.5 py-2 text-xs font-semibold text-[#6E6E77] hover:text-[#1C1C1F] cursor-pointer"
+              className="px-3.5 py-2 text-xs font-semibold text-ink-muted hover:text-ink cursor-pointer"
               disabled={saving}
             >
               Cancel
@@ -376,21 +376,21 @@ export default function GitHubIntegrationPanel({ integrations }: Props) {
           </div>
         </form>
       ) : activeIntegration ? (
-        <div className="bg-[#F9F9F9] border border-[#E2E2E2] rounded-2xl p-4 space-y-4">
+        <div className="bg-highlight border border-line rounded-2xl p-4 space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-base font-bold text-[#1C1C1F]">
+                <span className="text-base font-bold text-ink">
                   @{activeIntegration.githubUsername}
                 </span>
                 {activeIntegration.label && (
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-[#5432EE]/10 text-[#5432EE] border border-[#5432EE]/20">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-brand-violet/10 text-brand-violet border border-brand-violet/20">
                     {activeIntegration.label}
                   </span>
                 )}
               </div>
               <p
-                className="text-xs text-[#6E6E77] mt-1"
+                className="text-xs text-ink-muted mt-1"
                 suppressHydrationWarning
               >
                 {activeIntegration.lastSync
@@ -402,7 +402,7 @@ export default function GitHubIntegrationPanel({ integrations }: Props) {
             <span
               className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider border shrink-0 ${
                 activeIntegration.status === "active"
-                  ? "bg-[#69D7D8]/25 text-[#0F766E] border-[#69D7D8]/50"
+                  ? "bg-brand-mint/25 text-brand-mint-ink border-brand-mint/50"
                   : "bg-rose-100 text-rose-700 border-rose-200"
               }`}
             >
@@ -415,13 +415,13 @@ export default function GitHubIntegrationPanel({ integrations }: Props) {
             </span>
           </div>
 
-          <div className="flex items-center justify-between gap-2 pt-3 border-t border-[#EEEEEE]">
+          <div className="flex items-center justify-between gap-2 pt-3 border-t border-card">
             <button
               type="button"
               onClick={startEditMode}
-              className="px-3.5 py-1.5 rounded-full bg-[#FFFFFF] hover:bg-[#EEEEEE] border border-[#E2E2E2] text-xs font-semibold text-[#1C1C1F] flex items-center gap-1.5 cursor-pointer transition-colors"
+              className="px-3.5 py-1.5 rounded-full bg-card hover:bg-canvas border border-line text-xs font-semibold text-ink flex items-center gap-1.5 cursor-pointer transition-colors"
             >
-              <KeyRound className="w-3.5 h-3.5 text-[#5432EE]" />
+              <KeyRound className="w-3.5 h-3.5 text-brand-violet" />
               Update Token
             </button>
 

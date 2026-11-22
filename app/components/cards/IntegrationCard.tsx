@@ -48,7 +48,7 @@ const IntegrationCard = ({ integration }: Props) => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "active":
-        return <CheckCircle2 className="w-4 h-4 text-[#0F766E]" />;
+        return <CheckCircle2 className="w-4 h-4 text-brand-mint-ink" />;
       case "expired":
         return <XCircle className="w-4 h-4 text-rose-600" />;
     }
@@ -57,30 +57,30 @@ const IntegrationCard = ({ integration }: Props) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
-        return "bg-[#69D7D8]/25 text-[#0F766E] border-[#69D7D8]/50";
+        return "bg-brand-mint/25 text-brand-mint-ink border-brand-mint/50";
       case "expired":
         return "bg-rose-100 text-rose-700 border-rose-200";
     }
   };
   const IconComponent = iconMap[integration.provider] || Sheet;
   return (
-    <div key={integration._id} className="bg-[#F9F9F9] border border-[#E2E2E2] rounded-2xl p-4 hover:border-[#5432EE]/40 hover:bg-[#FFFFFF] transition-all group">
+    <div key={integration._id} className="bg-highlight border border-line rounded-2xl p-4 hover:border-brand-violet/40 hover:bg-white transition-all group">
       <div className="flex items-center gap-3">
-        <div className="w-9 h-9 bg-[#5432EE]/10 border border-[#5432EE]/20 rounded-xl flex items-center justify-center shrink-0">
-          <IconComponent className="w-4 h-4 text-[#5432EE]" />
+        <div className="w-9 h-9 bg-brand-violet/10 border border-brand-violet/20 rounded-xl flex items-center justify-center shrink-0">
+          <IconComponent className="w-4 h-4 text-brand-violet" />
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
-            <h5 className="text-[#1C1C1F] font-bold text-sm sm:text-base">@{integration.githubUsername}</h5>
+            <h5 className="text-ink font-bold text-sm sm:text-base">@{integration.githubUsername}</h5>
             {integration.label && (
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-[#5432EE]/10 text-[#5432EE] border border-[#5432EE]/20">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-brand-violet/10 text-brand-violet border border-brand-violet/20">
                 {integration.label}
               </span>
             )}
             {getStatusIcon(integration.status)}
           </div>
-          <p className="text-[#6E6E77] text-xs" suppressHydrationWarning>
+          <p className="text-ink-muted text-xs" suppressHydrationWarning>
             {integration.lastSync
               ? `Last sync: ${formatDistanceToNow(new Date(integration.lastSync), { addSuffix: true })}`
               : "Never synced yet"}
@@ -94,7 +94,7 @@ const IntegrationCard = ({ integration }: Props) => {
           <button
             onClick={handleDelete}
             disabled={isDeleting}
-            className="p-1.5 hover:bg-rose-50 rounded-full text-[#8A8A93] hover:text-rose-600 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+            className="p-1.5 hover:bg-rose-50 rounded-full text-ink-subtle hover:text-rose-600 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
             title="Delete Integration"
           >
             <Trash2 className="w-4 h-4" />

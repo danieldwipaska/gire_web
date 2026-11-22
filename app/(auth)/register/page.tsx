@@ -86,34 +86,34 @@ export default function RegisterPage() {
     };
 
   return (
-    <div className="relative min-h-screen bg-[#F9F9F9] flex items-center justify-center px-4 py-12 overflow-hidden">
+    <div className="relative min-h-screen bg-canvas flex items-center justify-center px-4 py-12 overflow-hidden">
       {/* Ambient Pastel Orbs */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -top-28 -right-24 w-96 h-96 rounded-full bg-[#69D7D8]/20 blur-3xl animate-float-slow"
+        className="pointer-events-none absolute -top-28 -right-24 w-96 h-96 rounded-full bg-brand-mint/20 blur-3xl animate-float-slow"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -bottom-28 -left-24 w-96 h-96 rounded-full bg-[#5432EE]/15 blur-3xl animate-float-reverse"
+        className="pointer-events-none absolute -bottom-28 -left-24 w-96 h-96 rounded-full bg-brand-violet/15 blur-3xl animate-float-reverse"
       />
 
       <div className="relative max-w-md w-full animate-fade-up">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-[#1C1C1F] rounded-2xl flex items-center justify-center mx-auto mb-3.5 shadow-[0_8px_20px_rgba(28,28,31,0.18)] text-white font-bold text-xl">
+          <div className="w-12 h-12 bg-ink rounded-2xl flex items-center justify-center mx-auto mb-3.5 shadow-[0_8px_20px_rgba(28,28,31,0.18)] text-white font-bold text-xl">
             G
           </div>
-          <h2 className="text-2xl font-bold text-[#1C1C1F] mb-1 tracking-tight">
+          <h2 className="text-2xl font-bold text-ink mb-1 tracking-tight">
             Create Super User Account
           </h2>
-          <p className="text-[#6E6E77] text-sm">
+          <p className="text-ink-muted text-sm">
             Register as a Super User to create Workspaces and manage your team
           </p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-8 shadow-[0_12px_40px_rgba(28,28,31,0.06)]"
+          className="bg-card border border-line rounded-3xl p-8 shadow-[0_12px_40px_rgba(28,28,31,0.08)]"
         >
           {errors.form && (
             <div className="mb-4 text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-2xl p-3 font-medium">
@@ -155,7 +155,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setShowPw((v) => !v)}
-                  className="text-[#6E6E77] hover:text-[#1C1C1F] transition-colors text-xs font-semibold cursor-pointer"
+                  className="text-ink-muted hover:text-ink transition-colors text-xs font-semibold cursor-pointer"
                 >
                   {showPw ? "Hide" : "Show"}
                 </button>
@@ -166,7 +166,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-6 bg-[#1C1C1F] hover:bg-[#2C2C32] active:scale-[0.99] text-white py-3 rounded-full text-sm font-semibold transition-all disabled:opacity-60 flex items-center justify-center gap-2 cursor-pointer shadow-[0_6px_18px_rgba(28,28,31,0.18)]"
+            className="w-full mt-6 bg-ink hover:bg-ink-hover active:scale-[0.99] text-white py-3 rounded-full text-sm font-semibold transition-all disabled:opacity-60 flex items-center justify-center gap-2 cursor-pointer shadow-[0_6px_18px_rgba(28,28,31,0.18)]"
           >
             {loading ? (
               <>
@@ -178,11 +178,11 @@ export default function RegisterPage() {
           </button>
         </form>
 
-        <p className="text-center text-sm text-[#6E6E77] mt-6">
+        <p className="text-center text-sm text-ink-muted mt-6">
           Already have an account?{" "}
           <Link
             href="/login"
-            className="text-[#5432EE] hover:text-[#418CFF] font-semibold transition-colors"
+            className="text-brand-violet hover:text-brand-blue font-semibold transition-colors"
           >
             Sign in
           </Link>

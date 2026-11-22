@@ -220,13 +220,13 @@ export default function StorageIntegrationsPanel({
   return (
     <div className="space-y-6 animate-fade-up">
       {/* Active Storage Status Banner */}
-      <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
+      <div className="bg-card border border-line rounded-3xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_2px_12px_rgba(28,28,31,0.04)]">
         <div className="flex items-start gap-3.5">
           <div
             className={`w-10 h-10 rounded-2xl border flex items-center justify-center shrink-0 ${
               activeProvider === "local"
-                ? "bg-[#F4F4F6] border-[#E2E2E2] text-[#1C1C1F]"
-                : "bg-[#5432EE]/12 border-[#5432EE]/25 text-[#5432EE]"
+                ? "bg-highlight border-line text-ink"
+                : "bg-brand-violet/12 border-brand-violet/25 text-brand-violet"
             }`}
           >
             {activeProvider === "local" ? (
@@ -237,10 +237,10 @@ export default function StorageIntegrationsPanel({
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-base font-bold text-[#1C1C1F]">
+              <h3 className="text-base font-bold text-ink">
                 Note Image Storage Destination
               </h3>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#69D7D8]/25 text-[#0F766E] border border-[#69D7D8]/50">
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-mint/25 text-brand-mint-ink border border-brand-mint/50">
                 Active:{" "}
                 {activeProvider === "cloudflare_r2"
                   ? `Cloudflare R2 (${activeIntegration?.bucket})`
@@ -249,7 +249,7 @@ export default function StorageIntegrationsPanel({
                     : "Local Server (uploads/)"}
               </span>
             </div>
-            <p className="text-xs text-[#6E6E77] mt-1">
+            <p className="text-xs text-ink-muted mt-1">
               {activeProvider === "local"
                 ? "Neither Cloudflare R2 nor GCP Storage is active. Images pasted or uploaded in Notes are automatically saved on this VPS server."
                 : "Images pasted or uploaded in Notes will be stored directly in your active cloud bucket. Leave Public Base URL blank if your bucket is private—GiRe will serve them securely."}
@@ -262,7 +262,7 @@ export default function StorageIntegrationsPanel({
             type="button"
             disabled={switching}
             onClick={() => void handleSwitchProvider("local")}
-            className="px-4 py-2 rounded-full bg-[#F4F4F6] hover:bg-[#EEEEEE] border border-[#E2E2E2] text-xs font-semibold text-[#1C1C1F] flex items-center gap-1.5 shrink-0 cursor-pointer disabled:opacity-60"
+            className="px-4 py-2 rounded-full bg-highlight hover:bg-white border border-line text-xs font-semibold text-ink flex items-center gap-1.5 shrink-0 cursor-pointer disabled:opacity-60"
           >
             <HardDrive className="w-3.5 h-3.5" />
             Use Local Server Instead
@@ -276,7 +276,7 @@ export default function StorageIntegrationsPanel({
         </div>
       )}
       {notice && (
-        <div className="text-xs text-[#0F766E] bg-[#69D7D8]/20 border border-[#69D7D8]/40 rounded-2xl px-4 py-3 font-medium">
+        <div className="text-xs text-brand-mint-ink bg-brand-mint/20 border border-brand-mint/40 rounded-2xl px-4 py-3 font-medium">
           {notice}
         </div>
       )}
@@ -284,33 +284,33 @@ export default function StorageIntegrationsPanel({
       {/* Provider Cards Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         {/* Cloudflare R2 Card */}
-        <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-6 space-y-4 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
+        <div className="bg-card border border-line rounded-3xl p-6 space-y-4 shadow-[0_2px_12px_rgba(28,28,31,0.04)]">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-[#418CFF]/15 border border-[#418CFF]/25 flex items-center justify-center shrink-0">
-                <Cloud className="w-5 h-5 text-[#2563EB]" />
+              <div className="w-10 h-10 rounded-2xl bg-brand-blue/15 border border-brand-blue/25 flex items-center justify-center shrink-0">
+                <Cloud className="w-5 h-5 text-brand-blue-ink" />
               </div>
               <div>
-                <h4 className="text-base font-bold text-[#1C1C1F]">
+                <h4 className="text-base font-bold text-ink">
                   Cloudflare R2
                 </h4>
-                <p className="text-xs text-[#6E6E77]">
+                <p className="text-xs text-ink-muted">
                   S3-compatible zero-egress object storage
                 </p>
               </div>
             </div>
 
             {r2Existing?.isActive ? (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#69D7D8]/25 text-[#0F766E] border border-[#69D7D8]/50">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-brand-mint/25 text-brand-mint-ink border border-brand-mint/50">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 Active
               </span>
             ) : r2Existing ? (
-              <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#EEEEEE] text-[#1C1C1F] border border-[#E2E2E2]">
+              <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-card text-ink border border-canvas">
                 Configured (Inactive)
               </span>
             ) : (
-              <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#F4F4F6] text-[#8A8A93] border border-[#E2E2E2]">
+              <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-highlight text-ink-subtle border border-line">
                 Not Set
               </span>
             )}
@@ -319,7 +319,7 @@ export default function StorageIntegrationsPanel({
           <form onSubmit={handleSaveR2} className="space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-[#1C1C1F] mb-1">
+                <label className="block text-xs font-semibold text-ink mb-1">
                   Account ID
                 </label>
                 <input
@@ -327,11 +327,11 @@ export default function StorageIntegrationsPanel({
                   value={r2AccountId}
                   onChange={(e) => setR2AccountId(e.target.value)}
                   placeholder="e.g. a1b2c3d4e5f6..."
-                  className="w-full px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F] placeholder-[#8A8A93]"
+                  className="w-full px-3.5 py-2 bg-highlight border border-line rounded-2xl text-xs text-ink placeholder-ink-subtle"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-[#1C1C1F] mb-1">
+                <label className="block text-xs font-semibold text-ink mb-1">
                   Bucket Name *
                 </label>
                 <input
@@ -340,15 +340,15 @@ export default function StorageIntegrationsPanel({
                   value={r2Bucket}
                   onChange={(e) => setR2Bucket(e.target.value)}
                   placeholder="e.g. gire-notes-assets"
-                  className="w-full px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F] placeholder-[#8A8A93]"
+                  className="w-full px-3.5 py-2 bg-highlight border border-line rounded-2xl text-xs text-ink placeholder-ink-subtle"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#1C1C1F] mb-1">
+              <label className="block text-xs font-semibold text-ink mb-1">
                 S3 Endpoint{" "}
-                <span className="text-[#8A8A93] font-normal">
+                <span className="text-ink-subtle font-normal">
                   (optional if Account ID is filled)
                 </span>
               </label>
@@ -357,13 +357,13 @@ export default function StorageIntegrationsPanel({
                 value={r2Endpoint}
                 onChange={(e) => setR2Endpoint(e.target.value)}
                 placeholder="https://<account_id>.r2.cloudflarestorage.com"
-                className="w-full px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F] placeholder-[#8A8A93]"
+                className="w-full px-3.5 py-2 bg-highlight border border-line rounded-2xl text-xs text-ink placeholder-ink-subtle"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-[#1C1C1F] mb-1">
+                <label className="block text-xs font-semibold text-ink mb-1">
                   Access Key ID {r2Existing ? "(leave blank to keep)" : "*"}
                 </label>
                 <input
@@ -374,11 +374,11 @@ export default function StorageIntegrationsPanel({
                   placeholder={
                     r2Existing?.r2AccessKeyIdMasked || "R2 Access Key ID"
                   }
-                  className="w-full px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F] placeholder-[#8A8A93]"
+                  className="w-full px-3.5 py-2 bg-highlight border border-line rounded-2xl text-xs text-ink placeholder-ink-subtle"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-[#1C1C1F] mb-1">
+                <label className="block text-xs font-semibold text-ink mb-1">
                   Secret Access Key {r2Existing ? "(leave blank to keep)" : "*"}
                 </label>
                 <input
@@ -391,27 +391,27 @@ export default function StorageIntegrationsPanel({
                       ? "•••••••• (saved)"
                       : "R2 Secret Access Key"
                   }
-                  className="w-full px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F] placeholder-[#8A8A93]"
+                  className="w-full px-3.5 py-2 bg-highlight border border-line rounded-2xl text-xs text-ink placeholder-ink-subtle"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-[#1C1C1F] mb-1">
+                <label className="block text-xs font-semibold text-ink mb-1">
                   Public Base URL{" "}
-                  <span className="text-[#8A8A93] font-normal">(optional)</span>
+                  <span className="text-ink-subtle font-normal">(optional)</span>
                 </label>
                 <input
                   type="url"
                   value={r2PublicUrl}
                   onChange={(e) => setR2PublicUrl(e.target.value)}
                   placeholder="https://cdn.example.com"
-                  className="w-full px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F] placeholder-[#8A8A93]"
+                  className="w-full px-3.5 py-2 bg-highlight border border-line rounded-2xl text-xs text-ink placeholder-ink-subtle"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-[#1C1C1F] mb-1">
+                <label className="block text-xs font-semibold text-ink mb-1">
                   Folder Prefix
                 </label>
                 <input
@@ -419,19 +419,19 @@ export default function StorageIntegrationsPanel({
                   value={r2Prefix}
                   onChange={(e) => setR2Prefix(e.target.value)}
                   placeholder="notes"
-                  className="w-full px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F] placeholder-[#8A8A93]"
+                  className="w-full px-3.5 py-2 bg-highlight border border-line rounded-2xl text-xs text-ink placeholder-ink-subtle"
                 />
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-[#EEEEEE]">
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-card">
               <div className="flex items-center gap-2">
                 {r2Existing && !r2Existing.isActive && (
                   <button
                     type="button"
                     disabled={switching}
                     onClick={() => void handleSwitchProvider("cloudflare_r2")}
-                    className="px-3.5 py-1.5 rounded-full bg-[#F4F4F6] hover:bg-[#EEEEEE] border border-[#E2E2E2] text-xs font-semibold text-[#1C1C1F] cursor-pointer"
+                    className="px-3.5 py-1.5 rounded-full bg-highlight hover:bg-white border border-line text-xs font-semibold text-ink cursor-pointer"
                   >
                     Set Active
                   </button>
@@ -457,33 +457,33 @@ export default function StorageIntegrationsPanel({
         </div>
 
         {/* GCP Cloud Storage Card */}
-        <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-6 space-y-4 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
+        <div className="bg-card border border-line rounded-3xl p-6 space-y-4 shadow-[0_2px_12px_rgba(28,28,31,0.04)]">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-[#5432EE]/10 border border-[#5432EE]/20 flex items-center justify-center shrink-0">
-                <Database className="w-5 h-5 text-[#5432EE]" />
+              <div className="w-10 h-10 rounded-2xl bg-brand-violet/10 border border-brand-violet/20 flex items-center justify-center shrink-0">
+                <Database className="w-5 h-5 text-brand-violet" />
               </div>
               <div>
-                <h4 className="text-base font-bold text-[#1C1C1F]">
+                <h4 className="text-base font-bold text-ink">
                   Google Cloud Storage (GCP)
                 </h4>
-                <p className="text-xs text-[#6E6E77]">
+                <p className="text-xs text-ink-muted">
                   GCS bucket with Service Account authentication
                 </p>
               </div>
             </div>
 
             {gcpExisting?.isActive ? (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#69D7D8]/25 text-[#0F766E] border border-[#69D7D8]/50">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-brand-mint/25 text-brand-mint-ink border border-brand-mint/50">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 Active
               </span>
             ) : gcpExisting ? (
-              <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#EEEEEE] text-[#1C1C1F] border border-[#E2E2E2]">
+              <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-card text-ink border border-canvas">
                 Configured (Inactive)
               </span>
             ) : (
-              <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#F4F4F6] text-[#8A8A93] border border-[#E2E2E2]">
+              <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-highlight text-ink-subtle border border-line">
                 Not Set
               </span>
             )}
@@ -491,7 +491,7 @@ export default function StorageIntegrationsPanel({
 
           <form onSubmit={handleSaveGcp} className="space-y-3">
             <div>
-              <label className="block text-xs font-semibold text-[#1C1C1F] mb-1">
+              <label className="block text-xs font-semibold text-ink mb-1">
                 Bucket Name *
               </label>
               <input
@@ -500,15 +500,15 @@ export default function StorageIntegrationsPanel({
                 value={gcpBucket}
                 onChange={(e) => setGcpBucket(e.target.value)}
                 placeholder="e.g. my-gire-assets-bucket"
-                className="w-full px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F] placeholder-[#8A8A93]"
+                className="w-full px-3.5 py-2 bg-highlight border border-line rounded-2xl text-xs text-ink placeholder-ink-subtle"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#1C1C1F] mb-1">
+              <label className="block text-xs font-semibold text-ink mb-1">
                 Service Account JSON{" "}
                 {gcpExisting ? (
-                  <span className="text-[#8A8A93] font-normal">
+                  <span className="text-ink-subtle font-normal">
                     (leave blank to keep {gcpExisting.gcpClientEmail})
                   </span>
                 ) : (
@@ -525,26 +525,26 @@ export default function StorageIntegrationsPanel({
                     ? `Saved service account: ${gcpExisting.gcpClientEmail}\nPaste new JSON here only if rotating keys.`
                     : '{\n  "type": "service_account",\n  "project_id": "...",\n  "private_key": "-----BEGIN PRIVATE KEY-----...",\n  "client_email": "...@....iam.gserviceaccount.com"\n}'
                 }
-                className="w-full px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs font-mono text-[#1C1C1F] placeholder-[#8A8A93]"
+                className="w-full px-3.5 py-2 bg-highlight border border-line rounded-2xl text-xs font-mono text-ink placeholder-ink-subtle"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-[#1C1C1F] mb-1">
+                <label className="block text-xs font-semibold text-ink mb-1">
                   Public Base URL{" "}
-                  <span className="text-[#8A8A93] font-normal">(optional)</span>
+                  <span className="text-ink-subtle font-normal">(optional)</span>
                 </label>
                 <input
                   type="url"
                   value={gcpPublicUrl}
                   onChange={(e) => setGcpPublicUrl(e.target.value)}
                   placeholder="https://storage.googleapis.com/my-bucket"
-                  className="w-full px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F] placeholder-[#8A8A93]"
+                  className="w-full px-3.5 py-2 bg-highlight border border-line rounded-2xl text-xs text-ink placeholder-ink-subtle"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-[#1C1C1F] mb-1">
+                <label className="block text-xs font-semibold text-ink mb-1">
                   Folder Prefix
                 </label>
                 <input
@@ -552,19 +552,19 @@ export default function StorageIntegrationsPanel({
                   value={gcpPrefix}
                   onChange={(e) => setGcpPrefix(e.target.value)}
                   placeholder="notes"
-                  className="w-full px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F] placeholder-[#8A8A93]"
+                  className="w-full px-3.5 py-2 bg-highlight border border-line rounded-2xl text-xs text-ink placeholder-ink-subtle"
                 />
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-[#EEEEEE]">
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-card">
               <div className="flex items-center gap-2">
                 {gcpExisting && !gcpExisting.isActive && (
                   <button
                     type="button"
                     disabled={switching}
                     onClick={() => void handleSwitchProvider("gcp_gcs")}
-                    className="px-3.5 py-1.5 rounded-full bg-[#F4F4F6] hover:bg-[#EEEEEE] border border-[#E2E2E2] text-xs font-semibold text-[#1C1C1F] cursor-pointer"
+                    className="px-3.5 py-1.5 rounded-full bg-highlight hover:bg-white border border-line text-xs font-semibold text-ink cursor-pointer"
                   >
                     Set Active
                   </button>

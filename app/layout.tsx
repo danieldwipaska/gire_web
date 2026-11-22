@@ -30,7 +30,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${plusJakartaSans.variable} font-sans antialiased bg-[#F9F9F9] text-[#1C1C1F] min-h-screen selection:bg-[#5432EE]/15 selection:text-[#5432EE]`}
+        className={`${plusJakartaSans.variable} font-sans antialiased bg-canvas text-ink min-h-screen selection:bg-brand-violet/15 selection:text-brand-violet`}
       >
         <DetailDrawerProvider>
           <AppShell

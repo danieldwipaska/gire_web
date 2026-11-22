@@ -31,7 +31,7 @@ const CustomTooltip = ({
 }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-xl p-3 text-xs shadow-[0_10px_25px_rgba(28,28,31,0.08)]">
+    <div className="bg-[#F9F9F9] border border-[#D4D4D8] rounded-xl p-3 text-xs shadow-[0_10px_25px_rgba(28,28,31,0.08)]">
       <p className="text-[#1C1C1F] font-bold mb-1">{label}</p>
       {payload.map((p, i) => (
         <p key={i} style={{ color: p.color }} className="capitalize font-medium">
@@ -50,7 +50,7 @@ const ActivityChartIndex = ({ data }: { data: IActivityData[] }) => {
           <BarChart data={data} layout="vertical" barSize={10}>
             <CartesianGrid
               strokeDasharray="3 3"
-              stroke="rgba(28,28,31,0.06)"
+              stroke="var(--ui-chart-grid)"
               horizontal={false}
             />
             <XAxis
@@ -89,7 +89,7 @@ const ActivityChartIndex = ({ data }: { data: IActivityData[] }) => {
             />
           </BarChart>
         </ResponsiveContainer>
-        <div className="space-y-3 justify-center flex flex-col pt-3 border-t border-[#EEEEEE]">
+        <div className="space-y-3 justify-center flex flex-col pt-3 border-t border-[#D4D4D8]">
           {data.map(({ repo, prs, merged, issues }: IActivityData) => {
             const rate = prs ? Math.min(100, Math.round((merged / prs) * 100)) : 0;
             return (
@@ -100,7 +100,7 @@ const ActivityChartIndex = ({ data }: { data: IActivityData[] }) => {
                     {repo}
                   </span>
                 </div>
-                <div className="flex-1 bg-[#EEEEEE] rounded-full h-2 overflow-hidden">
+                <div className="flex-1 bg-[#E2E2E2] rounded-full h-2 overflow-hidden">
                   <div
                     className="h-2 rounded-full bg-[#1C1C1F] animate-progress-fill"
                     style={{ width: `${rate}%` }}

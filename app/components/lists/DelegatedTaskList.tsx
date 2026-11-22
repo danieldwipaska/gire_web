@@ -30,29 +30,29 @@ export default function DelegatedTaskList({ tasks }: { tasks: ITask[] }) {
     >
       <div className="space-y-3 max-h-96 overflow-auto pr-1">
         {tasks.length === 0 ? (
-          <p className="text-[#6E6E77] text-sm py-4">
+          <p className="text-ink-muted text-sm py-4">
             No active delegated tasks assigned to you.
           </p>
         ) : (
           tasks.map((task) => (
             <div
               key={task._id}
-              className="bg-[#F9F9F9] border border-[#E2E2E2] rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-[#5432EE]/40 hover:bg-[#FFFFFF] transition-all"
+              className="bg-highlight border border-line rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-brand-violet/45 hover:bg-white transition-all"
             >
               <div className="flex items-start gap-3 min-w-0">
-                <div className="w-9 h-9 rounded-xl bg-[#5432EE]/10 border border-[#5432EE]/20 flex items-center justify-center shrink-0">
-                  <ListTodo className="w-4 h-4 text-[#5432EE]" />
+                <div className="w-9 h-9 rounded-xl bg-brand-violet/10 border border-brand-violet/20 flex items-center justify-center shrink-0">
+                  <ListTodo className="w-4 h-4 text-brand-violet" />
                 </div>
                 <div className="min-w-0 space-y-1">
-                  <p className="text-sm font-bold text-[#1C1C1F] truncate">
+                  <p className="text-sm font-bold text-ink truncate">
                     {task.title}
                   </p>
-                  <div className="flex flex-wrap items-center gap-2 text-xs text-[#6E6E77]">
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-ink-muted">
                     <span>From {task.createdByName || "Teammate"}</span>
                     {task.projectName && (
                       <>
                         <span>•</span>
-                        <span className="text-[#1C1C1F] font-medium">{task.projectName}</span>
+                        <span className="text-ink font-medium">{task.projectName}</span>
                       </>
                     )}
                     {task.sourceNoteId && (
@@ -60,7 +60,7 @@ export default function DelegatedTaskList({ tasks }: { tasks: ITask[] }) {
                         <span>•</span>
                         <Link
                           href={`/notes?noteId=${task.sourceNoteId}`}
-                          className="text-[#5432EE] hover:text-[#418CFF] inline-flex items-center gap-1 font-semibold"
+                          className="text-brand-violet hover:text-brand-blue inline-flex items-center gap-1 font-semibold"
                         >
                           <FileText className="w-3 h-3" />
                           {task.sourceNoteTitle || "View Note"}
@@ -76,7 +76,7 @@ export default function DelegatedTaskList({ tasks }: { tasks: ITask[] }) {
                 onChange={(e) =>
                   handleStatusChange(task._id, e.target.value as TaskStatus)
                 }
-                className="px-3 py-1.5 bg-[#FFFFFF] border border-[#E2E2E2] rounded-full text-xs font-semibold text-[#1C1C1F] shrink-0 cursor-pointer"
+                className="px-3 py-1.5 bg-card border border-line rounded-full text-xs font-semibold text-ink shrink-0 cursor-pointer"
               >
                 <option value="todo">To Do</option>
                 <option value="in_progress">In Progress</option>
