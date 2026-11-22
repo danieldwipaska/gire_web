@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   buildCategoryMaps,
+  getProjectReviewStatus,
   isAnyUser,
   isIssueAssignedTo,
   isPRNeedingReview,
+  isProjectReviewPR,
   isSameUser,
   isValidFigmaUrl,
   matchesCategoryFilter,
@@ -203,6 +205,64 @@ describe("workspace category filtering", () => {
         integrationCategoryMap,
       ),
     ).toBe(false);
+  });
+});
+
+describe("isProjectReviewPR and getProjectReviewStatus", () => {
+  const basePr: IPullRequest = {
+    _id: "pr-r1",
+    githubId: 901,
+    title: "Refactor auth",
+    state: "open",
+    repoName: "org/repo",
+    additions: 10,
+    deletions: 4,
+    changedFiles: 2,
+    comments: 0,
+    url: "https://github.com/org/repo/pull/901",
+    mentionedInDescription: false,
+    reviewRequested: false,
+    reviewedByMe: false,
+    myReviewState: null,
+    author: "teammate",
+    assignee: null,
+    mergedAt: null,
+    updatedAt: new Date().toISOString(),
+    userId: "u1",
+  };
+
+  it("includes PRs needing review, reviewed PRs, and approved PRs while excluding own PRs", () => {
+    expect(
+      isProjectReviewPR({ ...basePr, author: "niel-dev", reviewRequested: true }, ["niel-dev"]),
+    ).toBe(false);
+
+    const needs = { ...basePr, reviewRequested: true };
+    expect(isProjectReviewPR(needs, ["niel-dev"])).toBe(true);
+    expect(getProjectReviewStatus(needs)).toBe("needs_review");
+
+    const approved = {
+      ...basePr,
+      state: "closed",
+      reviewedByMe: true,
+      myReviewState: "APPROVED",
+    };
+    expect(isProjectReviewPR(approved, ["niel-dev"])).toBe(true);
+    expect(getProjectReviewStatus(approved)).toBe("approved");
+
+    const changesReq = {
+      ...basePr,
+      reviewedByMe: true,
+      myReviewState: "CHANGES_REQUESTED",
+    };
+    expect(getProjectReviewStatus(changesReq)).toBe("changes_requested");
+
+    const historicalEvent = {
+      ...basePr,
+      state: "closed",
+    };
+    const urls = new Set([basePr.url]);
+    expect(isProjectReviewPR(historicalEvent, ["niel-dev"], urls)).toBe(true);
+    expect(getProjectReviewStatus(historicalEvent, urls)).toBe("reviewed");
   });
 });
 

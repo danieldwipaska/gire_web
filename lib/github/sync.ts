@@ -407,11 +407,8 @@ export async function syncGitHubData(
           const isReviewRequested = isDirectReviewer || isTeamReviewer;
 
           let reviewedByMe = false;
-          if (
-            detail.state === "open" &&
-            !isSameUser(detail.user?.login, username) &&
-            (isReviewRequested || isMentioned)
-          ) {
+          let myReviewState: string | null = null;
+          if (!isSameUser(detail.user?.login, username)) {
             try {
               const { data: reviews } = await octokit.rest.pulls.listReviews({
                 owner,
@@ -419,11 +416,18 @@ export async function syncGitHubData(
                 pull_number: pr.number,
                 per_page: 100,
               });
-              reviewedByMe = reviews.some(
-                (r) => isSameUser(r.user?.login, username) && r.state !== "PENDING",
+              const mySubmitted = reviews.filter(
+                (r) =>
+                  isSameUser(r.user?.login, username) && r.state !== "PENDING",
               );
+              if (mySubmitted.length > 0) {
+                reviewedByMe = true;
+                const latest = mySubmitted[mySubmitted.length - 1];
+                myReviewState = latest.state || "COMMENTED";
+              }
             } catch {
               reviewedByMe = false;
+              myReviewState = null;
             }
           }
 
@@ -448,6 +452,7 @@ export async function syncGitHubData(
               mentionedInDescription: isMentioned,
               reviewRequested: isReviewRequested,
               reviewedByMe,
+              myReviewState,
               ...(integration ? { integrationId: integration._id } : {}),
             },
             { upsert: true },

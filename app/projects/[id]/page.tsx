@@ -2,8 +2,15 @@ import { notFound, redirect } from "next/navigation";
 import mongoose from "mongoose";
 import { getSession } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
+import {
+  getProjectReviewStatus,
+  isAnyUser,
+  isIssueAssignedTo,
+  isProjectReviewPR,
+} from "@/lib/utils";
 import { getWorkspaceUsers, requirePageWorkspaceContext } from "@/lib/workspace";
 import ActivityEvent from "@/models/ActivityEvent";
+import Integration from "@/models/Integration";
 import Issue from "@/models/Issue";
 import Note from "@/models/Note";
 import Project from "@/models/Project";
@@ -51,8 +58,9 @@ export default async function ProjectDetailPage({
 
   const [
     workspaceUsers,
-    pullRequests,
-    issues,
+    githubIntegrations,
+    rawPullRequests,
+    rawIssues,
     events,
     projectNotesRaw,
     projectTasksRaw,
@@ -61,6 +69,9 @@ export default async function ProjectDetailPage({
     eventDistinct,
   ] = await Promise.all([
     getWorkspaceUsers(ctx.activeWorkspace._id),
+    Integration.find({ userId: session.id, provider: "github" })
+      .select("githubUsername")
+      .lean(),
     repos.length > 0
       ? PullRequest.find({
           userId: session.id,
@@ -105,6 +116,45 @@ export default async function ProjectDetailPage({
     Issue.distinct("repoName", { userId: session.id }),
     ActivityEvent.distinct("repoName", { userId: session.id }),
   ]);
+
+  const githubUsernames = githubIntegrations
+    .map((i) => i.githubUsername)
+    .filter((u): u is string => Boolean(u));
+
+  const pullRequests =
+    githubUsernames.length > 0
+      ? rawPullRequests.filter((pr) => isAnyUser(pr.author, githubUsernames))
+      : [];
+
+  const reviewedUrls = new Set(
+    events
+      .filter((e) => e.type === "pr_reviewed" && typeof e.url === "string")
+      .map((e) => e.url as string),
+  );
+
+  const serializedRawPrs = JSON.parse(
+    JSON.stringify(rawPullRequests),
+  ) as IPullRequest[];
+
+  const reviewPullRequests =
+    githubUsernames.length > 0
+      ? serializedRawPrs
+          .filter((pr) => isProjectReviewPR(pr, githubUsernames, reviewedUrls))
+          .map((pr) => {
+            const reviewStatus = getProjectReviewStatus(pr, reviewedUrls);
+            return {
+              ...pr,
+              ...(reviewStatus === "reviewed" && !pr.reviewedByMe
+                ? { reviewedByMe: true }
+                : {}),
+            };
+          })
+      : [];
+
+  const issues =
+    githubUsernames.length > 0
+      ? rawIssues.filter((issue) => isIssueAssignedTo(issue, githubUsernames))
+      : rawIssues;
 
   const userMap = new Map(
     workspaceUsers.map((u) => [u._id, { name: u.name, email: u.email }]),
@@ -151,6 +201,7 @@ export default async function ProjectDetailPage({
       isOwner={projectDoc.ownerId.toString() === session.id}
       isSuperUser={ctx.isSuperUser}
       pullRequests={JSON.parse(JSON.stringify(pullRequests)) as IPullRequest[]}
+      reviewPullRequests={reviewPullRequests}
       issues={JSON.parse(JSON.stringify(issues)) as IIssue[]}
       events={JSON.parse(JSON.stringify(events)) as IActivityEvent[]}
       projectNotes={projectNotes}

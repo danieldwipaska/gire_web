@@ -13,6 +13,7 @@ const PRSchema = new mongoose.Schema({
   mentionedInDescription: Boolean,
   reviewRequested: Boolean,
   reviewedByMe: { type: Boolean, default: false },
+  myReviewState: { type: String, default: null },
   author: String,
   assignee: String,
   githubCreatedAt: Date,

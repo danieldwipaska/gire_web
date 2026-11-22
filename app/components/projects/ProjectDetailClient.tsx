@@ -15,6 +15,7 @@ import {
   GitPullRequest,
   Laptop,
   ListTodo,
+  MessageSquareCode,
   Trash2,
   User,
   UserPlus,
@@ -31,7 +32,11 @@ import {
   ProjectCategory,
   ProjectStatus,
 } from "@/lib/types";
-import { getTimeAgo, parseGitHubUrl } from "@/lib/utils";
+import {
+  getProjectReviewStatus,
+  getTimeAgo,
+  parseGitHubUrl,
+} from "@/lib/utils";
 import Button from "../buttons/Button";
 import IssueCard from "../cards/IssueCard";
 import PullRequestCard from "../cards/PullRequestCard";
@@ -39,13 +44,15 @@ import Modal from "../modals/Modal";
 import { useDetailDrawer } from "../drawer/DetailDrawerProvider";
 import FigmaEmbedViewer from "./FigmaEmbedViewer";
 
-type TabKey = "github" | "figma" | "notes" | "members";
+type TabKey = "github" | "reviews" | "figma" | "notes" | "members";
+type ReviewFilter = "all" | "needs_review" | "reviewed";
 
 export default function ProjectDetailClient({
   project,
   isOwner,
   isSuperUser = false,
   pullRequests,
+  reviewPullRequests = [],
   issues,
   events,
   projectNotes,
@@ -56,6 +63,7 @@ export default function ProjectDetailClient({
   isOwner: boolean;
   isSuperUser?: boolean;
   pullRequests: IPullRequest[];
+  reviewPullRequests?: IPullRequest[];
   issues: IIssue[];
   events: IActivityEvent[];
   projectNotes: INote[];
@@ -65,6 +73,7 @@ export default function ProjectDetailClient({
   const router = useRouter();
   const { openDetailByUrl } = useDetailDrawer();
   const [activeTab, setActiveTab] = useState<TabKey>("github");
+  const [reviewFilter, setReviewFilter] = useState<ReviewFilter>("all");
 
   // Edit Modal state
   const [editOpen, setEditOpen] = useState(false);
@@ -258,7 +267,19 @@ export default function ProjectDetailClient({
           }`}
         >
           <GitPullRequest className="w-3.5 h-3.5" />
-          GitHub Work ({pullRequests.length} PRs · {issues.length} Issues)
+          My GitHub Work ({pullRequests.length} PRs · {issues.length} Issues)
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("reviews")}
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+            activeTab === "reviews"
+              ? "bg-indigo-600 text-white"
+              : "text-slate-400 hover:text-slate-200"
+          }`}
+        >
+          <MessageSquareCode className="w-3.5 h-3.5 text-amber-400" />
+          Reviews ({reviewPullRequests.length})
         </button>
         <button
           type="button"
@@ -315,11 +336,11 @@ export default function ProjectDetailClient({
               <div className="lg:col-span-3 space-y-4">
                 <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
                   <GitPullRequest className="w-4 h-4 text-indigo-400" />
-                  Pull Requests ({pullRequests.length})
+                  My Pull Requests ({pullRequests.length})
                 </h3>
                 {pullRequests.length === 0 ? (
                   <p className="text-xs text-slate-500">
-                    No synced PRs for linked repositories.
+                    No PRs authored by you for linked repositories.
                   </p>
                 ) : (
                   <div className="space-y-3 max-h-[540px] overflow-y-auto pr-1">
@@ -410,6 +431,126 @@ export default function ProjectDetailClient({
           )}
         </div>
       )}
+
+      {activeTab === "reviews" && (() => {
+        const filteredReviews = reviewPullRequests.filter((pr) => {
+          const rStatus = getProjectReviewStatus(pr);
+          if (reviewFilter === "needs_review") return rStatus === "needs_review";
+          if (reviewFilter === "reviewed") {
+            return (
+              rStatus === "approved" ||
+              rStatus === "changes_requested" ||
+              rStatus === "reviewed"
+            );
+          }
+          return true;
+        });
+
+        const REVIEW_BADGE_META = {
+          needs_review: {
+            label: "Needs Review",
+            cls: "bg-amber-950/60 text-amber-300 border-amber-700/50",
+          },
+          approved: {
+            label: "Approved",
+            cls: "bg-emerald-950/60 text-emerald-300 border-emerald-700/50",
+          },
+          changes_requested: {
+            label: "Changes Requested",
+            cls: "bg-rose-950/60 text-rose-300 border-rose-700/50",
+          },
+          reviewed: {
+            label: "Reviewed",
+            cls: "bg-indigo-950/60 text-indigo-300 border-indigo-700/50",
+          },
+        } as const;
+
+        return (
+          <div className="space-y-4">
+            {project.repos.length === 0 ? (
+              <div className="bg-[#131924] border border-dashed border-slate-800 rounded-2xl p-10 text-center space-y-2">
+                <p className="text-sm font-semibold text-slate-200">
+                  No GitHub repositories linked yet
+                </p>
+                <p className="text-xs text-slate-400">
+                  Click &ldquo;Edit Project&rdquo; to attach repositories to this project.
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
+                    <MessageSquareCode className="w-4 h-4 text-amber-400" />
+                    PR Reviews ({filteredReviews.length})
+                  </h3>
+
+                  <div className="flex items-center gap-1 bg-[#131924] p-1 border border-slate-800 rounded-xl w-fit">
+                    {(
+                      [
+                        { id: "all", label: "All" },
+                        { id: "needs_review", label: "Needs Review" },
+                        { id: "reviewed", label: "Reviewed / Approved" },
+                      ] as const
+                    ).map((pill) => (
+                      <button
+                        key={pill.id}
+                        type="button"
+                        onClick={() => setReviewFilter(pill.id)}
+                        className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                          reviewFilter === pill.id
+                            ? "bg-indigo-600 text-white"
+                            : "text-slate-400 hover:text-slate-200"
+                        }`}
+                      >
+                        {pill.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {filteredReviews.length === 0 ? (
+                  <div className="bg-[#131924] border border-slate-800/80 rounded-2xl p-8 text-center">
+                    <p className="text-xs text-slate-400">
+                      No pull requests needing review or reviewed by you in this project yet.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {filteredReviews.map((pr) => {
+                      const rStatus =
+                        getProjectReviewStatus(pr) || "needs_review";
+                      const badge = REVIEW_BADGE_META[rStatus];
+                      return (
+                        <div key={pr._id} className="space-y-1.5">
+                          <div className="flex items-center justify-end px-1">
+                            <span
+                              className={`px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider border ${badge.cls}`}
+                            >
+                              {badge.label}
+                            </span>
+                          </div>
+                          <PullRequestCard
+                            title={pr.title}
+                            state={pr.state}
+                            repoName={pr.repoName}
+                            additions={pr.additions}
+                            deletions={pr.deletions}
+                            comments={pr.comments}
+                            url={pr.url}
+                            updatedAt={pr.updatedAt}
+                            mergedAt={pr.mergedAt}
+                            author={pr.author}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        );
+      })()}
 
       {activeTab === "figma" && (
         <FigmaEmbedViewer

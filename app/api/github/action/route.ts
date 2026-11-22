@@ -113,10 +113,18 @@ export async function POST(req: NextRequest) {
         },
       );
 
+      const mappedReviewState =
+        event === "APPROVE"
+          ? "APPROVED"
+          : event === "REQUEST_CHANGES"
+            ? "CHANGES_REQUESTED"
+            : "COMMENTED";
+
       await PullRequest.findOneAndUpdate(
         { userId: session.id, githubId: updatedPr.id },
         {
           reviewedByMe: true,
+          myReviewState: mappedReviewState,
           reviewRequested: false,
           updatedAt: updatedPr.updated_at,
           comments: (updatedPr.comments || 0) + (updatedPr.review_comments || 0),
