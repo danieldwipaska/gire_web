@@ -291,5 +291,29 @@ export interface ITask {
   updatedAt?: string | Date;
 }
 
+export type StorageProviderType = "cloudflare_r2" | "gcp_gcs";
+
+export interface IStorageIntegration {
+  _id: string;
+  userId: string;
+  provider: StorageProviderType;
+  isActive: boolean;
+  bucket: string;
+  prefix?: string;
+  publicUrl?: string;
+  r2AccountId?: string;
+  r2Endpoint?: string;
+  r2AccessKeyIdMasked?: string;
+  hasSecret?: boolean;
+  gcpProjectId?: string;
+  gcpClientEmail?: string;
+  status: "active" | "error";
+  lastError?: string;
+  lastTestedAt?: string | Date;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+}
+
+
 
 

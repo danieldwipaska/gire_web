@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import {
   Calendar,
   CheckCircle2,
+  Cloud,
   FileText,
   FolderKanban,
+  HardDrive,
   ListTodo,
   Pin,
   PinOff,
@@ -21,6 +23,7 @@ import {
   INote,
   INoteUser,
   IProject,
+  IStorageIntegration,
   ITask,
   TaskPriority,
   TaskStatus,
@@ -29,6 +32,7 @@ import { getTimeAgo } from "@/lib/utils";
 import Button from "../buttons/Button";
 import Modal from "../modals/Modal";
 import RichNoteEditor from "./RichNoteEditor";
+import StorageIntegrationsPanel from "./StorageIntegrationsPanel";
 
 const STATUS_META: Record<
   TaskStatus,
@@ -79,6 +83,7 @@ export default function NotesClient({
   isSuperUser = false,
   initialNotes,
   initialTasks,
+  initialStorageIntegrations = [],
   projects,
   users,
   initialTab = "notes",
@@ -89,16 +94,22 @@ export default function NotesClient({
   isSuperUser?: boolean;
   initialNotes: INote[];
   initialTasks: ITask[];
+  initialStorageIntegrations?: IStorageIntegration[];
   projects: IProject[];
   users: INoteUser[];
-  initialTab?: "notes" | "tasks";
+  initialTab?: "notes" | "tasks" | "integrations";
   initialNoteId?: string;
   initialProjectId?: string;
 }) {
   const router = useRouter();
   const [notes, setNotes] = useState<INote[]>(initialNotes);
   const [tasks, setTasks] = useState<ITask[]>(initialTasks);
-  const [mainTab, setMainTab] = useState<"notes" | "tasks">(initialTab);
+  const [storageIntegrations, setStorageIntegrations] = useState<
+    IStorageIntegration[]
+  >(initialStorageIntegrations);
+  const [mainTab, setMainTab] = useState<"notes" | "tasks" | "integrations">(
+    initialTab,
+  );
 
   // Notes sidebar filters
   const [noteSearch, setNoteSearch] = useState("");
@@ -457,6 +468,21 @@ export default function NotesClient({
               <ListTodo className="w-3.5 h-3.5" />
               Delegated Tasks ({assignedToMeCount})
             </button>
+            <button
+              type="button"
+              onClick={() => setMainTab("integrations")}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                mainTab === "integrations"
+                  ? "bg-indigo-600 text-white"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              <HardDrive className="w-3.5 h-3.5" />
+              Integrations
+              {storageIntegrations.some((s) => s.isActive) && (
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              )}
+            </button>
           </div>
 
           {mainTab === "notes" ? (
@@ -464,7 +490,7 @@ export default function NotesClient({
               <Plus className="w-4 h-4" />
               New Note
             </Button>
-          ) : isSuperUser ? (
+          ) : mainTab === "tasks" && isSuperUser ? (
             <Button onClick={() => openDelegateModal("", null)}>
               <Plus className="w-4 h-4" />
               New Task
@@ -641,6 +667,25 @@ export default function NotesClient({
                         ) : (
                           <Pin className="w-3.5 h-3.5" />
                         )}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setMainTab("integrations")}
+                        className="px-2.5 py-1.5 bg-[#0b0f19] hover:bg-slate-800 border border-slate-800 rounded-lg text-[11px] font-medium text-slate-300 flex items-center gap-1.5 cursor-pointer"
+                        title="Configure image storage (Cloudflare R2, GCP, or Local Server)"
+                      >
+                        <Cloud className="w-3 h-3 text-indigo-400" />
+                        {(() => {
+                          const active = storageIntegrations.find(
+                            (s) => s.isActive,
+                          );
+                          if (active?.provider === "cloudflare_r2")
+                            return "R2 Storage";
+                          if (active?.provider === "gcp_gcs")
+                            return "GCP Storage";
+                          return "Server Storage";
+                        })()}
                       </button>
 
                       <button
@@ -828,6 +873,11 @@ export default function NotesClient({
             )}
           </div>
         </div>
+      ) : mainTab === "integrations" ? (
+        <StorageIntegrationsPanel
+          integrations={storageIntegrations}
+          onChange={setStorageIntegrations}
+        />
       ) : (
         /* Delegated Tasks View */
         <div className="space-y-5">

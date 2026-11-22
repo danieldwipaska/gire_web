@@ -189,3 +189,46 @@ export async function getWorkspaceUsers(workspaceId: string) {
   }[];
 }
 
+/**
+ * Checks whether `viewerId` is the asset owner or shares at least one Workspace
+ * with `ownerId` (used for serving private uploaded assets across shared notes).
+ */
+export async function canAccessUserAsset(
+  viewerId: string,
+  ownerId: string,
+): Promise<boolean> {
+  if (viewerId === ownerId) return true;
+  await connectDB();
+
+  const [viewer, owner] = await Promise.all([
+    User.findById(viewerId).select("_id role workspaceId").lean(),
+    User.findById(ownerId).select("_id role workspaceId").lean(),
+  ]);
+  if (!viewer || !owner) return false;
+
+  // Check if viewer owns a workspace that owner belongs to (or vice versa)
+  if (owner.workspaceId) {
+    const ownerWs = await Workspace.findById(owner.workspaceId)
+      .select("ownerId")
+      .lean();
+    if (
+      ownerWs &&
+      (ownerWs.ownerId.toString() === viewerId ||
+        viewer.workspaceId?.toString() === owner.workspaceId.toString())
+    ) {
+      return true;
+    }
+  }
+
+  if (viewer.workspaceId) {
+    const viewerWs = await Workspace.findById(viewer.workspaceId)
+      .select("ownerId")
+      .lean();
+    if (viewerWs && viewerWs.ownerId.toString() === ownerId) {
+      return true;
+    }
+  }
+
+  return false;
+}
+

@@ -37,6 +37,8 @@ test.describe("GiRe Multi-Tenant Workspace, Notes, & Navigation E2E", () => {
     await expect(page).toHaveURL(/\/github\/activity/);
     await page.click('a[href="/github/issues-prs"]');
     await expect(page).toHaveURL(/\/github\/issues-prs/);
+    await expect(page.getByRole("heading", { name: "GitHub Integration" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Connect GitHub" })).toBeVisible();
     await page.click('a[href="/github/analysis"]');
     await expect(page).toHaveURL(/\/github\/analysis/);
 
@@ -57,9 +59,15 @@ test.describe("GiRe Multi-Tenant Workspace, Notes, & Navigation E2E", () => {
     await page.getByRole("button", { name: /Create Member Account/i }).click();
     await expect(page.getByText(`Created member account for ${memberAEmail}`)).toBeVisible();
 
-    // 5. Create a Note & Delegate Task to Budi Member
+    // 5. Verify Storage Integrations menu in /notes, then create Note & Delegate Task
     await page.click('a[href="/notes"]');
     await expect(page).toHaveURL(/\/notes/);
+    await page.getByRole("button", { name: /^Integrations$/i }).click();
+    await expect(page.getByText(/Active: Local Server/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Cloudflare R2" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Google Cloud Storage (GCP)" })).toBeVisible();
+    await page.getByRole("button", { name: /^Notes \(/i }).click();
+
     await page.getByRole("button", { name: /New Note/i }).first().click();
     const titleInput = page.locator('input[placeholder="Note title..."]');
     await titleInput.fill("Auth Migration Spec");

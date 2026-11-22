@@ -3,7 +3,7 @@ import SummaryCard from "../../components/cards/SummaryCard";
 import TaskIndex from "../../components/indexes/TaskIndex";
 import ChartIndex from "../../components/indexes/ChartIndex";
 import ReviewList from "../../components/lists/ReviewList";
-import IntegrationList from "../../components/lists/IntegrationList";
+import GitHubIntegrationPanel from "../../components/github/GitHubIntegrationPanel";
 import SyncButton from "../../components/buttons/SyncButton";
 import ContextFilterDropdown from "../../components/dropdowns/ContextFilterDropdown";
 import { getSession } from "@/lib/auth";
@@ -123,9 +123,9 @@ export default async function GitHubIssuesAndPRsPage({ searchParams }: Props) {
         <ChartIndex data={chartData} />
       </div>
 
-      {/* Reviews & Integrations */}
-      <div className="flex flex-col md:flex-row gap-6">
-        <div className="flex-1">
+      {/* Reviews & GitHub Integration */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="lg:col-span-7">
           <ReviewList
             reviews={reviews}
             isLoading={false}
@@ -133,8 +133,8 @@ export default async function GitHubIssuesAndPRsPage({ searchParams }: Props) {
             integrations={integrations}
           />
         </div>
-        <div className="flex-1">
-          <IntegrationList integrations={integrations} isLoading={false} />
+        <div className="lg:col-span-5">
+          <GitHubIntegrationPanel integrations={integrations} />
         </div>
       </div>
     </div>
