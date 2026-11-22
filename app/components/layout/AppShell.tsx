@@ -228,7 +228,6 @@ export default function AppShell({
           )}
         </div>
       )}
-
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1.5">
         {/* 1. Dashboard */}
@@ -340,7 +339,6 @@ export default function AppShell({
           <FileText className="w-4 h-4 shrink-0" />
           <span>Notes</span>
         </Link>
-
         {/* 5. Workspace & Members */}
         <Link
           href="/workspaces"

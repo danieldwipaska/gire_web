@@ -5,6 +5,7 @@ import { verifyToken } from '@/lib/auth';
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Paths that require authentication
   const protectedPaths = [
     '/dashboard',
     '/github',
@@ -16,6 +17,7 @@ export async function middleware(request: NextRequest) {
     '/analytics',
   ];
 
+  // Paths that are for authentication (should redirect to dashboard if already logged in)
   const authPaths = ['/login', '/register'];
 
   const isProtected = protectedPaths.some((path) => pathname.startsWith(path));
