@@ -156,8 +156,7 @@ const calculateMergedTimeline = (mergedPrs: IPullRequest[]): IMergedPRData[] => 
 };
 
 const calculateRepoActivity = (
-  myCreatedPrs: IPullRequest[],
-  myMergedPrs: IPullRequest[],
+  myPrsInRange: IPullRequest[],
   issuesInRange: IIssue[],
   githubUsernames: string[],
 ): IActivityData[] => {
@@ -169,17 +168,14 @@ const calculateRepoActivity = (
     }
   };
 
-  myCreatedPrs.forEach((pr) => {
+  myPrsInRange.forEach((pr) => {
     if (pr.repoName) {
       initRepo(pr.repoName);
-      repoMap.get(pr.repoName)!.prs++;
-    }
-  });
-
-  myMergedPrs.forEach((pr) => {
-    if (pr.repoName) {
-      initRepo(pr.repoName);
-      repoMap.get(pr.repoName)!.merged++;
+      const entry = repoMap.get(pr.repoName)!;
+      entry.prs++;
+      if (pr.state === "closed" && pr.mergedAt) {
+        entry.merged++;
+      }
     }
   });
 
@@ -243,9 +239,14 @@ export default async function GitHubAnalysisPage({ searchParams }: Props) {
       pr.mergedAt &&
       new Date(pr.mergedAt) >= startDate,
   );
-  const myCreatedPRsInRange = myPullRequests.filter(
-    (pr) => new Date(pr.githubCreatedAt || pr.updatedAt) >= startDate,
-  );
+  const myActiveRepoPRsInRange = myPullRequests.filter((pr) => {
+    const createdInRange =
+      new Date(pr.githubCreatedAt || pr.updatedAt) >= startDate;
+    const mergedInRange = Boolean(
+      pr.state === "closed" && pr.mergedAt && new Date(pr.mergedAt) >= startDate,
+    );
+    return createdInRange || mergedInRange;
+  });
 
   const reviewPullRequests = pullRequests.filter((pr) =>
     isPRNeedingReview(pr, usernames),
@@ -282,8 +283,7 @@ export default async function GitHubAnalysisPage({ searchParams }: Props) {
     calculatePrMergedAndPrReviewsRequested(totalPRsMerged, reviewRequestedCount);
   const mergedTimeline = calculateMergedTimeline(myMergedPRsInRange);
   const repoActivity = calculateRepoActivity(
-    myCreatedPRsInRange,
-    myMergedPRsInRange,
+    myActiveRepoPRsInRange,
     myIssuesInRange,
     usernames,
   );
