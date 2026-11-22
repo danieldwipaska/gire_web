@@ -1,6 +1,5 @@
 import { verifyAuth } from "@/lib/auth";
-import { mkdir, writeFile } from "fs/promises";
-import path from "path";
+import { storeUploadedImage } from "@/lib/storage/upload";
 import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -46,23 +45,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const uploadsDir = path.join(process.cwd(), "uploads");
-    await mkdir(uploadsDir, { recursive: true });
-
     const filename = `${Date.now()}-${crypto.randomUUID()}.${ext}`;
-    const targetPath = path.join(uploadsDir, filename);
-
     const bytes = new Uint8Array(await file.arrayBuffer());
-    await writeFile(targetPath, bytes);
 
-    return NextResponse.json({
-      url: `/api/uploads/${filename}`,
+    const stored = await storeUploadedImage({
+      userId: session.id,
       filename,
+      bytes,
+      contentType: file.type,
     });
+
+    return NextResponse.json(stored);
   } catch (error) {
     console.error("POST /api/uploads error:", error);
     return NextResponse.json(
-      { error: "Failed to upload image" },
+      {
+        error:
+          error instanceof Error ? error.message : "Failed to upload image",
+      },
       { status: 500 },
     );
   }

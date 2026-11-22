@@ -13,7 +13,10 @@ export const getDashboardData = async (
   await connectDB();
 
   // 1. Fetch Integrations (all GitHub accounts)
-  const integrations: IIntegration[] = await Integration.find({ userId })
+  const integrations: IIntegration[] = await Integration.find({
+    userId,
+    provider: "github",
+  })
     .select("-accessToken")
     .lean();
   const githubUsernames = integrations

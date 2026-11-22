@@ -108,6 +108,7 @@ export async function GET(req: NextRequest) {
   try {
     const integrations = await Integration.find({
       userId: session.id,
+      provider: "github",
     })
       .select("-accessToken")
       .lean();
@@ -119,6 +120,72 @@ export async function GET(req: NextRequest) {
       { error: "Server Error" },
       { status: 500, statusText: "INTERNAL SERVER ERROR" },
     );
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  const session = await verifyAuth(req);
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  await connectDB();
+
+  try {
+    const {
+      id,
+      label,
+      accessToken,
+    }: { id?: string; label?: string; accessToken?: string } =
+      await req.json();
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Integration id is required" },
+        { status: 400 },
+      );
+    }
+
+    const integration = await Integration.findOne({
+      _id: id,
+      userId: session.id,
+      provider: "github",
+    });
+
+    if (!integration) {
+      return NextResponse.json(
+        { error: "Integration not found" },
+        { status: 404 },
+      );
+    }
+
+    if (typeof label === "string" && label.trim()) {
+      integration.label = label.trim();
+    }
+
+    if (typeof accessToken === "string" && accessToken.trim()) {
+      try {
+        const octokit = new Octokit({ auth: accessToken.trim() });
+        const { data: ghUser } = await octokit.rest.users.getAuthenticated();
+        integration.githubUsername = ghUser.login;
+        integration.accessToken = accessToken.trim();
+        integration.status = "active";
+      } catch {
+        return NextResponse.json(
+          { error: "Invalid GitHub Personal Access Token" },
+          { status: 400 },
+        );
+      }
+    }
+
+    await integration.save();
+    const sanitized = integration.toObject();
+    delete sanitized.accessToken;
+
+    return NextResponse.json(sanitized, { status: 200 });
+  } catch (error) {
+    console.error("PATCH /api/integrations error:", error);
+    return NextResponse.json({ error: "Server Error" }, { status: 500 });
   }
 }
 

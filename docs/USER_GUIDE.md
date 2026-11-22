@@ -36,8 +36,8 @@ Regular **Member** accounts cannot self-register and can only belong to **one** 
 You can connect **one or multiple GitHub accounts** (for example, one labeled `Office` and one labeled `Freelance`):
 
 1. Open **Github → Issue and PRs** (`/github/issues-prs`).
-2. In the **Integrations** panel, click **Add New**.
-3. Choose an **Account Label** (`Office`, `Freelance`, or `Personal`) and paste your GitHub **Personal Access Token (PAT)** with `repo` scope. Your GitHub username is detected automatically from the token.
+2. In the **GitHub Integration** panel, enter your **GitHub Username** (optional, auto-detected from token), choose an **Account Label** (`Office`, `Freelance`, or `Personal`), and paste your GitHub **Personal Access Token (PAT)** with `repo` scope, then click **Connect GitHub**.
+3. Once connected, you can click **Update Token** anytime to rotate your secret key, or **Add Account** if you want to link additional GitHub accounts.
 4. Click **Sync Now** in the top-right corner of Dashboard or any GitHub page.
    - The first sync pulls issues, pull requests, and events back to **January 1 of the current year**.
    - Subsequent syncs run incrementally and automatically refresh the page data when finished.
@@ -82,7 +82,10 @@ Click any PR card, Issue card, or GitHub Activity item to open the **Detail Draw
 GiRe includes a built-in rich editor to replace Notion for engineering notes:
 
 - **Formatting & Code Blocks:** Use headings (`H1`–`H3`), bold/italic/underline, bullet/numbered lists, interactive checklists, tables, links, and syntax-highlighted **Code Blocks** with language selection.
-- **Saving Images:** Click the image icon in the toolbar, drag-and-drop an image file, or paste a screenshot directly (`Ctrl+V`). Images are stored on your server and embedded in the note.
+- **Saving Images (Local Server, Cloudflare R2, or GCP Storage):**
+  - Click the image icon in the toolbar, drag-and-drop an image file, or paste a screenshot directly (`Ctrl+V`).
+  - By default, if no cloud storage provider is configured, images are stored automatically on the **Local Server (`uploads/`)**.
+  - To store images in the cloud instead, open the **Integrations** tab at the top of `/notes` and configure either **Cloudflare R2** (Account ID, Bucket, Access Key ID, Secret Access Key) or **Google Cloud Storage (GCP)** (Bucket Name + Service Account JSON). You can optionally provide a **Public Base URL** for direct CDN links, or leave it empty to keep your bucket private and let GiRe serve images securely.
 - **Delegating Tasks (Super User only):**
   1. Highlight text inside a note and click **Delegate Selection as Task** (or click **Delegate Task** below the editor).
   2. Pick a **Member** in the same Workspace, set priority and due date, and submit.

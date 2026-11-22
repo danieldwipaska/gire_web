@@ -4,8 +4,19 @@ import connectDB from "@/lib/mongodb";
 import { getWorkspaceUsers, requirePageWorkspaceContext } from "@/lib/workspace";
 import Note from "@/models/Note";
 import Project from "@/models/Project";
+import StorageIntegration from "@/models/StorageIntegration";
 import Task from "@/models/Task";
-import { INote, INoteUser, IProject, ITask } from "@/lib/types";
+import {
+  sanitizeStorageIntegration,
+  StorageIntegrationDoc,
+} from "@/lib/storage/upload";
+import {
+  INote,
+  INoteUser,
+  IProject,
+  IStorageIntegration,
+  ITask,
+} from "@/lib/types";
 import NotesClient from "../components/notes/NotesClient";
 
 interface Props {
@@ -22,7 +33,12 @@ export default async function NotesPage({ searchParams }: Props) {
   const workspaceId = ctx.activeWorkspace._id;
 
   const params = await searchParams;
-  const initialTab = params.tab === "tasks" ? "tasks" : "notes";
+  const initialTab =
+    params.tab === "tasks"
+      ? "tasks"
+      : params.tab === "integrations"
+        ? "integrations"
+        : "notes";
   const initialNoteId =
     typeof params.noteId === "string" ? params.noteId : undefined;
   const initialProjectId =
@@ -37,7 +53,7 @@ export default async function NotesPage({ searchParams }: Props) {
 
   const accessibleProjectIds = projectsRaw.map((p) => p._id);
 
-  const [notesRaw, tasksRaw] = await Promise.all([
+  const [notesRaw, tasksRaw, storageRaw] = await Promise.all([
     Note.find({
       workspaceId,
       $or: [
@@ -58,7 +74,12 @@ export default async function NotesPage({ searchParams }: Props) {
       .sort({ updatedAt: -1 })
       .limit(200)
       .lean(),
+    StorageIntegration.find({ userId: session.id }).lean(),
   ]);
+
+  const storageIntegrations: IStorageIntegration[] = (
+    storageRaw as unknown as StorageIntegrationDoc[]
+  ).map(sanitizeStorageIntegration);
 
   const userMap = new Map(
     workspaceUsers.map((u) => [u._id, { name: u.name, email: u.email }]),
@@ -98,6 +119,7 @@ export default async function NotesPage({ searchParams }: Props) {
       isSuperUser={ctx.isSuperUser}
       initialNotes={notes}
       initialTasks={tasks}
+      initialStorageIntegrations={storageIntegrations}
       projects={JSON.parse(JSON.stringify(projectsRaw)) as IProject[]}
       users={workspaceUsers as INoteUser[]}
       initialTab={initialTab}

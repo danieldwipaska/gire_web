@@ -63,8 +63,9 @@ app/
     auth/                         # login, logout, register, me
     github/                       # detail (GET PR/Issue live), action (POST comment/review/merge/close)
     integrations/, sync/github/   # GitHub PAT management & NDJSON streaming sync
+    storage-integrations/         # Cloudflare R2 & GCP Cloud Storage config API
     projects/, notes/, tasks/     # Workspace-isolated CRUD + task delegation
-    uploads/                      # VPS disk image upload & authenticated serving
+    uploads/                      # Image upload (R2 / GCP / local fallback) & serving
     workspaces/                   # Workspace CRUD, switch, members management
 lib/
   auth.ts                         # JWT sign/verify, role helpers, cookie constants
@@ -152,7 +153,7 @@ E2E tests exercise real browser flows against Next.js + MongoDB (Super User regi
   npm run build
   npm run start
   ```
-- **Persistent Image Uploads:** Uploaded Note images are written to `<app_root>/uploads/` and served through `GET /api/uploads/[filename]` (authenticated). If deploying with Docker or PM2/systemd, ensure `<app_root>/uploads/` is mounted on persistent storage so images survive redeploys.
+- **Persistent Image Uploads:** By default (when neither Cloudflare R2 nor GCP Cloud Storage is active in `/notes` → **Integrations**), uploaded Note images are written to `<app_root>/uploads/` and served through `GET /api/uploads/[filename]` (authenticated). When using systemd on a VPS with local fallback enabled, ensure `<app_root>/uploads/` persists across releases. Private Cloudflare R2 and GCP uploads are proxied via `GET /api/uploads/cloud/[integrationId]/[...key]` with Workspace membership verification unless a custom `publicUrl` is set.
 - **Environment Variables:** Set `NODE_ENV=production`, a strong `JWT_SECRET`, and `MONGODB_URI`. Note that `token` cookies use `secure: true` in production, so serve GiRe behind HTTPS (e.g., Nginx/Caddy reverse proxy).
 - **Mongoose Indexes:** `syncGitHubData` runs `syncIndexes()` automatically, ensuring compound unique indexes remain aligned after upgrades.
 
