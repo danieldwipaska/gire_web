@@ -1,8 +1,7 @@
 "use client";
 
 import { Calendar, CheckCircle, ChevronDown } from "lucide-react";
-import React, { useState, useEffect } from "react";
-import Button from "../buttons/Button";
+import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const TimeDropdown = () => {

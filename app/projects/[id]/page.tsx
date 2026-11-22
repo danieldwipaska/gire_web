@@ -2,14 +2,13 @@ import { notFound, redirect } from "next/navigation";
 import mongoose from "mongoose";
 import { getSession } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
-import { requirePageWorkspaceContext } from "@/lib/workspace";
+import { getWorkspaceUsers, requirePageWorkspaceContext } from "@/lib/workspace";
 import ActivityEvent from "@/models/ActivityEvent";
 import Issue from "@/models/Issue";
 import Note from "@/models/Note";
 import Project from "@/models/Project";
 import PullRequest from "@/models/PullRequest";
 import Task from "@/models/Task";
-import User from "@/models/User";
 import {
   IActivityEvent,
   IIssue,
@@ -48,19 +47,10 @@ export default async function ProjectDetailPage({
     notFound();
   }
 
-  const memberIds = Array.from(
-    new Set([
-      projectDoc.ownerId.toString(),
-      ...(projectDoc.members || []).map(
-        (m: { userId: mongoose.Types.ObjectId }) => m.userId.toString(),
-      ),
-    ]),
-  );
-
   const repos: string[] = projectDoc.repos || [];
 
   const [
-    users,
+    workspaceUsers,
     pullRequests,
     issues,
     events,
@@ -70,9 +60,7 @@ export default async function ProjectDetailPage({
     issueDistinct,
     eventDistinct,
   ] = await Promise.all([
-    User.find({ _id: { $in: memberIds } })
-      .select("_id name email")
-      .lean(),
+    getWorkspaceUsers(ctx.activeWorkspace._id),
     repos.length > 0
       ? PullRequest.find({
           userId: session.id,
@@ -101,11 +89,11 @@ export default async function ProjectDetailPage({
           .limit(100)
           .lean()
       : Promise.resolve([]),
-    Note.find({ projectId: id })
+    Note.find({ projectId: id, workspaceId: ctx.activeWorkspace._id })
       .sort({ isPinned: -1, updatedAt: -1 })
       .limit(100)
       .lean(),
-    Task.find({ projectId: id })
+    Task.find({ projectId: id, workspaceId: ctx.activeWorkspace._id })
       .sort({ updatedAt: -1 })
       .limit(100)
       .lean(),
@@ -115,7 +103,7 @@ export default async function ProjectDetailPage({
   ]);
 
   const userMap = new Map(
-    users.map((u) => [u._id.toString(), { name: u.name, email: u.email }]),
+    workspaceUsers.map((u) => [u._id, { name: u.name, email: u.email }]),
   );
 
   const populatedMembers: IProjectMember[] = (projectDoc.members || []).map(

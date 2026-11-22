@@ -1,4 +1,18 @@
-// ── FIELD COMPONENT (defined outside to prevent re-mount on every keystroke) ──
+import type { ComponentType, ChangeEvent, ReactNode } from "react";
+
+interface FieldProps {
+  id: string;
+  label: string;
+  type: string;
+  placeholder?: string;
+  icon: ComponentType<{ className?: string }>;
+  right?: ReactNode;
+  hint?: string;
+  value: string;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  error?: string;
+}
+
 const Field = ({
   id,
   label,
@@ -10,14 +24,15 @@ const Field = ({
   value,
   onChange,
   error,
-}: any) => (
+}: FieldProps) => (
   <div>
-    <label className="block text-sm text-white mb-1.5 font-semibold">
+    <label htmlFor={id} className="block text-sm text-white mb-1.5 font-semibold">
       {label}
     </label>
     <div className="relative">
       <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
       <input
+        id={id}
         type={type}
         value={value}
         onChange={onChange}

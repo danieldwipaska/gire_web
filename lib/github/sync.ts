@@ -375,11 +375,21 @@ export async function syncGitHubData(
           );
           const [owner, repo] = repoPath.split("/");
 
-          const { data: detail } = await octokit.rest.pulls.get({
-            owner,
-            repo,
-            pull_number: pr.number,
-          });
+          let detail;
+          try {
+            const res = await octokit.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: pr.number,
+            });
+            detail = res.data;
+          } catch (err) {
+            const status = (err as { status?: number })?.status;
+            if (status === 404 || status === 403 || status === 410) {
+              return;
+            }
+            throw err;
+          }
 
           const isMentioned = detail.body
             ? detail.body.toLowerCase().includes(`@${username.toLowerCase()}`)

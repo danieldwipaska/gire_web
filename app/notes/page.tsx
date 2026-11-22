@@ -93,6 +93,7 @@ export default async function NotesPage({ searchParams }: Props) {
 
   return (
     <NotesClient
+      key={workspaceId}
       currentUserId={session.id}
       isSuperUser={ctx.isSuperUser}
       initialNotes={notes}

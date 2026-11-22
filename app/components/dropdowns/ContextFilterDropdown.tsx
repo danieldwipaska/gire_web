@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Briefcase, Check, ChevronDown, FolderKanban, Laptop } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { IProject } from "@/lib/types";
 
 export default function ContextFilterDropdown({
@@ -12,6 +12,7 @@ export default function ContextFilterDropdown({
 }) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const currentContext = searchParams.get("context") || "all";
@@ -39,7 +40,7 @@ export default function ContextFilterDropdown({
       params.set("context", next.context);
     }
     const qs = params.toString();
-    router.push(qs ? `?${qs}` : "?");
+    router.push(qs ? `${pathname}?${qs}` : pathname);
     setOpen(false);
   };
 
