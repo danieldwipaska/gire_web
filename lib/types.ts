@@ -3,8 +3,19 @@ export interface IUser {
   name: string;
   email: string;
   image?: string;
-  role: string;
+  role: 'super_user' | 'member' | 'user' | string;
+  workspaceId?: string | null;
+  activeWorkspaceId?: string | null;
   createdAt: string | Date;
+}
+
+export interface IWorkspace {
+  _id: string;
+  name: string;
+  description?: string;
+  ownerId: string;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
 }
 
 export interface IIntegration {

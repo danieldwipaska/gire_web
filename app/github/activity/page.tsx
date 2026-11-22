@@ -6,6 +6,7 @@ import Integration from "@/models/Integration";
 import PullRequest from "@/models/PullRequest";
 import { IActivityEvent, IPullRequest } from "@/lib/types";
 import { getContextScope } from "@/lib/project-filter";
+import { requirePageWorkspaceContext } from "@/lib/workspace";
 import ActivityClient from "../../components/activity/ActivityClient";
 
 interface Props {
@@ -17,6 +18,8 @@ export default async function GitHubActivityPage({ searchParams }: Props) {
   if (!session) {
     redirect("/login");
   }
+
+  const ctx = await requirePageWorkspaceContext(session.id);
 
   const params = await searchParams;
   const contextParam =
@@ -30,6 +33,7 @@ export default async function GitHubActivityPage({ searchParams }: Props) {
     session.id,
     contextParam,
     projectParam,
+    ctx.activeWorkspace._id,
   );
 
   const repoFilter =

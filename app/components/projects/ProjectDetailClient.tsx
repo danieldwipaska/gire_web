@@ -44,6 +44,7 @@ type TabKey = "github" | "figma" | "notes" | "members";
 export default function ProjectDetailClient({
   project,
   isOwner,
+  isSuperUser = false,
   pullRequests,
   issues,
   events,
@@ -53,6 +54,7 @@ export default function ProjectDetailClient({
 }: {
   project: IProject;
   isOwner: boolean;
+  isSuperUser?: boolean;
   pullRequests: IPullRequest[];
   issues: IIssue[];
   events: IActivityEvent[];
@@ -522,7 +524,7 @@ export default function ProjectDetailClient({
                     <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-slate-800 text-slate-300 border border-slate-700">
                       {m.role}
                     </span>
-                    {isOwner && m.role !== "owner" && (
+                    {isSuperUser && isOwner && m.role !== "owner" && (
                       <button
                         type="button"
                         disabled={memberLoading}
@@ -539,13 +541,14 @@ export default function ProjectDetailClient({
             </div>
           </div>
 
+          {isSuperUser && (
           <div className="bg-[#131924] border border-slate-800/80 rounded-2xl p-5 space-y-4 h-fit">
             <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
               <UserPlus className="w-4 h-4 text-indigo-400" />
-              Invite Collaborator
+              Invite Workspace Member
             </h3>
             <p className="text-xs text-slate-400">
-              Add teammates or freelance partners who already have a GiRe account by email so you can collaborate and delegate tasks in Phase 3.
+              Add members from this same Workspace by email to collaborate on this project.
             </p>
             {memberError && (
               <p className="text-xs text-rose-400">{memberError}</p>
@@ -564,6 +567,7 @@ export default function ProjectDetailClient({
               </Button>
             </form>
           </div>
+          )}
         </div>
       )}
 

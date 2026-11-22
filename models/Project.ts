@@ -45,6 +45,11 @@ const ProjectSchema = new mongoose.Schema(
       default: "active",
     },
     color: { type: String, default: "indigo" },
+    workspaceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Workspace",
+      default: null,
+    },
     ownerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -57,6 +62,7 @@ const ProjectSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+ProjectSchema.index({ workspaceId: 1, updatedAt: -1 });
 ProjectSchema.index({ ownerId: 1, updatedAt: -1 });
 ProjectSchema.index({ "members.userId": 1 });
 

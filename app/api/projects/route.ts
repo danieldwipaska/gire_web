@@ -1,6 +1,7 @@
-import { verifyAuth } from "@/lib/auth";
+import { verifyAuth, WORKSPACE_COOKIE_NAME } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import { isValidFigmaUrl } from "@/lib/utils";
+import { getWorkspaceContext } from "@/lib/workspace";
 import Project from "@/models/Project";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -11,10 +12,16 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const cookieWs = req.cookies.get(WORKSPACE_COOKIE_NAME)?.value;
+    const ctx = await getWorkspaceContext(session.id, cookieWs);
+    if (!ctx || !ctx.activeWorkspace) {
+      return NextResponse.json([]);
+    }
+
     await connectDB();
 
     const projects = await Project.find({
-      $or: [{ ownerId: session.id }, { "members.userId": session.id }],
+      workspaceId: ctx.activeWorkspace._id,
     })
       .sort({ updatedAt: -1 })
       .lean();
@@ -31,6 +38,15 @@ export async function POST(req: NextRequest) {
     const session = await verifyAuth(req);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const cookieWs = req.cookies.get(WORKSPACE_COOKIE_NAME)?.value;
+    const ctx = await getWorkspaceContext(session.id, cookieWs);
+    if (!ctx || !ctx.activeWorkspace) {
+      return NextResponse.json(
+        { error: "Please create a Workspace first" },
+        { status: 400 },
+      );
     }
 
     const body = await req.json();
@@ -90,6 +106,7 @@ export async function POST(req: NextRequest) {
         typeof body?.clientOrTeam === "string" ? body.clientOrTeam.trim() : "",
       status: "active",
       color: typeof body?.color === "string" ? body.color : "indigo",
+      workspaceId: ctx.activeWorkspace._id,
       ownerId: session.id,
       members: [{ userId: session.id, role: "owner" }],
       repos,
@@ -102,4 +119,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Server Error" }, { status: 500 });
   }
 }
-

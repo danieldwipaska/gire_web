@@ -11,6 +11,8 @@ export async function middleware(request: NextRequest) {
     '/github',
     '/projects',
     '/notes',
+    '/workspaces',
+    '/onboarding',
     '/activity',
     '/analytics',
   ];
@@ -49,6 +51,8 @@ export const config = {
     '/github/:path*',
     '/projects/:path*',
     '/notes/:path*',
+    '/workspaces/:path*',
+    '/onboarding/:path*',
     '/analytics/:path*',
     '/activity/:path*',
     '/login',

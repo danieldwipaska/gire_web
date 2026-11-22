@@ -76,6 +76,7 @@ const PRIORITY_META: Record<
 
 export default function NotesClient({
   currentUserId,
+  isSuperUser = false,
   initialNotes,
   initialTasks,
   projects,
@@ -85,6 +86,7 @@ export default function NotesClient({
   initialProjectId,
 }: {
   currentUserId: string;
+  isSuperUser?: boolean;
   initialNotes: INote[];
   initialTasks: ITask[];
   projects: IProject[];
@@ -462,12 +464,12 @@ export default function NotesClient({
               <Plus className="w-4 h-4" />
               New Note
             </Button>
-          ) : (
+          ) : isSuperUser ? (
             <Button onClick={() => openDelegateModal("", null)}>
               <Plus className="w-4 h-4" />
               New Task
             </Button>
-          )}
+          ) : null}
         </div>
       </div>
 
@@ -727,8 +729,10 @@ export default function NotesClient({
                         draftTagsText,
                       );
                     }}
-                    onDelegateSelection={(selected) =>
-                      openDelegateModal(selected, activeNote)
+                    onDelegateSelection={
+                      isSuperUser
+                        ? (selected) => openDelegateModal(selected, activeNote)
+                        : undefined
                     }
                   />
                 </div>
@@ -740,17 +744,21 @@ export default function NotesClient({
                       <ListTodo className="w-4 h-4 text-indigo-400" />
                       Delegated Tasks from this Note ({noteTasks.length})
                     </h3>
-                    <Button
-                      onClick={() => openDelegateModal("", activeNote)}
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      Delegate Task
-                    </Button>
+                    {isSuperUser && (
+                      <Button
+                        onClick={() => openDelegateModal("", activeNote)}
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        Delegate Task
+                      </Button>
+                    )}
                   </div>
 
                   {noteTasks.length === 0 ? (
                     <p className="text-xs text-slate-500">
-                      Highlight text in the editor above and click &ldquo;Delegate Selection as Task&rdquo;, or click &ldquo;Delegate Task&rdquo; to assign action items to any GiRe user.
+                      {isSuperUser
+                        ? 'Highlight text in the editor above and click "Delegate Selection as Task", or click "Delegate Task" to assign action items to users in this Workspace.'
+                        : "No tasks delegated from this note yet."}
                     </p>
                   ) : (
                     <div className="space-y-2">
@@ -800,7 +808,7 @@ export default function NotesClient({
                               <option value="in_review">In Review</option>
                               <option value="done">Done</option>
                             </select>
-                            {t.createdBy === currentUserId && (
+                            {isSuperUser && t.createdBy === currentUserId && (
                               <button
                                 type="button"
                                 onClick={() => handleDeleteTask(t._id)}
@@ -825,12 +833,15 @@ export default function NotesClient({
         <div className="space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#131924] border border-slate-800/80 rounded-2xl p-4">
             <div className="flex flex-wrap items-center gap-1 bg-[#0b0f19] p-1 border border-slate-800 rounded-xl w-fit">
-              {(
-                [
-                  { value: "assigned_to_me", label: "Assigned to Me" },
-                  { value: "delegated_by_me", label: "Delegated by Me" },
-                  { value: "all", label: "All My Tasks" },
-                ] as const
+              {(isSuperUser
+                ? ([
+                    { value: "assigned_to_me", label: "Assigned to Me" },
+                    { value: "delegated_by_me", label: "Delegated by Me" },
+                    { value: "all", label: "All My Tasks" },
+                  ] as const)
+                : ([
+                    { value: "assigned_to_me", label: "Assigned to Me" },
+                  ] as const)
               ).map((tab) => (
                 <button
                   key={tab.value}
@@ -966,7 +977,7 @@ export default function NotesClient({
                         <option value="in_review">In Review</option>
                         <option value="done">Done</option>
                       </select>
-                      {task.createdBy === currentUserId && (
+                      {isSuperUser && task.createdBy === currentUserId && (
                         <button
                           type="button"
                           onClick={() => handleDeleteTask(task._id)}

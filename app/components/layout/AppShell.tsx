@@ -2,12 +2,16 @@
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Activity,
   BarChart3,
+  Building2,
   Calendar,
+  Check,
   ChevronDown,
+  ChevronsUpDown,
+  Crown,
   FileText,
   FolderKanban,
   GitPullRequest,
@@ -15,8 +19,10 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Plus,
   X,
 } from "lucide-react";
+import { IWorkspace } from "@/lib/types";
 import TopProgressBar from "../TopProgressBar";
 
 export interface AppSession {
@@ -30,16 +36,25 @@ const PUBLIC_PATHS = ["/", "/login", "/register"];
 
 export default function AppShell({
   session,
+  isSuperUser = false,
+  workspaces = [],
+  activeWorkspace = null,
   children,
 }: {
   session: AppSession | null;
+  isSuperUser?: boolean;
+  workspaces?: IWorkspace[];
+  activeWorkspace?: IWorkspace | null;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [githubOpen, setGithubOpen] = useState(true);
+  const [wsDropdownOpen, setWsDropdownOpen] = useState(false);
 
-  const isPublicPage = PUBLIC_PATHS.includes(pathname);
+  const isPublicPage =
+    PUBLIC_PATHS.includes(pathname) || pathname.startsWith("/onboarding");
 
   if (isPublicPage || !session) {
     return (
@@ -93,10 +108,21 @@ export default function AppShell({
     window.location.href = "/login";
   };
 
+  const handleSwitchWorkspace = async (workspaceId: string) => {
+    setWsDropdownOpen(false);
+    if (workspaceId === activeWorkspace?._id) return;
+    await fetch("/api/workspaces/switch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ workspaceId }),
+    });
+    router.refresh();
+  };
+
   const navContent = (
     <div className="flex flex-col h-full">
       {/* Brand */}
-      <div className="px-5 py-5 border-b border-slate-800/80 flex items-center justify-between">
+      <div className="px-5 py-4 border-b border-slate-800/80 flex items-center justify-between">
         <Link
           href="/dashboard"
           onClick={() => setMobileOpen(false)}
@@ -124,6 +150,84 @@ export default function AppShell({
         </button>
       </div>
 
+      {/* Workspace Switcher */}
+      {activeWorkspace && (
+        <div className="px-3 pt-3 relative">
+          <button
+            type="button"
+            onClick={() => isSuperUser && setWsDropdownOpen((o) => !o)}
+            className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-[#0b0f19] border border-slate-800 text-left ${
+              isSuperUser
+                ? "hover:border-slate-700 cursor-pointer"
+                : "cursor-default"
+            }`}
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <Building2 className="w-4 h-4 text-indigo-400 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-xs font-bold text-slate-100 truncate">
+                  {activeWorkspace.name}
+                </p>
+                <p className="text-[10px] text-slate-400 flex items-center gap-1">
+                  {isSuperUser ? (
+                    <>
+                      <Crown className="w-2.5 h-2.5 text-amber-400" />
+                      Super User
+                    </>
+                  ) : (
+                    "Member"
+                  )}
+                </p>
+              </div>
+            </div>
+            {isSuperUser && (
+              <ChevronsUpDown className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+            )}
+          </button>
+
+          {isSuperUser && wsDropdownOpen && (
+            <div className="absolute left-3 right-3 top-full mt-1 bg-[#131924] border border-slate-700 rounded-xl shadow-2xl z-50 py-1.5">
+              <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                Switch Workspace
+              </div>
+              <div className="max-h-44 overflow-y-auto">
+                {workspaces.map((ws) => {
+                  const isActive = ws._id === activeWorkspace._id;
+                  return (
+                    <button
+                      key={ws._id}
+                      type="button"
+                      onClick={() => handleSwitchWorkspace(ws._id)}
+                      className={`w-full text-left px-3 py-2 text-xs font-semibold flex items-center justify-between cursor-pointer ${
+                        isActive
+                          ? "bg-indigo-950/60 text-indigo-300"
+                          : "text-slate-300 hover:bg-slate-800/60"
+                      }`}
+                    >
+                      <span className="truncate pr-2">{ws.name}</span>
+                      {isActive && (
+                        <Check className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="my-1 border-t border-slate-800" />
+              <Link
+                href="/workspaces"
+                onClick={() => {
+                  setWsDropdownOpen(false);
+                  setMobileOpen(false);
+                }}
+                className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-indigo-400 hover:bg-slate-800/60"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Manage / Create Workspace
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1.5">
         {/* 1. Dashboard */}
@@ -235,6 +339,19 @@ export default function AppShell({
           <FileText className="w-4 h-4 shrink-0" />
           <span>Notes</span>
         </Link>
+        {/* 5. Workspace & Members */}
+        <Link
+          href="/workspaces"
+          onClick={() => setMobileOpen(false)}
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+            pathname.startsWith("/workspaces")
+              ? "bg-indigo-600 text-white shadow-sm"
+              : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
+          }`}
+        >
+          <Building2 className="w-4 h-4 shrink-0" />
+          <span>Workspace</span>
+        </Link>
       </nav>
 
       {/* Footer: Date + User + Sign Out */}
@@ -336,4 +453,3 @@ export default function AppShell({
     </div>
   );
 }
-

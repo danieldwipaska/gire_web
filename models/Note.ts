@@ -7,6 +7,11 @@ const NoteSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    workspaceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Workspace",
+      default: null,
+    },
     projectId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Project",
@@ -26,6 +31,7 @@ const NoteSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+NoteSchema.index({ workspaceId: 1, updatedAt: -1 });
 NoteSchema.index({ userId: 1, updatedAt: -1 });
 NoteSchema.index({ projectId: 1, updatedAt: -1 });
 NoteSchema.index({ sharedWith: 1 });

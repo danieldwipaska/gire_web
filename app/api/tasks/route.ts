@@ -1,6 +1,8 @@
-import { verifyAuth } from "@/lib/auth";
+import { verifyAuth, WORKSPACE_COOKIE_NAME } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
+import { getWorkspaceContext, isUserInWorkspace } from "@/lib/workspace";
 import Note from "@/models/Note";
+import Project from "@/models/Project";
 import Task from "@/models/Task";
 import User from "@/models/User";
 import mongoose from "mongoose";
@@ -13,12 +15,19 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const cookieWs = req.cookies.get(WORKSPACE_COOKIE_NAME)?.value;
+    const ctx = await getWorkspaceContext(session.id, cookieWs);
+    if (!ctx || !ctx.activeWorkspace) {
+      return NextResponse.json([]);
+    }
+
     await connectDB();
 
     const sourceNoteId = req.nextUrl.searchParams.get("sourceNoteId");
     const projectId = req.nextUrl.searchParams.get("projectId");
 
     const baseFilter: Record<string, unknown> = {
+      workspaceId: ctx.activeWorkspace._id,
       $or: [{ assignedTo: session.id }, { createdBy: session.id }],
     };
 
@@ -49,6 +58,23 @@ export async function POST(req: NextRequest) {
     const session = await verifyAuth(req);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const cookieWs = req.cookies.get(WORKSPACE_COOKIE_NAME)?.value;
+    const ctx = await getWorkspaceContext(session.id, cookieWs);
+    if (!ctx || !ctx.activeWorkspace) {
+      return NextResponse.json(
+        { error: "Please create a Workspace first" },
+        { status: 400 },
+      );
+    }
+
+    // ONLY Super User can create & delegate tasks
+    if (!ctx.isSuperUser) {
+      return NextResponse.json(
+        { error: "Only Super Users can create and delegate tasks" },
+        { status: 403 },
+      );
     }
 
     const body = await req.json();
@@ -84,24 +110,53 @@ export async function POST(req: NextRequest) {
       }).select("_id");
       if (!targetUser) {
         return NextResponse.json(
-          { error: `No GiRe user found with email ${body.assignedToEmail.trim()}` },
+          {
+            error: `No GiRe user found with email ${body.assignedToEmail.trim()}`,
+          },
           { status: 404 },
         );
       }
       assigneeId = targetUser._id.toString();
     }
 
-    const projectId =
+    // Enforce same-Workspace delegation strictly
+    const inSameWorkspace = await isUserInWorkspace(
+      assigneeId,
+      ctx.activeWorkspace._id,
+    );
+    if (!inSameWorkspace) {
+      return NextResponse.json(
+        {
+          error:
+            "Tasks can only be delegated to users within the same Workspace",
+        },
+        { status: 403 },
+      );
+    }
+
+    let projectId: string | null = null;
+    if (
       typeof body?.projectId === "string" &&
       mongoose.Types.ObjectId.isValid(body.projectId)
-        ? body.projectId
-        : null;
+    ) {
+      const validProj = await Project.exists({
+        _id: body.projectId,
+        workspaceId: ctx.activeWorkspace._id,
+      });
+      if (validProj) projectId = body.projectId;
+    }
 
-    const sourceNoteId =
+    let sourceNoteId: string | null = null;
+    if (
       typeof body?.sourceNoteId === "string" &&
       mongoose.Types.ObjectId.isValid(body.sourceNoteId)
-        ? body.sourceNoteId
-        : null;
+    ) {
+      const validNote = await Note.exists({
+        _id: body.sourceNoteId,
+        workspaceId: ctx.activeWorkspace._id,
+      });
+      if (validNote) sourceNoteId = body.sourceNoteId;
+    }
 
     const priority =
       body?.priority === "low" ||
@@ -124,14 +179,18 @@ export async function POST(req: NextRequest) {
       dueDate,
       createdBy: session.id,
       assignedTo: assigneeId,
+      workspaceId: ctx.activeWorkspace._id,
       projectId,
       sourceNoteId,
     });
 
-    // Ensure the assignee can access the source Note if delegated to another user
     if (sourceNoteId && assigneeId !== session.id) {
       await Note.updateOne(
-        { _id: sourceNoteId, userId: { $ne: assigneeId } },
+        {
+          _id: sourceNoteId,
+          workspaceId: ctx.activeWorkspace._id,
+          userId: { $ne: assigneeId },
+        },
         { $addToSet: { sharedWith: assigneeId } },
       );
     }
@@ -142,4 +201,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Server Error" }, { status: 500 });
   }
 }
-
