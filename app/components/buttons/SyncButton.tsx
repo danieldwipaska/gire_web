@@ -166,7 +166,7 @@ const SyncButton = () => {
   return (
     <>
       <Button onClick={handleSync} disabled={buttonDisabled}>
-        Sync Now
+        Sync Github Now
       </Button>
       <Modal
         open={open}

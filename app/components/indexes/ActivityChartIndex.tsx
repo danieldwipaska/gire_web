@@ -14,12 +14,26 @@ import {
 import { Folder } from "lucide-react";
 import { IActivityData } from "@/lib/types";
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+interface TooltipItem {
+  name?: string;
+  value?: number;
+  color?: string;
+}
+
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: TooltipItem[];
+  label?: string;
+}) => {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-[#131924] border border-slate-800 rounded-lg p-3 text-xs">
       <p className="text-slate-300 font-semibold mb-1">{label}</p>
-      {payload.map((p: any, i: any) => (
+      {payload.map((p, i) => (
         <p key={i} style={{ color: p.color }} className="capitalize font-medium">
           {p.name}: <span className="font-bold">{p.value}</span>
         </p>
@@ -77,7 +91,7 @@ const ActivityChartIndex = ({ data }: { data: IActivityData[] }) => {
         </ResponsiveContainer>
         <div className="space-y-3 justify-center flex flex-col pt-2 border-t border-slate-800/60">
           {data.map(({ repo, prs, merged, issues }: IActivityData) => {
-            const rate = prs ? Math.round((merged / prs) * 100) : 0;
+            const rate = prs ? Math.min(100, Math.round((merged / prs) * 100)) : 0;
             return (
               <div key={repo} className="flex items-center gap-3">
                 <div className="flex items-center gap-2 w-48 shrink-0">

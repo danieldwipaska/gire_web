@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import Navbar from "./components/Navbar";
+import AppShell, { AppSession } from "./components/layout/AppShell";
 import { DetailDrawerProvider } from "./components/drawer/DetailDrawerProvider";
 import { getSession } from "@/lib/auth";
 
@@ -11,8 +11,9 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "GiRe - Github Reporting & Task Automation",
-  description: "An elegant app to track developer's Github stats and PRs",
+  title: "GiRe - Engineer Command Center",
+  description:
+    "Unified workspace for GitHub PRs, Issues, Reviews, Projects, and Technical Notes",
 };
 
 export default async function RootLayout({
@@ -20,15 +21,14 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getSession();
+  const session = (await getSession()) as AppSession | null;
   return (
     <html lang="en" className="dark">
       <body
         className={`${plusJakartaSans.variable} font-sans antialiased bg-[#0b0f19] text-slate-100 min-h-screen selection:bg-indigo-500/30 selection:text-indigo-200`}
       >
         <DetailDrawerProvider>
-          <Navbar session={session} />
-          {children}
+          <AppShell session={session}>{children}</AppShell>
         </DetailDrawerProvider>
       </body>
     </html>
