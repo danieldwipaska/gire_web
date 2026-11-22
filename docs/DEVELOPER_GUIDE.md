@@ -156,6 +156,11 @@ E2E tests exercise real browser flows against Next.js + MongoDB (Super User regi
    E2E_BASE_URL=http://127.0.0.1:3000 npm run test:e2e
    ```
 
+### Continuous Integration (GitHub Actions)
+[`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs automatically on every branch push and pull request:
+1. **`quality-and-unit`:** Runs `npx tsc --noEmit`, `npm run lint`, `npm run test:unit`, and `npm run build`.
+2. **`e2e`:** Spins up a `mongo:7` service container, installs Playwright Chromium, and executes `npm run test:e2e`, uploading `test-results/` and `playwright-report/` artifacts on failure.
+
 ---
 
 ## 6. VPS Deployment Notes
