@@ -1,11 +1,13 @@
 "use client";
 
 import { Calendar, CheckCircle, ChevronDown } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import FloatingDropdownMenu, { useFloatingDropdown } from "./FloatingDropdownMenu";
 
 const TimeDropdown = () => {
-  const [rangeOpen, setRangeOpen] = useState(false);
+  const { open, anchorRef, coords, computeCoords, toggle, close } =
+    useFloatingDropdown(192);
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentRange = searchParams.get("range") || "this-month";
@@ -22,45 +24,50 @@ const TimeDropdown = () => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("range", value);
     router.push(`?${params.toString()}`);
-    setRangeOpen(false);
+    close();
   };
 
   const currentLabel = RANGE_OPTIONS.find((r) => r.value === currentRange)?.label || "This Month";
 
   return (
-    <div className="relative">
+    <div ref={anchorRef} className="relative z-50">
       <button
         type="button"
         className="px-4 py-2 bg-card hover:bg-highlight border border-line rounded-full text-xs font-semibold text-ink transition-all flex items-center gap-2 cursor-pointer shadow-[0_2px_8px_rgba(28,28,31,0.04)]"
-        onClick={() => setRangeOpen((o) => !o)}
+        onClick={toggle}
       >
         <Calendar className="w-3.5 h-3.5 text-brand-violet" />
         <span className="text-ink">{currentLabel}</span>
         <ChevronDown
-          className={`w-3.5 h-3.5 text-ink-muted transition-transform duration-200 ${rangeOpen ? "rotate-180" : ""}`}
+          className={`w-3.5 h-3.5 text-ink-muted transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         />
       </button>
-      {rangeOpen && (
-        <div className="absolute right-0 top-full mt-1.5 w-48 bg-highlight border border-line rounded-2xl shadow-[0_16px_40px_rgba(28,28,31,0.12)] z-50 overflow-hidden py-1.5 animate-scale-in">
-          {RANGE_OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => handleSelect(opt.value)}
-              className={`w-full text-left px-3.5 py-2 text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer ${
-                currentRange === opt.value
-                  ? "bg-card text-brand-violet"
-                  : "text-ink hover:bg-card/70"
-              }`}
-            >
-              {opt.label}
-              {currentRange === opt.value && (
-                <CheckCircle className="w-3.5 h-3.5 text-brand-violet" />
-              )}
-            </button>
-          ))}
-        </div>
-      )}
+      <FloatingDropdownMenu
+        open={open}
+        onClose={close}
+        anchorRef={anchorRef}
+        coords={coords}
+        onReposition={computeCoords}
+        widthClass="w-48"
+      >
+        {RANGE_OPTIONS.map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => handleSelect(opt.value)}
+            className={`w-full text-left px-3.5 py-2 text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer ${
+              currentRange === opt.value
+                ? "bg-card text-brand-violet"
+                : "text-ink hover:bg-card/70"
+            }`}
+          >
+            {opt.label}
+            {currentRange === opt.value && (
+              <CheckCircle className="w-3.5 h-3.5 text-brand-violet" />
+            )}
+          </button>
+        ))}
+      </FloatingDropdownMenu>
     </div>
   );
 };

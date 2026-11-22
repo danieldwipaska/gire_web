@@ -235,7 +235,7 @@ export default function AppShell({
 
       {/* Workspace Switcher */}
       {activeWorkspace && (
-        <div className="px-3 pt-3 relative">
+        <div className="px-3 pt-3 relative z-30">
           <button
             type="button"
             onClick={() => isSuperUser && setWsDropdownOpen((o) => !o)}

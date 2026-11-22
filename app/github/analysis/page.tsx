@@ -298,7 +298,7 @@ export default async function GitHubAnalysisPage({ searchParams }: Props) {
 
   return (
     <div className="min-h-screen container">
-      <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between animate-fade-up">
+      <div className="relative z-40 flex flex-col md:flex-row gap-4 md:gap-0 justify-between animate-fade-up">
         <div className="flex flex-col gap-1">
           <h2 className="text-2xl font-bold text-ink tracking-tight">GitHub Analysis</h2>
           <p className="text-sm text-ink-muted">
