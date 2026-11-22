@@ -31,8 +31,8 @@ const CustomTooltip = ({
 }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#131924] border border-slate-800 rounded-lg p-3 text-xs">
-      <p className="text-slate-300 font-semibold mb-1">{label}</p>
+    <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-xl p-3 text-xs shadow-[0_10px_25px_rgba(28,28,31,0.08)]">
+      <p className="text-[#1C1C1F] font-bold mb-1">{label}</p>
       {payload.map((p, i) => (
         <p key={i} style={{ color: p.color }} className="capitalize font-medium">
           {p.name}: <span className="font-bold">{p.value}</span>
@@ -50,66 +50,66 @@ const ActivityChartIndex = ({ data }: { data: IActivityData[] }) => {
           <BarChart data={data} layout="vertical" barSize={10}>
             <CartesianGrid
               strokeDasharray="3 3"
-              stroke="rgba(255,255,255,0.05)"
+              stroke="rgba(28,28,31,0.06)"
               horizontal={false}
             />
             <XAxis
               type="number"
-              tick={{ fill: "#94a3b8", fontSize: 11 }}
+              tick={{ fill: "#6E6E77", fontSize: 11 }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
               type="category"
               dataKey="repo"
-              tick={{ fill: "#94a3b8", fontSize: 12 }}
+              tick={{ fill: "#6E6E77", fontSize: 12 }}
               axisLine={false}
               tickLine={false}
               width={180}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Legend wrapperStyle={{ fontSize: "12px", color: "#94a3b8" }} />
+            <Legend wrapperStyle={{ fontSize: "12px", color: "#6E6E77" }} />
             <Bar
               dataKey="prs"
               name="My PRs"
-              fill="#6366f1"
-              radius={[0, 4, 4, 0]}
+              fill="#5432EE"
+              radius={[0, 6, 6, 0]}
             />
             <Bar
               dataKey="merged"
               name="Merged PRs"
-              fill="#10b981"
-              radius={[0, 4, 4, 0]}
+              fill="#69D7D8"
+              radius={[0, 6, 6, 0]}
             />
             <Bar
               dataKey="issues"
               name="Issues Assigned"
-              fill="#0284c7"
-              radius={[0, 4, 4, 0]}
+              fill="#418CFF"
+              radius={[0, 6, 6, 0]}
             />
           </BarChart>
         </ResponsiveContainer>
-        <div className="space-y-3 justify-center flex flex-col pt-2 border-t border-slate-800/60">
+        <div className="space-y-3 justify-center flex flex-col pt-3 border-t border-[#EEEEEE]">
           {data.map(({ repo, prs, merged, issues }: IActivityData) => {
             const rate = prs ? Math.min(100, Math.round((merged / prs) * 100)) : 0;
             return (
               <div key={repo} className="flex items-center gap-3">
                 <div className="flex items-center gap-2 w-48 shrink-0">
-                  <Folder className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                  <span className="text-xs text-slate-300 font-medium truncate">
+                  <Folder className="w-3.5 h-3.5 text-[#6E6E77] shrink-0" />
+                  <span className="text-xs text-[#1C1C1F] font-semibold truncate">
                     {repo}
                   </span>
                 </div>
-                <div className="flex-1 bg-slate-800 rounded-full h-2">
+                <div className="flex-1 bg-[#EEEEEE] rounded-full h-2 overflow-hidden">
                   <div
-                    className="h-2 rounded-full bg-indigo-500"
+                    className="h-2 rounded-full bg-[#1C1C1F] animate-progress-fill"
                     style={{ width: `${rate}%` }}
                   />
                 </div>
-                <span className="text-xs text-slate-400 w-9 text-right shrink-0 font-medium">
+                <span className="text-xs text-[#1C1C1F] w-9 text-right shrink-0 font-bold tabular-nums">
                   {rate}%
                 </span>
-                <span className="text-xs text-slate-500 w-32 text-right shrink-0">
+                <span className="text-xs text-[#6E6E77] w-32 text-right shrink-0">
                   {merged}/{prs} PR · {issues} Issues
                 </span>
               </div>

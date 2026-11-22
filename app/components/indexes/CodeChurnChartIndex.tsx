@@ -31,8 +31,8 @@ const CustomTooltip = ({
 }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#131924] border border-slate-800 rounded-lg p-3 text-xs">
-      <p className="text-slate-300 font-semibold mb-1">{label}</p>
+    <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-xl p-3 text-xs shadow-[0_10px_25px_rgba(28,28,31,0.08)]">
+      <p className="text-[#1C1C1F] font-bold mb-1">{label}</p>
       {payload.map((p, i) => (
         <p key={i} style={{ color: p.color }} className="capitalize font-medium">
           {p.name}: <span className="font-bold">{p.value}</span>
@@ -49,37 +49,37 @@ const CodeChurnChartIndex = ({ data }: { data: ICodeChurnData[] }) => {
         <BarChart data={data} barSize={12}>
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke="rgba(255,255,255,0.05)"
+            stroke="rgba(28,28,31,0.06)"
           />
           <XAxis
             dataKey="day"
-            tick={{ fill: "#94a3b8", fontSize: 12 }}
+            tick={{ fill: "#6E6E77", fontSize: 12 }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
-            tick={{ fill: "#94a3b8", fontSize: 12 }}
+            tick={{ fill: "#6E6E77", fontSize: 12 }}
             axisLine={false}
             tickLine={false}
           />
           <Tooltip content={<CustomTooltip />} />
-          <Legend wrapperStyle={{ fontSize: "12px", color: "#94a3b8" }} />
+          <Legend wrapperStyle={{ fontSize: "12px", color: "#6E6E77" }} />
           <Bar
             dataKey="additions"
-            fill="#10b981"
-            radius={[4, 4, 0, 0]}
+            fill="#69D7D8"
+            radius={[6, 6, 0, 0]}
             name="Additions"
           />
           <Bar
             dataKey="deletions"
-            fill="#f43f5e"
-            radius={[4, 4, 0, 0]}
+            fill="#EA5DEE"
+            radius={[6, 6, 0, 0]}
             name="Deletions"
           />
           <Bar
             dataKey="changedFiles"
-            fill="#6366f1"
-            radius={[4, 4, 0, 0]}
+            fill="#5432EE"
+            radius={[6, 6, 0, 0]}
             name="Changed Files"
           />
         </BarChart>

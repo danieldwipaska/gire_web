@@ -14,9 +14,9 @@ const DonutLegend = ({ data }: { data: ITaskChartData[] }) => (
             className="w-2.5 h-2.5 rounded-full shrink-0"
             style={{ backgroundColor: color }}
           />
-          <span className="text-slate-300 font-medium">{name}</span>
+          <span className="text-[#6E6E77] font-medium">{name}</span>
         </div>
-        <span className="text-slate-100 font-bold">{Math.round((fraction || 0) * 100)} %</span>
+        <span className="text-[#1C1C1F] font-bold tabular-nums">{Math.round((fraction || 0) * 100)} %</span>
       </div>
     ))}
   </div>
@@ -42,10 +42,11 @@ const TaskChartIndex = ({ data }: { data: ITaskChartData[] }) => {
           </Pie>
           <Tooltip
             contentStyle={{
-              backgroundColor: "#131924",
-              border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: "8px",
-              color: "#f8fafc",
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E2E2E2",
+              borderRadius: "12px",
+              boxShadow: "0 10px 25px rgba(28,28,31,0.08)",
+              color: "#1C1C1F",
               fontSize: "12px",
             }}
           />

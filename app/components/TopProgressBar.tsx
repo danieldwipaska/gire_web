@@ -80,12 +80,12 @@ export default function TopProgressBar() {
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 h-[2.5px] z-[100] pointer-events-none transition-all duration-300 ease-out"
+      className="fixed top-0 left-0 right-0 h-[3px] z-[100] pointer-events-none transition-all duration-300 ease-out"
       style={{
         width: `${progress}%`,
         opacity: visible ? 1 : 0,
-        backgroundColor: "#6366f1",
-        boxShadow: "0 0 10px rgba(99, 102, 241, 0.7)",
+        background: "linear-gradient(90deg, #5432EE, #418CFF, #69D7D8, #EA5DEE)",
+        boxShadow: "0 0 12px rgba(84, 50, 238, 0.45)",
       }}
     />
   );

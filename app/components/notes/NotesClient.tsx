@@ -49,19 +49,19 @@ const STATUS_META: Record<
 > = {
   todo: {
     label: "To Do",
-    badgeClass: "bg-slate-800 text-slate-300 border-slate-700",
+    badgeClass: "bg-[#EEEEEE] text-[#1C1C1F] border-[#E2E2E2]",
   },
   in_progress: {
     label: "In Progress",
-    badgeClass: "bg-sky-950/60 text-sky-300 border-sky-700/50",
+    badgeClass: "bg-[#418CFF]/15 text-[#2563EB] border-[#418CFF]/30",
   },
   in_review: {
     label: "In Review",
-    badgeClass: "bg-amber-950/60 text-amber-300 border-amber-700/50",
+    badgeClass: "bg-[#EA5DEE]/15 text-[#A21CAF] border-[#EA5DEE]/30",
   },
   done: {
     label: "Done",
-    badgeClass: "bg-emerald-950/60 text-emerald-300 border-emerald-700/50",
+    badgeClass: "bg-[#69D7D8]/25 text-[#0F766E] border-[#69D7D8]/50",
   },
 };
 
@@ -71,19 +71,19 @@ const PRIORITY_META: Record<
 > = {
   low: {
     label: "Low",
-    badgeClass: "bg-slate-800 text-slate-400 border-slate-700",
+    badgeClass: "bg-[#EEEEEE] text-[#6E6E77] border-[#E2E2E2]",
   },
   medium: {
     label: "Medium",
-    badgeClass: "bg-indigo-950/60 text-indigo-300 border-indigo-700/50",
+    badgeClass: "bg-[#5432EE]/12 text-[#5432EE] border-[#5432EE]/25",
   },
   high: {
     label: "High",
-    badgeClass: "bg-amber-950/60 text-amber-300 border-amber-700/50",
+    badgeClass: "bg-[#EA5DEE]/15 text-[#A21CAF] border-[#EA5DEE]/30",
   },
   urgent: {
     label: "Urgent",
-    badgeClass: "bg-rose-950/60 text-rose-300 border-rose-700/50",
+    badgeClass: "bg-rose-100 text-rose-700 border-rose-200",
   },
 };
 
@@ -120,7 +120,6 @@ export default function NotesClient({
     initialTab,
   );
 
-  // Notes sidebar filters
   const [noteSearch, setNoteSearch] = useState("");
   const [projectFilter, setProjectFilter] = useState<string>(
     initialProjectId || "all",
@@ -131,7 +130,6 @@ export default function NotesClient({
       : initialNotes[0]?._id || "",
   );
 
-  // Active note editor fields
   const activeNote = useMemo(
     () => notes.find((n) => n._id === activeNoteId) || null,
     [notes, activeNoteId],
@@ -149,12 +147,10 @@ export default function NotesClient({
   );
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Share modal
   const [shareOpen, setShareOpen] = useState(false);
   const [shareEmail, setShareEmail] = useState("");
   const [shareError, setShareError] = useState("");
 
-  // Delegate / New Task modal
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [taskTitle, setTaskTitle] = useState("");
   const [taskDesc, setTaskDesc] = useState("");
@@ -166,7 +162,6 @@ export default function NotesClient({
   const [taskSubmitting, setTaskSubmitting] = useState(false);
   const [taskError, setTaskError] = useState("");
 
-  // Delegated Tasks view filters
   const [taskScope, setTaskScope] = useState<
     "assigned_to_me" | "delegated_by_me" | "all"
   >("assigned_to_me");
@@ -174,7 +169,6 @@ export default function NotesClient({
     "all",
   );
 
-  // Client-side End-to-End Encryption (memory-only passphrases & plaintext)
   const [unlockedPlaintext, setUnlockedPlaintext] = useState<
     Record<string, string>
   >({});
@@ -193,7 +187,6 @@ export default function NotesClient({
     activeNote?.isEncrypted && unlockedPlaintext[activeNote._id] === undefined,
   );
 
-  // Sync draft state when switching notes
   useEffect(() => {
     setUnlockPassphrase("");
     setUnlockError("");
@@ -280,7 +273,6 @@ export default function NotesClient({
         if (!isE2eeEnvelope(nextPayload.content)) {
           const pass = activePassphrasesRef.current[noteId];
           if (!pass) {
-            // Never overwrite encrypted note ciphertext when locked
             delete nextPayload.content;
           } else {
             const plain = nextPayload.content;
@@ -592,25 +584,25 @@ export default function NotesClient({
   return (
     <div className="min-h-screen container space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between items-start md:items-center">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between items-start md:items-center animate-fade-up">
         <div className="flex flex-col gap-1">
-          <h2 className="text-2xl font-bold text-slate-100">
-            Notes & Task Delegation
+          <h2 className="text-2xl font-bold text-[#1C1C1F] tracking-tight">
+            Notes &amp; Task Delegation
           </h2>
-          <p className="text-sm text-slate-400">
-            Rich technical notes with images & code blocks, plus direct task delegation across GiRe users
+          <p className="text-sm text-[#6E6E77]">
+            Rich technical notes with images &amp; code blocks, plus direct task delegation across GiRe users
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-1 bg-[#131924] p-1 border border-slate-800 rounded-xl">
+          <div className="flex items-center gap-1 bg-[#EEEEEE] p-1 border border-[#E2E2E2] rounded-full">
             <button
               type="button"
               onClick={() => setMainTab("notes")}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 mainTab === "notes"
-                  ? "bg-indigo-600 text-white"
-                  : "text-slate-400 hover:text-slate-200"
+                  ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
+                  : "text-[#6E6E77] hover:text-[#1C1C1F]"
               }`}
             >
               <FileText className="w-3.5 h-3.5" />
@@ -619,10 +611,10 @@ export default function NotesClient({
             <button
               type="button"
               onClick={() => setMainTab("tasks")}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 mainTab === "tasks"
-                  ? "bg-indigo-600 text-white"
-                  : "text-slate-400 hover:text-slate-200"
+                  ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
+                  : "text-[#6E6E77] hover:text-[#1C1C1F]"
               }`}
             >
               <ListTodo className="w-3.5 h-3.5" />
@@ -631,16 +623,16 @@ export default function NotesClient({
             <button
               type="button"
               onClick={() => setMainTab("integrations")}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 mainTab === "integrations"
-                  ? "bg-indigo-600 text-white"
-                  : "text-slate-400 hover:text-slate-200"
+                  ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
+                  : "text-[#6E6E77] hover:text-[#1C1C1F]"
               }`}
             >
               <HardDrive className="w-3.5 h-3.5" />
               Integrations
               {storageIntegrations.some((s) => s.isActive) && (
-                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                <span className="w-2 h-2 rounded-full bg-[#69D7D8]" />
               )}
             </button>
           </div>
@@ -660,24 +652,24 @@ export default function NotesClient({
       </div>
 
       {mainTab === "notes" ? (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start animate-fade-up-delay-1">
           {/* Notes Sidebar */}
-          <div className="lg:col-span-4 xl:col-span-3 bg-[#131924] border border-slate-800/80 rounded-2xl p-4 space-y-3">
+          <div className="lg:col-span-4 xl:col-span-3 bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-4 space-y-3 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
             <div className="relative">
-              <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-3.5 h-3.5 text-[#8A8A93] absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={noteSearch}
                 onChange={(e) => setNoteSearch(e.target.value)}
                 placeholder="Search notes..."
-                className="w-full pl-8 pr-3 py-1.5 bg-[#0b0f19] border border-slate-800 rounded-lg text-xs text-slate-200 placeholder-slate-500"
+                className="w-full pl-9 pr-3 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-full text-xs text-[#1C1C1F] placeholder-[#8A8A93] focus:outline-none focus:bg-white focus:border-[#5432EE]"
               />
             </div>
 
             <select
               value={projectFilter}
               onChange={(e) => setProjectFilter(e.target.value)}
-              className="w-full px-3 py-1.5 bg-[#0b0f19] border border-slate-800 rounded-lg text-xs text-slate-300"
+              className="w-full px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-full text-xs font-medium text-[#1C1C1F]"
             >
               <option value="all">All Notes</option>
               <option value="standalone">Standalone (No Project)</option>
@@ -691,11 +683,11 @@ export default function NotesClient({
             <div className="space-y-2 max-h-[65vh] overflow-y-auto pr-1">
               {filteredNotes.length === 0 ? (
                 <div className="text-center py-8 space-y-2">
-                  <p className="text-xs text-slate-500">No notes found.</p>
+                  <p className="text-xs text-[#6E6E77]">No notes found.</p>
                   <button
                     type="button"
                     onClick={handleCreateNote}
-                    className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold cursor-pointer"
+                    className="text-xs text-[#5432EE] hover:text-[#418CFF] font-semibold cursor-pointer"
                   >
                     + Create your first note
                   </button>
@@ -708,28 +700,28 @@ export default function NotesClient({
                       key={n._id}
                       type="button"
                       onClick={() => setActiveNoteId(n._id)}
-                      className={`w-full text-left p-3 rounded-xl border transition-all cursor-pointer space-y-1 ${
+                      className={`w-full text-left p-3.5 rounded-2xl border transition-all cursor-pointer space-y-1 ${
                         isActive
-                          ? "bg-indigo-950/50 border-indigo-500/50"
-                          : "bg-[#0b0f19] border-slate-800/80 hover:border-slate-700"
+                          ? "bg-[#1C1C1F] text-white border-[#1C1C1F] shadow-sm"
+                          : "bg-[#F9F9F9] border-[#E2E2E2] hover:bg-[#FFFFFF] hover:border-[#5432EE]/40 text-[#1C1C1F]"
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-xs font-semibold text-slate-100 truncate">
+                        <span className="text-xs font-bold truncate">
                           {n.title || "Untitled Note"}
                         </span>
                         <div className="flex items-center gap-1 shrink-0">
                           {n.isEncrypted && (
                             <span title="End-to-End Encrypted">
-                              <Lock className="w-3 h-3 text-emerald-400" />
+                              <Lock className={`w-3 h-3 ${isActive ? "text-[#69D7D8]" : "text-[#0F766E]"}`} />
                             </span>
                           )}
                           {n.isPinned && (
-                            <Pin className="w-3 h-3 text-amber-400" />
+                            <Pin className={`w-3 h-3 ${isActive ? "text-[#EA5DEE]" : "text-[#A21CAF]"}`} />
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center justify-between gap-2 text-[11px] text-slate-500">
+                      <div className={`flex items-center justify-between gap-2 text-[11px] ${isActive ? "text-white/70" : "text-[#6E6E77]"}`}>
                         <span className="truncate">
                           {n.projectName || "Personal"}
                         </span>
@@ -747,12 +739,12 @@ export default function NotesClient({
           {/* Note Editor Canvas */}
           <div className="lg:col-span-8 xl:col-span-9 space-y-5">
             {!activeNote ? (
-              <div className="bg-[#131924] border border-dashed border-slate-800 rounded-2xl p-12 text-center space-y-3">
-                <FileText className="w-8 h-8 text-indigo-400/70 mx-auto" />
-                <p className="text-base font-semibold text-slate-200">
+              <div className="bg-[#FFFFFF] border border-dashed border-[#D2D2DA] rounded-3xl p-12 text-center space-y-3">
+                <FileText className="w-8 h-8 text-[#5432EE] mx-auto" />
+                <p className="text-base font-bold text-[#1C1C1F]">
                   Create a Notion-style Note
                 </p>
-                <p className="text-xs text-slate-400 max-w-md mx-auto">
+                <p className="text-xs text-[#6E6E77] max-w-md mx-auto">
                   Write specs with headings, checklists, tables, syntax-highlighted code blocks, paste screenshots directly, and delegate tasks to teammates.
                 </p>
                 <div className="flex justify-center pt-2">
@@ -764,7 +756,7 @@ export default function NotesClient({
               </div>
             ) : (
               <>
-                <div className="bg-[#131924] border border-slate-800/80 rounded-2xl p-5 space-y-4">
+                <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-5 space-y-4 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
                   {/* Note Meta Bar */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <input
@@ -782,11 +774,11 @@ export default function NotesClient({
                         );
                       }}
                       placeholder="Note title..."
-                      className="flex-1 bg-transparent text-xl font-bold text-slate-100 focus:outline-none border-b border-transparent focus:border-indigo-500 pb-1"
+                      className="flex-1 bg-transparent text-xl font-bold text-[#1C1C1F] focus:outline-none border-b border-transparent focus:border-[#5432EE] pb-1"
                     />
 
                     <div className="flex flex-wrap items-center gap-2 shrink-0">
-                      <span className="text-[11px] text-slate-400 px-2">
+                      <span className="text-[11px] font-medium text-[#6E6E77] px-2">
                         {saveState === "saving"
                           ? "Saving..."
                           : saveState === "saved"
@@ -808,7 +800,7 @@ export default function NotesClient({
                             tags,
                           });
                         }}
-                        className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold text-slate-200 flex items-center gap-1 cursor-pointer"
+                        className="px-3.5 py-1.5 bg-[#F4F4F6] hover:bg-[#EEEEEE] border border-[#E2E2E2] rounded-full text-xs font-semibold text-[#1C1C1F] flex items-center gap-1 cursor-pointer"
                         title="Save Note"
                       >
                         <Save className="w-3.5 h-3.5" />
@@ -822,10 +814,10 @@ export default function NotesClient({
                             isPinned: !activeNote.isPinned,
                           })
                         }
-                        className={`p-1.5 rounded-lg border cursor-pointer ${
+                        className={`p-1.5 rounded-full border cursor-pointer ${
                           activeNote.isPinned
-                            ? "bg-amber-950/50 border-amber-700/50 text-amber-300"
-                            : "bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200"
+                            ? "bg-[#EA5DEE]/15 border-[#EA5DEE]/30 text-[#A21CAF]"
+                            : "bg-[#F4F4F6] border-[#E2E2E2] text-[#6E6E77] hover:text-[#1C1C1F]"
                         }`}
                         title={activeNote.isPinned ? "Unpin Note" : "Pin Note"}
                       >
@@ -839,10 +831,10 @@ export default function NotesClient({
                       <button
                         type="button"
                         onClick={() => setMainTab("integrations")}
-                        className="px-2.5 py-1.5 bg-[#0b0f19] hover:bg-slate-800 border border-slate-800 rounded-lg text-[11px] font-medium text-slate-300 flex items-center gap-1.5 cursor-pointer"
+                        className="px-3 py-1.5 bg-[#F4F4F6] hover:bg-[#EEEEEE] border border-[#E2E2E2] rounded-full text-[11px] font-semibold text-[#1C1C1F] flex items-center gap-1.5 cursor-pointer"
                         title="Configure image storage (Cloudflare R2, GCP, or Local Server)"
                       >
-                        <Cloud className="w-3 h-3 text-indigo-400" />
+                        <Cloud className="w-3 h-3 text-[#418CFF]" />
                         {(() => {
                           const active = storageIntegrations.find(
                             (s) => s.isActive,
@@ -858,7 +850,7 @@ export default function NotesClient({
                       {activeNote.userId === currentUserId &&
                         (activeNote.isEncrypted ? (
                           isActiveNoteLocked ? (
-                            <span className="px-2.5 py-1.5 bg-emerald-950/50 border border-emerald-700/50 rounded-lg text-[11px] font-semibold text-emerald-300 flex items-center gap-1.5">
+                            <span className="px-3 py-1.5 bg-[#69D7D8]/25 border border-[#69D7D8]/50 rounded-full text-[11px] font-semibold text-[#0F766E] flex items-center gap-1.5">
                               <Lock className="w-3 h-3" />
                               E2EE Locked
                             </span>
@@ -867,7 +859,7 @@ export default function NotesClient({
                               <button
                                 type="button"
                                 onClick={() => handleLockNote(activeNote._id)}
-                                className="px-2.5 py-1.5 bg-emerald-950/50 hover:bg-emerald-900/60 border border-emerald-700/50 rounded-lg text-xs font-semibold text-emerald-300 flex items-center gap-1 cursor-pointer"
+                                className="px-3 py-1.5 bg-[#69D7D8]/25 hover:bg-[#69D7D8]/40 border border-[#69D7D8]/50 rounded-full text-xs font-semibold text-[#0F766E] flex items-center gap-1 cursor-pointer"
                                 title="Clear decrypted note from memory and lock it"
                               >
                                 <Lock className="w-3.5 h-3.5" />
@@ -878,7 +870,7 @@ export default function NotesClient({
                                 onClick={() =>
                                   void handleDisableE2ee(activeNote._id)
                                 }
-                                className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold text-slate-300 flex items-center gap-1 cursor-pointer"
+                                className="px-3 py-1.5 bg-[#F4F4F6] hover:bg-[#EEEEEE] border border-[#E2E2E2] rounded-full text-xs font-semibold text-[#1C1C1F] flex items-center gap-1 cursor-pointer"
                                 title="Remove E2EE and store unencrypted"
                               >
                                 <Unlock className="w-3.5 h-3.5" />
@@ -896,7 +888,7 @@ export default function NotesClient({
                                 setEncryptError("");
                                 setEncryptModalOpen(true);
                               }}
-                              className="px-2.5 py-1.5 bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-800/50 rounded-lg text-xs font-semibold text-emerald-300 flex items-center gap-1 cursor-pointer"
+                              className="px-3 py-1.5 bg-[#69D7D8]/25 hover:bg-[#69D7D8]/40 border border-[#69D7D8]/50 rounded-full text-xs font-semibold text-[#0F766E] flex items-center gap-1 cursor-pointer"
                               title="Encrypt this note end-to-end in your browser"
                             >
                               <Lock className="w-3.5 h-3.5" />
@@ -908,7 +900,7 @@ export default function NotesClient({
                                 setShareError("");
                                 setShareOpen(true);
                               }}
-                              className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold text-slate-200 flex items-center gap-1 cursor-pointer"
+                              className="px-3 py-1.5 bg-[#F4F4F6] hover:bg-[#EEEEEE] border border-[#E2E2E2] rounded-full text-xs font-semibold text-[#1C1C1F] flex items-center gap-1 cursor-pointer"
                             >
                               <Share2 className="w-3.5 h-3.5" />
                               Share
@@ -920,7 +912,7 @@ export default function NotesClient({
                         <button
                           type="button"
                           onClick={() => handleDeleteNote(activeNote._id)}
-                          className="p-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/50 text-rose-300 cursor-pointer"
+                          className="p-1.5 rounded-full bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 cursor-pointer"
                           title="Delete Note"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -932,7 +924,7 @@ export default function NotesClient({
                   {/* Project & Tags Bar */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="flex items-center gap-2">
-                      <FolderKanban className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <FolderKanban className="w-3.5 h-3.5 text-[#6E6E77] shrink-0" />
                       <select
                         value={draftProjectId}
                         onChange={(e) => {
@@ -946,7 +938,7 @@ export default function NotesClient({
                             draftTagsText,
                           );
                         }}
-                        className="w-full px-2.5 py-1.5 bg-[#0b0f19] border border-slate-800 rounded-lg text-xs text-slate-200"
+                        className="w-full px-3 py-1.5 bg-[#F4F4F6] border border-[#E2E2E2] rounded-full text-xs font-medium text-[#1C1C1F]"
                       >
                         <option value="">No Project (Standalone)</option>
                         {projects.map((p) => (
@@ -972,21 +964,21 @@ export default function NotesClient({
                         );
                       }}
                       placeholder="Tags (comma separated, e.g. api, spec, bug)"
-                      className="px-2.5 py-1.5 bg-[#0b0f19] border border-slate-800 rounded-lg text-xs text-slate-200 placeholder-slate-500"
+                      className="px-3.5 py-1.5 bg-[#F4F4F6] border border-[#E2E2E2] rounded-full text-xs text-[#1C1C1F] placeholder-[#8A8A93]"
                     />
                   </div>
 
                   {/* Rich Editor or Locked E2EE Vault */}
                   {isActiveNoteLocked ? (
-                    <div className="min-h-[360px] bg-[#0b0f19] border border-emerald-800/40 rounded-xl p-8 flex flex-col items-center justify-center text-center space-y-4">
-                      <div className="w-12 h-12 rounded-2xl bg-emerald-950/60 border border-emerald-500/30 flex items-center justify-center">
-                        <ShieldCheck className="w-6 h-6 text-emerald-400" />
+                    <div className="min-h-[360px] bg-[#F9F9F9] border border-[#69D7D8]/50 rounded-2xl p-8 flex flex-col items-center justify-center text-center space-y-4">
+                      <div className="w-12 h-12 rounded-2xl bg-[#69D7D8]/25 border border-[#69D7D8]/50 flex items-center justify-center">
+                        <ShieldCheck className="w-6 h-6 text-[#0F766E]" />
                       </div>
                       <div className="space-y-1 max-w-md">
-                        <h4 className="text-base font-bold text-slate-100">
+                        <h4 className="text-base font-bold text-[#1C1C1F]">
                           End-to-End Encrypted Note
                         </h4>
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs text-[#6E6E77]">
                           Protected in your browser with PBKDF2 + AES-256-GCM.
                           Neither the server nor the database can read this
                           note.
@@ -998,10 +990,10 @@ export default function NotesClient({
                         className="w-full max-w-sm space-y-3"
                       >
                         {unlockError && (
-                          <p className="text-xs text-rose-400">{unlockError}</p>
+                          <p className="text-xs text-rose-600 font-medium">{unlockError}</p>
                         )}
                         <div className="relative">
-                          <KeyRound className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                          <KeyRound className="w-4 h-4 text-[#8A8A93] absolute left-3.5 top-1/2 -translate-y-1/2" />
                           <input
                             type="password"
                             required
@@ -1011,10 +1003,10 @@ export default function NotesClient({
                               setUnlockError("");
                             }}
                             placeholder="Enter encryption passphrase..."
-                            className="w-full pl-9 pr-3 py-2.5 bg-[#131924] border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                            className="w-full pl-10 pr-3.5 py-2.5 bg-[#FFFFFF] border border-[#E2E2E2] rounded-full text-sm text-[#1C1C1F] placeholder-[#8A8A93] focus:outline-none focus:border-[#0F766E]"
                           />
                         </div>
-                        <Button type="submit" disabled={unlocking}>
+                        <Button type="submit" disabled={unlocking} className="w-full">
                           <Unlock className="w-4 h-4" />
                           {unlocking ? "Decrypting..." : "Unlock Note"}
                         </Button>
@@ -1049,10 +1041,10 @@ export default function NotesClient({
                 </div>
 
                 {/* Delegated Tasks Linked to This Note */}
-                <div className="bg-[#131924] border border-slate-800/80 rounded-2xl p-5 space-y-3">
+                <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-5 space-y-3 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
-                      <ListTodo className="w-4 h-4 text-indigo-400" />
+                    <h3 className="text-sm font-bold text-[#1C1C1F] flex items-center gap-2">
+                      <ListTodo className="w-4 h-4 text-[#5432EE]" />
                       Delegated Tasks from this Note ({noteTasks.length})
                     </h3>
                     {isSuperUser && !activeNote.isEncrypted && (
@@ -1066,12 +1058,12 @@ export default function NotesClient({
                   </div>
 
                   {activeNote.isEncrypted ? (
-                    <p className="text-xs text-emerald-300/80">
+                    <p className="text-xs text-[#0F766E] font-medium">
                       End-to-End Encrypted notes are private to your account and
                       cannot be shared or delegated to other users.
                     </p>
                   ) : noteTasks.length === 0 ? (
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-[#6E6E77]">
                       {isSuperUser
                         ? 'Highlight text in the editor above and click "Delegate Selection as Task", or click "Delegate Task" to assign action items to users in this Workspace.'
                         : "No tasks delegated from this note yet."}
@@ -1081,19 +1073,19 @@ export default function NotesClient({
                       {noteTasks.map((t) => (
                         <div
                           key={t._id}
-                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#0b0f19] border border-slate-800 rounded-xl px-4 py-3"
+                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#F9F9F9] border border-[#E2E2E2] rounded-2xl px-4 py-3"
                         >
                           <div className="min-w-0 space-y-1">
-                            <p className="text-sm font-semibold text-slate-100 truncate">
+                            <p className="text-sm font-bold text-[#1C1C1F] truncate">
                               {t.title}
                             </p>
-                            <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
-                              <span className="flex items-center gap-1 text-indigo-300 font-medium">
+                            <div className="flex flex-wrap items-center gap-2 text-[11px] text-[#6E6E77]">
+                              <span className="flex items-center gap-1 text-[#5432EE] font-semibold">
                                 <UserCheck className="w-3 h-3" />
                                 Assigned to {t.assignedToName}
                               </span>
                               <span
-                                className={`px-1.5 py-0.5 rounded border text-[10px] font-semibold ${
+                                className={`px-2 py-0.5 rounded-full border text-[10px] font-semibold ${
                                   PRIORITY_META[t.priority].badgeClass
                                 }`}
                               >
@@ -1117,7 +1109,7 @@ export default function NotesClient({
                                   e.target.value as TaskStatus,
                                 )
                               }
-                              className="px-2.5 py-1 bg-[#131924] border border-slate-700 rounded-lg text-xs text-slate-200"
+                              className="px-3 py-1 bg-[#FFFFFF] border border-[#E2E2E2] rounded-full text-xs font-semibold text-[#1C1C1F]"
                             >
                               <option value="todo">To Do</option>
                               <option value="in_progress">In Progress</option>
@@ -1128,7 +1120,7 @@ export default function NotesClient({
                               <button
                                 type="button"
                                 onClick={() => handleDeleteTask(t._id)}
-                                className="p-1.5 text-slate-500 hover:text-rose-400 cursor-pointer"
+                                className="p-1.5 text-[#8A8A93] hover:text-rose-600 cursor-pointer"
                                 title="Delete Task"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -1151,9 +1143,9 @@ export default function NotesClient({
         />
       ) : (
         /* Delegated Tasks View */
-        <div className="space-y-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#131924] border border-slate-800/80 rounded-2xl p-4">
-            <div className="flex flex-wrap items-center gap-1 bg-[#0b0f19] p-1 border border-slate-800 rounded-xl w-fit">
+        <div className="space-y-5 animate-fade-up">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-4 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
+            <div className="flex flex-wrap items-center gap-1 bg-[#EEEEEE] p-1 border border-[#E2E2E2] rounded-full w-fit">
               {(isSuperUser
                 ? ([
                     { value: "assigned_to_me", label: "Assigned to Me" },
@@ -1168,10 +1160,10 @@ export default function NotesClient({
                   key={tab.value}
                   type="button"
                   onClick={() => setTaskScope(tab.value)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                     taskScope === tab.value
-                      ? "bg-indigo-600 text-white"
-                      : "text-slate-400 hover:text-slate-200"
+                      ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
+                      : "text-[#6E6E77] hover:text-[#1C1C1F]"
                   }`}
                 >
                   {tab.label}
@@ -1193,10 +1185,10 @@ export default function NotesClient({
                   key={st.value}
                   type="button"
                   onClick={() => setTaskStatusFilter(st.value)}
-                  className={`px-2.5 py-1 rounded-md text-xs font-medium border cursor-pointer ${
+                  className={`px-3 py-1 rounded-full text-xs font-semibold border cursor-pointer transition-colors ${
                     taskStatusFilter === st.value
-                      ? "bg-indigo-950/60 text-indigo-300 border-indigo-600/50"
-                      : "bg-[#0b0f19] text-slate-400 border-slate-800 hover:text-slate-200"
+                      ? "bg-[#1C1C1F] text-white border-[#1C1C1F]"
+                      : "bg-[#F9F9F9] text-[#6E6E77] border-[#E2E2E2] hover:text-[#1C1C1F]"
                   }`}
                 >
                   {st.label}
@@ -1206,112 +1198,135 @@ export default function NotesClient({
           </div>
 
           {filteredTasks.length === 0 ? (
-            <div className="bg-[#131924] border border-dashed border-slate-800 rounded-2xl p-12 text-center space-y-2">
-              <CheckCircle2 className="w-8 h-8 text-emerald-400/70 mx-auto" />
-              <p className="text-sm font-semibold text-slate-200">
+            <div className="bg-[#FFFFFF] border border-dashed border-[#D2D2DA] rounded-3xl p-12 text-center space-y-2">
+              <CheckCircle2 className="w-8 h-8 text-[#0F766E] mx-auto" />
+              <p className="text-sm font-bold text-[#1C1C1F]">
                 No tasks in this view
               </p>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[#6E6E77]">
                 Create a task or delegate items directly from any Note.
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredTasks.map((task) => (
-                <div
-                  key={task._id}
-                  className="bg-[#131924] border border-slate-800/80 rounded-2xl p-5 space-y-3 flex flex-col justify-between"
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <h4 className="text-base font-bold text-slate-100">
-                        {task.title}
-                      </h4>
-                      <span
-                        className={`px-2 py-0.5 rounded-md text-[11px] font-semibold border shrink-0 ${
-                          PRIORITY_META[task.priority].badgeClass
-                        }`}
-                      >
-                        {PRIORITY_META[task.priority].label}
-                      </span>
+              {filteredTasks.map((task) => {
+                const progressPct =
+                  task.status === "done"
+                    ? 100
+                    : task.status === "in_review"
+                      ? 75
+                      : task.status === "in_progress"
+                        ? 45
+                        : 15;
+                return (
+                  <div
+                    key={task._id}
+                    className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-5 space-y-3 flex flex-col justify-between shadow-[0_2px_10px_rgba(28,28,31,0.03)] hover:shadow-[0_12px_28px_rgba(28,28,31,0.07)] hover:-translate-y-0.5 transition-all"
+                  >
+                    <div className="space-y-2.5">
+                      <div className="flex items-start justify-between gap-2">
+                        <h4 className="text-base font-bold text-[#1C1C1F]">
+                          {task.title}
+                        </h4>
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border shrink-0 ${
+                            PRIORITY_META[task.priority].badgeClass
+                          }`}
+                        >
+                          {PRIORITY_META[task.priority].label}
+                        </span>
+                      </div>
+
+                      {task.description && (
+                        <p className="text-xs text-[#6E6E77]">
+                          {task.description}
+                        </p>
+                      )}
+
+                      <div className="space-y-1 pt-1">
+                        <div className="flex items-center justify-between text-[11px] font-semibold text-[#6E6E77]">
+                          <span>Progress</span>
+                          <span className="text-[#1C1C1F] tabular-nums">{progressPct}%</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-[#EEEEEE] rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-[#1C1C1F] rounded-full transition-all duration-300"
+                            style={{ width: `${progressPct}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-[#6E6E77] pt-1">
+                        <span className="px-2.5 py-0.5 rounded-full bg-[#F4F4F6] border border-[#E2E2E2] text-[#1C1C1F]">
+                          From <strong>{task.createdByName}</strong> →{" "}
+                          <strong className="text-[#5432EE]">
+                            {task.assignedToName}
+                          </strong>
+                        </span>
+                        {task.projectName && (
+                          <span className="px-2.5 py-0.5 rounded-full bg-[#EEEEEE] text-[#1C1C1F] font-medium">
+                            {task.projectName}
+                          </span>
+                        )}
+                        {task.dueDate && (
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            Due {new Date(task.dueDate).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
-                    {task.description && (
-                      <p className="text-xs text-slate-400">
-                        {task.description}
-                      </p>
-                    )}
+                    <div className="flex items-center justify-between gap-2 pt-3 border-t border-[#EEEEEE]">
+                      <div className="flex items-center gap-2">
+                        {task.sourceNoteId && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveNoteId(task.sourceNoteId!);
+                              setMainTab("notes");
+                            }}
+                            className="px-3 py-1 bg-[#F4F4F6] hover:bg-[#EEEEEE] border border-[#E2E2E2] rounded-full text-[11px] font-semibold text-[#5432EE] flex items-center gap-1 cursor-pointer"
+                          >
+                            <FileText className="w-3 h-3" />
+                            {task.sourceNoteTitle || "Open Source Note"}
+                          </button>
+                        )}
+                      </div>
 
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400 pt-1">
-                      <span className="px-2 py-0.5 rounded bg-[#0b0f19] border border-slate-800 text-slate-300">
-                        From <strong>{task.createdByName}</strong> →{" "}
-                        <strong className="text-indigo-300">
-                          {task.assignedToName}
-                        </strong>
-                      </span>
-                      {task.projectName && (
-                        <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300">
-                          {task.projectName}
-                        </span>
-                      )}
-                      {task.dueDate && (
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          Due {new Date(task.dueDate).toLocaleDateString()}
-                        </span>
-                      )}
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={task.status}
+                          onChange={(e) =>
+                            handleUpdateTaskStatus(
+                              task._id,
+                              e.target.value as TaskStatus,
+                            )
+                          }
+                          className={`px-3 py-1 rounded-full text-xs font-semibold border cursor-pointer ${
+                            STATUS_META[task.status].badgeClass
+                          }`}
+                        >
+                          <option value="todo">To Do</option>
+                          <option value="in_progress">In Progress</option>
+                          <option value="in_review">In Review</option>
+                          <option value="done">Done</option>
+                        </select>
+                        {isSuperUser && task.createdBy === currentUserId && (
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteTask(task._id)}
+                            className="p-1.5 text-[#8A8A93] hover:text-rose-600 cursor-pointer"
+                            title="Delete Task"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
-
-                  <div className="flex items-center justify-between gap-2 pt-3 border-t border-slate-800/60">
-                    <div className="flex items-center gap-2">
-                      {task.sourceNoteId && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setActiveNoteId(task.sourceNoteId!);
-                            setMainTab("notes");
-                          }}
-                          className="px-2.5 py-1 bg-[#0b0f19] hover:bg-slate-800 border border-slate-800 rounded-lg text-[11px] font-semibold text-indigo-300 flex items-center gap-1 cursor-pointer"
-                        >
-                          <FileText className="w-3 h-3" />
-                          {task.sourceNoteTitle || "Open Source Note"}
-                        </button>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <select
-                        value={task.status}
-                        onChange={(e) =>
-                          handleUpdateTaskStatus(
-                            task._id,
-                            e.target.value as TaskStatus,
-                          )
-                        }
-                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold border ${
-                          STATUS_META[task.status].badgeClass
-                        }`}
-                      >
-                        <option value="todo">To Do</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="in_review">In Review</option>
-                        <option value="done">Done</option>
-                      </select>
-                      {isSuperUser && task.createdBy === currentUserId && (
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteTask(task._id)}
-                          className="p-1.5 text-slate-500 hover:text-rose-400 cursor-pointer"
-                          title="Delete Task"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -1324,19 +1339,19 @@ export default function NotesClient({
         title="Enable End-to-End Encryption"
         body={
           <form onSubmit={handleEnableE2ee} className="space-y-4 min-w-[340px] max-w-md">
-            <div className="text-xs text-amber-200/90 bg-amber-950/40 border border-amber-700/40 rounded-lg p-3 space-y-1">
-              <p className="font-semibold">Zero-Knowledge Encryption</p>
-              <p className="text-amber-200/80">
+            <div className="text-xs text-[#0F766E] bg-[#69D7D8]/20 border border-[#69D7D8]/50 rounded-2xl p-3.5 space-y-1">
+              <p className="font-bold">Zero-Knowledge Encryption</p>
+              <p className="text-[#0F766E]/90">
                 Your passphrase stays in your browser and is never sent to the
                 server. If you forget it, this note cannot be recovered.
                 Encrypted notes are private to your account only.
               </p>
             </div>
             {encryptError && (
-              <p className="text-xs text-rose-400">{encryptError}</p>
+              <p className="text-xs text-rose-600 font-medium">{encryptError}</p>
             )}
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-slate-300">
+              <label className="text-xs font-semibold text-[#1C1C1F]">
                 Encryption Passphrase (min 6 characters)
               </label>
               <input
@@ -1346,11 +1361,11 @@ export default function NotesClient({
                 value={encryptPassphrase}
                 onChange={(e) => setEncryptPassphrase(e.target.value)}
                 placeholder="Enter a strong passphrase"
-                className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-sm text-white"
+                className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F]"
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-slate-300">
+              <label className="text-xs font-semibold text-[#1C1C1F]">
                 Confirm Passphrase
               </label>
               <input
@@ -1360,14 +1375,14 @@ export default function NotesClient({
                 value={encryptConfirm}
                 onChange={(e) => setEncryptConfirm(e.target.value)}
                 placeholder="Re-enter passphrase"
-                className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-sm text-white"
+                className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F]"
               />
             </div>
             <div className="flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setEncryptModalOpen(false)}
-                className="px-3 py-1.5 text-xs text-slate-400 hover:text-white cursor-pointer"
+                className="px-3.5 py-1.5 text-xs font-semibold text-[#6E6E77] hover:text-[#1C1C1F] cursor-pointer"
                 disabled={encryptSubmitting}
               >
                 Cancel
@@ -1389,10 +1404,10 @@ export default function NotesClient({
         body={
           <form onSubmit={handleShareNote} className="space-y-4 min-w-[320px]">
             {shareError && (
-              <p className="text-xs text-rose-400">{shareError}</p>
+              <p className="text-xs text-rose-600 font-medium">{shareError}</p>
             )}
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-slate-300">
+              <label className="text-xs font-semibold text-[#1C1C1F]">
                 User Email
               </label>
               <input
@@ -1401,14 +1416,14 @@ export default function NotesClient({
                 value={shareEmail}
                 onChange={(e) => setShareEmail(e.target.value)}
                 placeholder="teammate@company.com"
-                className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-sm text-white"
+                className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F]"
               />
             </div>
             <div className="flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setShareOpen(false)}
-                className="px-3 py-1.5 text-xs text-slate-400 hover:text-white cursor-pointer"
+                className="px-3.5 py-1.5 text-xs font-semibold text-[#6E6E77] hover:text-[#1C1C1F] cursor-pointer"
               >
                 Cancel
               </button>
@@ -1429,11 +1444,11 @@ export default function NotesClient({
             className="flex flex-col gap-4 w-full max-w-md min-w-[340px]"
           >
             {taskError && (
-              <p className="text-xs text-rose-400">{taskError}</p>
+              <p className="text-xs text-rose-600 font-medium">{taskError}</p>
             )}
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-slate-300">
+              <label className="text-xs font-semibold text-[#1C1C1F]">
                 Task Title *
               </label>
               <input
@@ -1442,12 +1457,12 @@ export default function NotesClient({
                 value={taskTitle}
                 onChange={(e) => setTaskTitle(e.target.value)}
                 placeholder="e.g. Implement webhook signature check"
-                className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-sm text-white"
+                className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F]"
               />
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-slate-300">
+              <label className="text-xs font-semibold text-[#1C1C1F]">
                 Instructions / Context
               </label>
               <textarea
@@ -1455,19 +1470,19 @@ export default function NotesClient({
                 value={taskDesc}
                 onChange={(e) => setTaskDesc(e.target.value)}
                 placeholder="Additional notes for the assignee..."
-                className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-sm text-white"
+                className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F]"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-slate-300">
+                <label className="text-xs font-semibold text-[#1C1C1F]">
                   Delegate To (User) *
                 </label>
                 <select
                   value={taskAssigneeId}
                   onChange={(e) => setTaskAssigneeId(e.target.value)}
-                  className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-xs text-white"
+                  className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F]"
                 >
                   {users.map((u) => (
                     <option key={u._id} value={u._id}>
@@ -1478,7 +1493,7 @@ export default function NotesClient({
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-slate-300">
+                <label className="text-xs font-semibold text-[#1C1C1F]">
                   Priority
                 </label>
                 <select
@@ -1486,7 +1501,7 @@ export default function NotesClient({
                   onChange={(e) =>
                     setTaskPriority(e.target.value as TaskPriority)
                   }
-                  className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-xs text-white"
+                  className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F]"
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -1498,13 +1513,13 @@ export default function NotesClient({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-slate-300">
+                <label className="text-xs font-semibold text-[#1C1C1F]">
                   Project
                 </label>
                 <select
                   value={taskProjectId}
                   onChange={(e) => setTaskProjectId(e.target.value)}
-                  className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-xs text-white"
+                  className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F]"
                 >
                   <option value="">No Project</option>
                   {projects.map((p) => (
@@ -1516,14 +1531,14 @@ export default function NotesClient({
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-slate-300">
+                <label className="text-xs font-semibold text-[#1C1C1F]">
                   Due Date
                 </label>
                 <input
                   type="date"
                   value={taskDueDate}
                   onChange={(e) => setTaskDueDate(e.target.value)}
-                  className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-xs text-white"
+                  className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F]"
                 />
               </div>
             </div>
@@ -1532,7 +1547,7 @@ export default function NotesClient({
               <button
                 type="button"
                 onClick={() => setTaskModalOpen(false)}
-                className="px-4 py-2 text-xs text-slate-400 hover:text-white cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold text-[#6E6E77] hover:text-[#1C1C1F] cursor-pointer"
                 disabled={taskSubmitting}
               >
                 Cancel
@@ -1547,4 +1562,3 @@ export default function NotesClient({
     </div>
   );
 }
-

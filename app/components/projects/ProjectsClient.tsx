@@ -26,17 +26,17 @@ const CATEGORY_META: Record<
 > = {
   office: {
     label: "Office",
-    badgeClass: "bg-indigo-950/60 text-indigo-300 border-indigo-700/50",
+    badgeClass: "bg-[#5432EE]/12 text-[#5432EE] border-[#5432EE]/25",
     icon: Briefcase,
   },
   freelance: {
     label: "Freelance",
-    badgeClass: "bg-emerald-950/60 text-emerald-300 border-emerald-700/50",
+    badgeClass: "bg-[#69D7D8]/25 text-[#0F766E] border-[#69D7D8]/50",
     icon: Laptop,
   },
   personal: {
     label: "Personal",
-    badgeClass: "bg-sky-950/60 text-sky-300 border-sky-700/50",
+    badgeClass: "bg-[#418CFF]/15 text-[#2563EB] border-[#418CFF]/30",
     icon: User,
   },
 };
@@ -53,7 +53,6 @@ export default function ProjectsClient({
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Create form state
   const [name, setName] = useState("");
   const [category, setCategory] = useState<ProjectCategory>("office");
   const [clientOrTeam, setClientOrTeam] = useState("");
@@ -159,11 +158,11 @@ export default function ProjectsClient({
   return (
     <div className="min-h-screen container">
       {/* Header */}
-      <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between items-start md:items-center">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between items-start md:items-center animate-fade-up">
         <div className="flex flex-col gap-1">
-          <h2 className="text-2xl font-bold text-slate-100">Projects</h2>
-          <p className="text-sm text-slate-400">
-            Organize your office & freelance repos, Figma designs, and team members
+          <h2 className="text-2xl font-bold text-[#1C1C1F] tracking-tight">Projects</h2>
+          <p className="text-sm text-[#6E6E77]">
+            Organize your office &amp; freelance repos, Figma designs, and team members
           </p>
         </div>
         <Button onClick={() => setModalOpen(true)}>
@@ -179,8 +178,8 @@ export default function ProjectsClient({
           desc="Active workspaces"
           value={counts.total}
           icon={
-            <div className="w-9 h-9 bg-indigo-500/10 border border-indigo-500/20 rounded-lg flex items-center justify-center">
-              <FolderKanban className="w-4 h-4 text-indigo-400" />
+            <div className="w-9 h-9 bg-[#5432EE]/12 border border-[#5432EE]/20 rounded-2xl flex items-center justify-center">
+              <FolderKanban className="w-4 h-4 text-[#5432EE]" />
             </div>
           }
         />
@@ -189,8 +188,8 @@ export default function ProjectsClient({
           desc="Company / team projects"
           value={counts.office}
           icon={
-            <div className="w-9 h-9 bg-sky-500/10 border border-sky-500/20 rounded-lg flex items-center justify-center">
-              <Briefcase className="w-4 h-4 text-sky-400" />
+            <div className="w-9 h-9 bg-[#418CFF]/15 border border-[#418CFF]/25 rounded-2xl flex items-center justify-center">
+              <Briefcase className="w-4 h-4 text-[#2563EB]" />
             </div>
           }
         />
@@ -199,8 +198,8 @@ export default function ProjectsClient({
           desc="Client engagements"
           value={counts.freelance}
           icon={
-            <div className="w-9 h-9 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center justify-center">
-              <Laptop className="w-4 h-4 text-emerald-400" />
+            <div className="w-9 h-9 bg-[#69D7D8]/25 border border-[#69D7D8]/40 rounded-2xl flex items-center justify-center">
+              <Laptop className="w-4 h-4 text-[#0F766E]" />
             </div>
           }
         />
@@ -209,16 +208,16 @@ export default function ProjectsClient({
           desc="Mapped GitHub repositories"
           value={counts.repos}
           icon={
-            <div className="w-9 h-9 bg-amber-500/10 border border-amber-500/20 rounded-lg flex items-center justify-center">
-              <FolderGit2 className="w-4 h-4 text-amber-400" />
+            <div className="w-9 h-9 bg-[#EA5DEE]/15 border border-[#EA5DEE]/25 rounded-2xl flex items-center justify-center">
+              <FolderGit2 className="w-4 h-4 text-[#A21CAF]" />
             </div>
           }
         />
       </div>
 
       {/* Filter Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <div className="flex items-center gap-1 bg-[#131924] p-1 border border-slate-800 rounded-xl w-fit">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 animate-fade-up-delay-1">
+        <div className="flex items-center gap-1 bg-[#EEEEEE] p-1 border border-[#E2E2E2] rounded-full w-fit">
           {(
             [
               { value: "all", label: "All" },
@@ -231,10 +230,10 @@ export default function ProjectsClient({
               key={tab.value}
               type="button"
               onClick={() => setCategoryFilter(tab.value)}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                 categoryFilter === tab.value
-                  ? "bg-indigo-600 text-white"
-                  : "text-slate-400 hover:text-slate-200"
+                  ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
+                  : "text-[#6E6E77] hover:text-[#1C1C1F]"
               }`}
             >
               {tab.label}
@@ -243,26 +242,26 @@ export default function ProjectsClient({
         </div>
 
         <div className="relative w-full sm:w-72">
-          <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-3.5 h-3.5 text-[#8A8A93] absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search projects, clients, or repos..."
-            className="w-full pl-8 pr-3 py-2 bg-[#131924] border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+            className="w-full pl-9 pr-4 py-2 bg-[#FFFFFF] border border-[#E2E2E2] rounded-full text-xs text-[#1C1C1F] placeholder-[#8A8A93] focus:outline-none focus:border-[#5432EE] shadow-[0_2px_8px_rgba(28,28,31,0.03)]"
           />
         </div>
       </div>
 
       {/* Grid */}
       {filteredProjects.length === 0 ? (
-        <div className="bg-[#131924] border border-dashed border-slate-800 rounded-2xl p-12 text-center space-y-3">
-          <FolderKanban className="w-8 h-8 text-indigo-400/70 mx-auto" />
-          <p className="text-base font-semibold text-slate-200">
+        <div className="bg-[#FFFFFF] border border-dashed border-[#D2D2DA] rounded-3xl p-12 text-center space-y-3">
+          <FolderKanban className="w-8 h-8 text-[#5432EE] mx-auto" />
+          <p className="text-base font-bold text-[#1C1C1F]">
             No projects yet
           </p>
-          <p className="text-xs text-slate-400 max-w-md mx-auto">
-            Create your first Office or Freelance project to group your GitHub repositories, attach Figma design previews, and filter your Dashboard & Analytics.
+          <p className="text-xs text-[#6E6E77] max-w-md mx-auto">
+            Create your first Office or Freelance project to group your GitHub repositories, attach Figma design previews, and filter your Dashboard &amp; Analytics.
           </p>
           <div className="pt-2 flex justify-center">
             <Button onClick={() => setModalOpen(true)}>
@@ -272,7 +271,7 @@ export default function ProjectsClient({
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 animate-fade-up-delay-2">
           {filteredProjects.map((project) => {
             const catMeta = CATEGORY_META[project.category] || CATEGORY_META.office;
             const CatIcon = catMeta.icon;
@@ -280,22 +279,22 @@ export default function ProjectsClient({
               <Link
                 key={project._id}
                 href={`/projects/${project._id}`}
-                className="bg-[#131924] border border-slate-800/80 rounded-2xl p-5 hover:border-indigo-500/40 hover:bg-[#172030] transition-all flex flex-col justify-between gap-4 group"
+                className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-5 hover:border-[#5432EE]/45 hover:-translate-y-1 hover:shadow-[0_14px_32px_rgba(28,28,31,0.07)] transition-all duration-300 flex flex-col justify-between gap-4 group shadow-[0_2px_10px_rgba(28,28,31,0.03)]"
               >
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <h3 className="text-lg font-bold text-slate-100 group-hover:text-indigo-400 transition-colors truncate">
+                      <h3 className="text-lg font-bold text-[#1C1C1F] group-hover:text-[#5432EE] transition-colors truncate">
                         {project.name}
                       </h3>
                       {project.clientOrTeam && (
-                        <p className="text-xs text-slate-400 truncate">
+                        <p className="text-xs text-[#6E6E77] truncate">
                           {project.clientOrTeam}
                         </p>
                       )}
                     </div>
                     <span
-                      className={`px-2 py-0.5 rounded-md text-[11px] font-semibold border flex items-center gap-1 shrink-0 ${catMeta.badgeClass}`}
+                      className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border flex items-center gap-1 shrink-0 ${catMeta.badgeClass}`}
                     >
                       <CatIcon className="w-3 h-3" />
                       {catMeta.label}
@@ -303,7 +302,7 @@ export default function ProjectsClient({
                   </div>
 
                   {project.description && (
-                    <p className="text-xs text-slate-400 line-clamp-2">
+                    <p className="text-xs text-[#6E6E77] line-clamp-2 leading-relaxed">
                       {project.description}
                     </p>
                   )}
@@ -313,13 +312,13 @@ export default function ProjectsClient({
                       {project.repos.slice(0, 3).map((repo) => (
                         <span
                           key={repo}
-                          className="px-2 py-0.5 rounded bg-[#0b0f19] border border-slate-800 text-[11px] font-mono text-slate-300"
+                          className="px-2.5 py-0.5 rounded-full bg-[#F4F4F6] border border-[#E2E2E2] text-[11px] font-mono text-[#1C1C1F]"
                         >
                           {repo}
                         </span>
                       ))}
                       {project.repos.length > 3 && (
-                        <span className="px-2 py-0.5 rounded bg-[#0b0f19] border border-slate-800 text-[11px] text-slate-400">
+                        <span className="px-2.5 py-0.5 rounded-full bg-[#F4F4F6] border border-[#E2E2E2] text-[11px] text-[#6E6E77]">
                           +{project.repos.length - 3} more
                         </span>
                       )}
@@ -327,19 +326,19 @@ export default function ProjectsClient({
                   )}
                 </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-slate-800/60 text-xs text-slate-400">
+                <div className="flex items-center justify-between pt-3 border-t border-[#EEEEEE] text-xs text-[#6E6E77]">
                   <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1">
-                      <GitPullRequest className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="flex items-center gap-1 font-medium text-[#1C1C1F]">
+                      <GitPullRequest className="w-3.5 h-3.5 text-[#0F766E]" />
                       {project.stats?.openPRs ?? 0} PRs
                     </span>
-                    <span className="flex items-center gap-1">
-                      <CircleDot className="w-3.5 h-3.5 text-sky-400" />
+                    <span className="flex items-center gap-1 font-medium text-[#1C1C1F]">
+                      <CircleDot className="w-3.5 h-3.5 text-[#2563EB]" />
                       {project.stats?.openIssues ?? 0} Issues
                     </span>
                   </div>
                   {project.figmaLinks && project.figmaLinks.length > 0 && (
-                    <span className="flex items-center gap-1 text-pink-300 font-medium">
+                    <span className="flex items-center gap-1 text-[#A21CAF] font-semibold">
                       <Figma className="w-3.5 h-3.5" />
                       {project.figmaLinks.length}
                     </span>
@@ -362,14 +361,14 @@ export default function ProjectsClient({
             className="flex flex-col gap-4 w-full max-w-lg max-h-[75vh] overflow-y-auto pr-1"
           >
             {formError && (
-              <div className="text-xs text-rose-400 bg-rose-950/30 border border-rose-800/50 rounded-lg p-2.5">
+              <div className="text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-2xl p-3 font-medium">
                 {formError}
               </div>
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-slate-300">
+                <label className="text-xs font-semibold text-[#1C1C1F]">
                   Project Name *
                 </label>
                 <input
@@ -378,12 +377,12 @@ export default function ProjectsClient({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Core Payment API"
-                  className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-sm text-white"
+                  className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F]"
                 />
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-slate-300">
+                <label className="text-xs font-semibold text-[#1C1C1F]">
                   Category
                 </label>
                 <select
@@ -391,7 +390,7 @@ export default function ProjectsClient({
                   onChange={(e) =>
                     setCategory(e.target.value as ProjectCategory)
                   }
-                  className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-sm text-white"
+                  className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F]"
                 >
                   <option value="office">Office</option>
                   <option value="freelance">Freelance</option>
@@ -401,7 +400,7 @@ export default function ProjectsClient({
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-slate-300">
+              <label className="text-xs font-semibold text-[#1C1C1F]">
                 Client / Team Name
               </label>
               <input
@@ -409,12 +408,12 @@ export default function ProjectsClient({
                 value={clientOrTeam}
                 onChange={(e) => setClientOrTeam(e.target.value)}
                 placeholder="e.g. PT Acme / Squad Checkout"
-                className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-sm text-white"
+                className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F]"
               />
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-slate-300">
+              <label className="text-xs font-semibold text-[#1C1C1F]">
                 Description
               </label>
               <textarea
@@ -422,21 +421,21 @@ export default function ProjectsClient({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Brief summary of the project..."
-                className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-sm text-white"
+                className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F]"
               />
             </div>
 
             {/* Repos Picker */}
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold text-slate-300">
+              <label className="text-xs font-semibold text-[#1C1C1F]">
                 Linked GitHub Repositories
               </label>
               {availableRepos.length > 0 && (
-                <div className="max-h-32 overflow-y-auto bg-[#0b0f19] border border-slate-800 rounded-lg p-2 space-y-1">
+                <div className="max-h-32 overflow-y-auto bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl p-2 space-y-1">
                   {availableRepos.map((repo) => (
                     <label
                       key={repo}
-                      className="flex items-center gap-2 text-xs text-slate-300 px-1.5 py-1 hover:bg-slate-800/60 rounded cursor-pointer"
+                      className="flex items-center gap-2 text-xs text-[#1C1C1F] px-2 py-1 hover:bg-[#FFFFFF] rounded-xl cursor-pointer"
                     >
                       <input
                         type="checkbox"
@@ -454,12 +453,12 @@ export default function ProjectsClient({
                   value={customRepo}
                   onChange={(e) => setCustomRepo(e.target.value)}
                   placeholder="Add repo manually (owner/repo)"
-                  className="flex-1 px-3 py-1.5 bg-[#0b0f19] border border-slate-700 rounded-lg text-xs text-white"
+                  className="flex-1 px-3.5 py-1.5 bg-[#F4F4F6] border border-[#E2E2E2] rounded-full text-xs text-[#1C1C1F]"
                 />
                 <button
                   type="button"
                   onClick={handleAddCustomRepo}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold text-slate-200 cursor-pointer"
+                  className="px-4 py-1.5 bg-[#EEEEEE] hover:bg-[#E2E2E2] rounded-full text-xs font-semibold text-[#1C1C1F] cursor-pointer"
                 >
                   Add
                 </button>
@@ -470,7 +469,7 @@ export default function ProjectsClient({
                     <span
                       key={r}
                       onClick={() => toggleRepo(r)}
-                      className="px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-700/50 text-[11px] font-mono text-indigo-300 cursor-pointer"
+                      className="px-2.5 py-0.5 rounded-full bg-[#5432EE]/10 border border-[#5432EE]/25 text-[11px] font-mono text-[#5432EE] cursor-pointer"
                       title="Click to remove"
                     >
                       {r} ×
@@ -481,8 +480,8 @@ export default function ProjectsClient({
             </div>
 
             {/* Optional Figma */}
-            <div className="flex flex-col gap-2 pt-2 border-t border-slate-800">
-              <label className="text-xs font-semibold text-slate-300">
+            <div className="flex flex-col gap-2 pt-3 border-t border-[#EEEEEE]">
+              <label className="text-xs font-semibold text-[#1C1C1F]">
                 Figma Design / Prototype Link (Optional)
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -491,14 +490,14 @@ export default function ProjectsClient({
                   value={figmaTitle}
                   onChange={(e) => setFigmaTitle(e.target.value)}
                   placeholder="Label (e.g. App UI)"
-                  className="px-3 py-1.5 bg-[#0b0f19] border border-slate-700 rounded-lg text-xs text-white"
+                  className="px-3.5 py-1.5 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F]"
                 />
                 <select
                   value={figmaKind}
                   onChange={(e) =>
                     setFigmaKind(e.target.value as "design" | "prototype")
                   }
-                  className="px-3 py-1.5 bg-[#0b0f19] border border-slate-700 rounded-lg text-xs text-white"
+                  className="px-3.5 py-1.5 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F]"
                 >
                   <option value="design">Design Preview</option>
                   <option value="prototype">Interactive Prototype</option>
@@ -509,7 +508,7 @@ export default function ProjectsClient({
                 value={figmaUrl}
                 onChange={(e) => setFigmaUrl(e.target.value)}
                 placeholder="https://www.figma.com/design/..."
-                className="px-3 py-1.5 bg-[#0b0f19] border border-slate-700 rounded-lg text-xs text-white"
+                className="px-3.5 py-1.5 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F]"
               />
             </div>
 
@@ -517,7 +516,7 @@ export default function ProjectsClient({
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
-                className="px-4 py-2 text-xs text-slate-400 hover:text-white cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold text-[#6E6E77] hover:text-[#1C1C1F] cursor-pointer"
                 disabled={submitting}
               >
                 Cancel
@@ -532,4 +531,3 @@ export default function ProjectsClient({
     </div>
   );
 }
-

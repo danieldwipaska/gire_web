@@ -119,13 +119,13 @@ const calculatePrMergedAndPrReviewsRequested = (
       name: "My Merged PRs",
       value: mergedCount,
       fraction: mergedCount / total,
-      color: "#10b981",
+      color: "#69D7D8",
     },
     {
       name: "PR Reviews Needed",
       value: reviewsRequestedCount,
       fraction: reviewsRequestedCount / total,
-      color: "#f59e0b",
+      color: "#5432EE",
     },
   ];
 };
@@ -220,9 +220,9 @@ export default async function GitHubAnalysisPage({ searchParams }: Props) {
   if (githubIntegrations.length === 0) {
     return (
       <div className="min-h-screen container">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-2xl font-bold text-white">Analysis</h1>
-          <p className="text-slate-400">No GitHub integration found</p>
+        <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-8 flex flex-col gap-2 shadow-[0_2px_12px_rgba(28,28,31,0.03)] animate-fade-up">
+          <h1 className="text-2xl font-bold text-[#1C1C1F]">Analysis</h1>
+          <p className="text-sm text-[#6E6E77]">No GitHub integration found</p>
         </div>
       </div>
     );
@@ -298,28 +298,28 @@ export default async function GitHubAnalysisPage({ searchParams }: Props) {
 
   return (
     <div className="min-h-screen container">
-      <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between animate-fade-up">
         <div className="flex flex-col gap-1">
-          <h2 className="text-2xl font-bold text-slate-100">GitHub Analysis</h2>
-          <p className="text-sm text-slate-400">
+          <h2 className="text-2xl font-bold text-[#1C1C1F] tracking-tight">GitHub Analysis</h2>
+          <p className="text-sm text-[#6E6E77]">
             Overview of your GitHub pull requests, code churn, and repository metrics
           </p>
         </div>
-        <div className="flex flex-wrap gap-3 h-fit relative">
+        <div className="flex flex-wrap gap-2.5 h-fit relative">
           <ContextFilterDropdown projects={projects} />
           <SyncButton />
           <TimeDropdown />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 my-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-5 my-6">
         <SummaryCard
           title="PRs Merged"
           desc="Total PRs merged in period"
           value={totalPRsMerged}
           icon={
-            <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center justify-center">
-              <Merge className="w-5 h-5 text-emerald-400" />
+            <div className="w-10 h-10 bg-[#69D7D8]/25 border border-[#69D7D8]/40 rounded-2xl flex items-center justify-center">
+              <Merge className="w-5 h-5 text-[#0F766E]" />
             </div>
           }
         />
@@ -328,15 +328,15 @@ export default async function GitHubAnalysisPage({ searchParams }: Props) {
           desc="Lines added & removed in merged PRs"
           value={totalLinesChanged.added + totalLinesChanged.removed}
           icon={
-            <div className="w-10 h-10 bg-indigo-500/10 border border-indigo-500/20 rounded-lg flex items-center justify-center">
-              <Activity className="w-5 h-5 text-indigo-400" />
+            <div className="w-10 h-10 bg-[#5432EE]/12 border border-[#5432EE]/20 rounded-2xl flex items-center justify-center">
+              <Activity className="w-5 h-5 text-[#5432EE]" />
             </div>
           }
           footer={
             <div className="flex items-center gap-1.5 text-xs font-semibold">
-              <span className="text-emerald-400">+{totalLinesChanged.added}</span>
-              <span className="text-slate-600">/</span>
-              <span className="text-rose-400">-{totalLinesChanged.removed}</span>
+              <span className="text-[#0F766E]">+{totalLinesChanged.added}</span>
+              <span className="text-[#C8C8CE]">/</span>
+              <span className="text-rose-600">-{totalLinesChanged.removed}</span>
             </div>
           }
         />
@@ -345,8 +345,8 @@ export default async function GitHubAnalysisPage({ searchParams }: Props) {
           desc="Open PRs awaiting your review"
           value={reviewRequestedCount}
           icon={
-            <div className="w-10 h-10 bg-amber-500/10 border border-amber-500/20 rounded-lg flex items-center justify-center">
-              <MessageSquareCode className="w-5 h-5 text-amber-400" />
+            <div className="w-10 h-10 bg-[#EA5DEE]/15 border border-[#EA5DEE]/25 rounded-2xl flex items-center justify-center">
+              <MessageSquareCode className="w-5 h-5 text-[#A21CAF]" />
             </div>
           }
         />
@@ -355,26 +355,25 @@ export default async function GitHubAnalysisPage({ searchParams }: Props) {
           desc="Closed issues assigned to you"
           value={closedIssuesCount}
           icon={
-            <div className="w-10 h-10 bg-sky-500/10 border border-sky-500/20 rounded-lg flex items-center justify-center">
-              <CircleDot className="w-5 h-5 text-sky-400" />
+            <div className="w-10 h-10 bg-[#418CFF]/15 border border-[#418CFF]/25 rounded-2xl flex items-center justify-center">
+              <CircleDot className="w-5 h-5 text-[#2563EB]" />
             </div>
           }
         />
       </div>
 
-      <div className="mb-6">
+      <div className="mb-6 animate-fade-up-delay-1">
         <CodeChurnChartIndex data={codeChurnData} />
       </div>
-      <div className="mb-6">
+      <div className="mb-6 animate-fade-up-delay-2">
         <TaskChartIndex data={prMergedAndPrReviewsRequested} />
       </div>
-      <div className="mb-6">
+      <div className="mb-6 animate-fade-up-delay-2">
         <MergedPRChartIndex data={mergedTimeline} />
       </div>
-      <div className="mb-6">
+      <div className="mb-6 animate-fade-up-delay-3">
         <ActivityChartIndex data={repoActivity} />
       </div>
     </div>
   );
 }
-

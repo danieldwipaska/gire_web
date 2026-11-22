@@ -177,7 +177,6 @@ export default function RichNoteEditor({
     },
   });
 
-  // Reset editor content when switching to a different note
   useEffect(() => {
     if (!editor) return;
     if (editor.getHTML() !== initialContent) {
@@ -188,7 +187,7 @@ export default function RichNoteEditor({
 
   if (!editor) {
     return (
-      <div className="min-h-[380px] bg-[#0b0f19] border border-slate-800 rounded-xl p-4 text-xs text-slate-500">
+      <div className="min-h-[380px] bg-[#F9F9F9] border border-[#E2E2E2] rounded-2xl p-4 text-xs text-[#6E6E77]">
         Loading editor...
       </div>
     );
@@ -211,8 +210,8 @@ export default function RichNoteEditor({
       title={title}
       className={`p-1.5 rounded-lg text-xs transition-colors cursor-pointer ${
         active
-          ? "bg-indigo-600 text-white"
-          : "text-slate-400 hover:text-slate-100 hover:bg-slate-800"
+          ? "bg-[#1C1C1F] text-white"
+          : "text-[#6E6E77] hover:text-[#1C1C1F] hover:bg-[#EEEEEE]"
       }`}
     >
       {children}
@@ -243,9 +242,9 @@ export default function RichNoteEditor({
   };
 
   return (
-    <div className="flex flex-col border border-slate-800 rounded-xl bg-[#0b0f19] overflow-hidden">
+    <div className="flex flex-col border border-[#E2E2E2] rounded-2xl bg-[#FFFFFF] overflow-hidden">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-1 px-3 py-2 border-b border-slate-800 bg-[#131924]">
+      <div className="flex flex-wrap items-center gap-1 px-3 py-2 border-b border-[#EEEEEE] bg-[#F9F9F9]">
         <ToolbarBtn
           title="Undo"
           onClick={() => editor.chain().focus().undo().run()}
@@ -259,7 +258,7 @@ export default function RichNoteEditor({
           <Redo2 className="w-4 h-4" />
         </ToolbarBtn>
 
-        <div className="w-px h-4 bg-slate-800 mx-1" />
+        <div className="w-px h-4 bg-[#E2E2E2] mx-1" />
 
         <ToolbarBtn
           title="Heading 1"
@@ -289,7 +288,7 @@ export default function RichNoteEditor({
           <Heading3 className="w-4 h-4" />
         </ToolbarBtn>
 
-        <div className="w-px h-4 bg-slate-800 mx-1" />
+        <div className="w-px h-4 bg-[#E2E2E2] mx-1" />
 
         <ToolbarBtn
           title="Bold"
@@ -327,7 +326,7 @@ export default function RichNoteEditor({
           <Code className="w-4 h-4" />
         </ToolbarBtn>
 
-        <div className="w-px h-4 bg-slate-800 mx-1" />
+        <div className="w-px h-4 bg-[#E2E2E2] mx-1" />
 
         <ToolbarBtn
           title="Bullet List"
@@ -419,7 +418,7 @@ export default function RichNoteEditor({
                 .updateAttributes("codeBlock", { language: lang })
                 .run();
             }}
-            className="ml-2 px-2 py-1 bg-[#0b0f19] border border-slate-700 rounded text-[11px] text-slate-200"
+            className="ml-2 px-2.5 py-1 bg-[#FFFFFF] border border-[#E2E2E2] rounded-full text-[11px] font-semibold text-[#1C1C1F]"
           >
             {CODE_LANGUAGES.map((l) => (
               <option key={l.value} value={l.value}>
@@ -434,21 +433,21 @@ export default function RichNoteEditor({
             <button
               type="button"
               onClick={() => editor.chain().focus().addRowAfter().run()}
-              className="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-200 cursor-pointer"
+              className="px-2.5 py-0.5 bg-[#EEEEEE] hover:bg-[#E2E2E2] rounded-full text-[#1C1C1F] font-semibold cursor-pointer"
             >
               +Row
             </button>
             <button
               type="button"
               onClick={() => editor.chain().focus().addColumnAfter().run()}
-              className="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-slate-200 cursor-pointer"
+              className="px-2.5 py-0.5 bg-[#EEEEEE] hover:bg-[#E2E2E2] rounded-full text-[#1C1C1F] font-semibold cursor-pointer"
             >
               +Col
             </button>
             <button
               type="button"
               onClick={() => editor.chain().focus().deleteTable().run()}
-              className="px-2 py-0.5 bg-rose-950/60 hover:bg-rose-900 rounded text-rose-300 cursor-pointer"
+              className="px-2.5 py-0.5 bg-rose-50 hover:bg-rose-100 rounded-full text-rose-700 font-semibold cursor-pointer"
             >
               Del Table
             </button>
@@ -459,7 +458,7 @@ export default function RichNoteEditor({
           <button
             type="button"
             onClick={() => onDelegateSelection(selectedText)}
-            className="ml-auto px-2.5 py-1 bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 rounded-lg text-[11px] font-semibold text-indigo-300 flex items-center gap-1.5 cursor-pointer"
+            className="ml-auto px-3 py-1 bg-[#5432EE]/10 hover:bg-[#5432EE]/20 border border-[#5432EE]/25 rounded-full text-[11px] font-semibold text-[#5432EE] flex items-center gap-1.5 cursor-pointer"
             title="Turn highlighted text (or create a new task) and delegate to a GiRe user"
           >
             <ListTodo className="w-3.5 h-3.5" />
@@ -469,20 +468,19 @@ export default function RichNoteEditor({
       </div>
 
       {(uploading || uploadError) && (
-        <div className="px-4 py-1.5 border-b border-slate-800 text-xs bg-[#131924]">
+        <div className="px-4 py-1.5 border-b border-[#EEEEEE] text-xs bg-[#F9F9F9]">
           {uploading ? (
-            <span className="text-indigo-300">Uploading image to VPS...</span>
+            <span className="text-[#5432EE] font-medium">Uploading image...</span>
           ) : (
-            <span className="text-rose-400">{uploadError}</span>
+            <span className="text-rose-600 font-medium">{uploadError}</span>
           )}
         </div>
       )}
 
       {/* Editor Content */}
-      <div className="p-5 min-h-[420px] max-h-[65vh] overflow-y-auto">
+      <div className="p-5 min-h-[420px] max-h-[65vh] overflow-y-auto bg-[#FFFFFF]">
         <EditorContent editor={editor} />
       </div>
     </div>
   );
 }
-

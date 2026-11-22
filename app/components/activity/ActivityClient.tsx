@@ -42,52 +42,52 @@ const TYPE_META: Record<
 > = {
   pr_created: {
     label: "PR Created",
-    badgeClass: "bg-indigo-950/60 text-indigo-300 border-indigo-700/50",
+    badgeClass: "bg-[#5432EE]/12 text-[#5432EE] border-[#5432EE]/25",
     icon: GitPullRequest,
   },
   pr_updated: {
     label: "PR Updated",
-    badgeClass: "bg-sky-950/60 text-sky-300 border-sky-700/50",
+    badgeClass: "bg-[#418CFF]/15 text-[#2563EB] border-[#418CFF]/30",
     icon: GitPullRequest,
   },
   pr_reviewed: {
     label: "PR Reviewed",
-    badgeClass: "bg-amber-950/60 text-amber-300 border-amber-700/50",
+    badgeClass: "bg-[#EA5DEE]/15 text-[#A21CAF] border-[#EA5DEE]/30",
     icon: ShieldCheck,
   },
   pr_commented: {
     label: "PR Commented",
-    badgeClass: "bg-slate-800 text-slate-300 border-slate-700",
+    badgeClass: "bg-[#EEEEEE] text-[#1C1C1F] border-[#E2E2E2]",
     icon: MessageSquare,
   },
   pr_merged: {
     label: "PR Merged",
-    badgeClass: "bg-purple-950/60 text-purple-300 border-purple-700/50",
+    badgeClass: "bg-[#69D7D8]/25 text-[#0F766E] border-[#69D7D8]/50",
     icon: GitMerge,
   },
   pr_closed: {
     label: "PR Closed",
-    badgeClass: "bg-rose-950/60 text-rose-300 border-rose-700/50",
+    badgeClass: "bg-rose-100 text-rose-700 border-rose-200",
     icon: GitPullRequestClosed,
   },
   issue_opened: {
     label: "Issue Opened",
-    badgeClass: "bg-sky-950/60 text-sky-300 border-sky-700/50",
+    badgeClass: "bg-[#418CFF]/15 text-[#2563EB] border-[#418CFF]/30",
     icon: CircleDot,
   },
   issue_closed: {
     label: "Issue Closed",
-    badgeClass: "bg-emerald-950/60 text-emerald-300 border-emerald-700/50",
+    badgeClass: "bg-[#69D7D8]/25 text-[#0F766E] border-[#69D7D8]/50",
     icon: CircleDot,
   },
   issue_commented: {
     label: "Issue Comment",
-    badgeClass: "bg-slate-800 text-slate-300 border-slate-700",
+    badgeClass: "bg-[#EEEEEE] text-[#1C1C1F] border-[#E2E2E2]",
     icon: MessageSquare,
   },
   pushed: {
     label: "Commit Pushed",
-    badgeClass: "bg-emerald-950/50 text-emerald-300 border-emerald-800/50",
+    badgeClass: "bg-[#69D7D8]/25 text-[#0F766E] border-[#69D7D8]/50",
     icon: GitCommit,
   },
 };
@@ -207,7 +207,6 @@ export default function ActivityClient({
     return Array.from(map.entries()).sort((a, b) => b[0].localeCompare(a[0]));
   }, [filteredEvents]);
 
-  // Unique PRs touched by user in the selected range (from both ActivityEvents and user's synced PRs)
   const touchedPRs = useMemo(() => {
     const prByUrl = new Map<string, IPullRequest>();
     for (const pr of pullRequests) {
@@ -219,7 +218,6 @@ export default function ActivityClient({
       { pr: IPullRequest; actions: Set<ActivityEventType>; lastTouchedAt: Date }
     >();
 
-    // 1. From explicit ActivityEvents targeting PRs
     for (const ev of filteredEvents) {
       if (ev.targetType !== "pr") continue;
       const existingPr = prByUrl.get(ev.url);
@@ -258,7 +256,6 @@ export default function ActivityClient({
       }
     }
 
-    // 2. Also include user's own PRs updated in range (covers older PRs beyond GitHub's 300-event window)
     const q = search.trim().toLowerCase();
     for (const pr of pullRequests) {
       if (!isAnyUser(pr.author, githubUsernames)) continue;
@@ -347,28 +344,28 @@ export default function ActivityClient({
   return (
     <div className="min-h-screen container">
       {/* Header */}
-      <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between items-start md:items-center">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between items-start md:items-center animate-fade-up">
         <div className="flex flex-col gap-1">
-          <h2 className="text-2xl font-bold text-slate-100">Activity</h2>
-          <p className="text-sm text-slate-400">
+          <h2 className="text-2xl font-bold text-[#1C1C1F] tracking-tight">Activity</h2>
+          <p className="text-sm text-[#6E6E77]">
             Track every PR you created, updated, reviewed, merged, or closed
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
           <ContextFilterDropdown projects={projects} />
           <button
             type="button"
             onClick={handleCopyStandup}
-            className="px-3.5 py-1.5 bg-[#131924] hover:bg-slate-800 border border-slate-800 hover:border-slate-700 rounded-lg text-xs font-semibold text-slate-200 transition-all flex items-center gap-2 cursor-pointer"
+            className="px-4 py-2 bg-[#FFFFFF] hover:bg-[#EEEEEE] border border-[#E2E2E2] rounded-full text-xs font-semibold text-[#1C1C1F] transition-all flex items-center gap-2 cursor-pointer shadow-[0_2px_8px_rgba(28,28,31,0.03)]"
           >
             {copied ? (
               <>
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                <Check className="w-3.5 h-3.5 text-[#0F766E]" />
                 Copied Standup
               </>
             ) : (
               <>
-                <Copy className="w-3.5 h-3.5 text-indigo-400" />
+                <Copy className="w-3.5 h-3.5 text-[#5432EE]" />
                 Copy Standup
               </>
             )}
@@ -384,8 +381,8 @@ export default function ActivityClient({
           desc="Opened in selected period"
           value={stats.created}
           icon={
-            <div className="w-9 h-9 bg-indigo-500/10 border border-indigo-500/20 rounded-lg flex items-center justify-center">
-              <GitPullRequest className="w-4 h-4 text-indigo-400" />
+            <div className="w-9 h-9 bg-[#5432EE]/12 border border-[#5432EE]/20 rounded-2xl flex items-center justify-center">
+              <GitPullRequest className="w-4 h-4 text-[#5432EE]" />
             </div>
           }
         />
@@ -394,8 +391,8 @@ export default function ActivityClient({
           desc="PR edits & commits pushed"
           value={stats.updated}
           icon={
-            <div className="w-9 h-9 bg-sky-500/10 border border-sky-500/20 rounded-lg flex items-center justify-center">
-              <Activity className="w-4 h-4 text-sky-400" />
+            <div className="w-9 h-9 bg-[#418CFF]/15 border border-[#418CFF]/25 rounded-2xl flex items-center justify-center">
+              <Activity className="w-4 h-4 text-[#2563EB]" />
             </div>
           }
         />
@@ -404,8 +401,8 @@ export default function ActivityClient({
           desc="Feedback & review activity"
           value={stats.reviewed}
           icon={
-            <div className="w-9 h-9 bg-amber-500/10 border border-amber-500/20 rounded-lg flex items-center justify-center">
-              <ShieldCheck className="w-4 h-4 text-amber-400" />
+            <div className="w-9 h-9 bg-[#EA5DEE]/15 border border-[#EA5DEE]/25 rounded-2xl flex items-center justify-center">
+              <ShieldCheck className="w-4 h-4 text-[#A21CAF]" />
             </div>
           }
         />
@@ -414,18 +411,18 @@ export default function ActivityClient({
           desc="Completed or closed PRs"
           value={stats.mergedOrClosed}
           icon={
-            <div className="w-9 h-9 bg-purple-500/10 border border-purple-500/20 rounded-lg flex items-center justify-center">
-              <GitMerge className="w-4 h-4 text-purple-400" />
+            <div className="w-9 h-9 bg-[#69D7D8]/25 border border-[#69D7D8]/40 rounded-2xl flex items-center justify-center">
+              <GitMerge className="w-4 h-4 text-[#0F766E]" />
             </div>
           }
         />
       </div>
 
       {/* Controls */}
-      <div className="bg-[#131924] border border-slate-800/80 rounded-2xl p-4 mb-6 space-y-4">
+      <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-4 mb-6 space-y-4 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           {/* Time Filter */}
-          <div className="flex flex-wrap items-center gap-1 bg-[#0b0f19] p-1 border border-slate-800 rounded-xl w-fit">
+          <div className="flex flex-wrap items-center gap-1 bg-[#EEEEEE] p-1 border border-[#E2E2E2] rounded-full w-fit">
             {(
               [
                 { value: "today", label: "Today" },
@@ -439,10 +436,10 @@ export default function ActivityClient({
                 key={opt.value}
                 type="button"
                 onClick={() => setTimeFilter(opt.value)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                   timeFilter === opt.value
-                    ? "bg-indigo-600 text-white"
-                    : "text-slate-400 hover:text-slate-200"
+                    ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
+                    : "text-[#6E6E77] hover:text-[#1C1C1F]"
                 }`}
               >
                 {opt.label}
@@ -453,24 +450,24 @@ export default function ActivityClient({
           {/* View Mode + Search */}
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative flex-1 sm:w-64">
-              <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-3.5 h-3.5 text-[#8A8A93] absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Filter by repo or title..."
-                className="w-full pl-8 pr-3 py-1.5 bg-[#0b0f19] border border-slate-800 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                className="w-full pl-9 pr-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-full text-xs text-[#1C1C1F] placeholder-[#8A8A93] focus:outline-none focus:bg-white focus:border-[#5432EE]"
               />
             </div>
 
-            <div className="flex items-center gap-1 bg-[#0b0f19] p-1 border border-slate-800 rounded-xl">
+            <div className="flex items-center gap-1 bg-[#EEEEEE] p-1 border border-[#E2E2E2] rounded-full">
               <button
                 type="button"
                 onClick={() => setViewMode("timeline")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                   viewMode === "timeline"
-                    ? "bg-slate-800 text-white"
-                    : "text-slate-400 hover:text-slate-200"
+                    ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
+                    : "text-[#6E6E77] hover:text-[#1C1C1F]"
                 }`}
               >
                 Timeline ({filteredEvents.length})
@@ -478,10 +475,10 @@ export default function ActivityClient({
               <button
                 type="button"
                 onClick={() => setViewMode("prs")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                   viewMode === "prs"
-                    ? "bg-slate-800 text-white"
-                    : "text-slate-400 hover:text-slate-200"
+                    ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
+                    : "text-[#6E6E77] hover:text-[#1C1C1F]"
                 }`}
               >
                 PRs Touched ({touchedPRs.length})
@@ -491,7 +488,7 @@ export default function ActivityClient({
         </div>
 
         {/* Category Filter */}
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/60">
+        <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-[#EEEEEE]">
           {(
             [
               { value: "all", label: "All Actions" },
@@ -507,10 +504,10 @@ export default function ActivityClient({
               key={cat.value}
               type="button"
               onClick={() => setCategoryFilter(cat.value)}
-              className={`px-2.5 py-1 rounded-md text-xs font-medium border transition-colors cursor-pointer ${
+              className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors cursor-pointer ${
                 categoryFilter === cat.value
-                  ? "bg-indigo-950/60 text-indigo-300 border-indigo-600/50"
-                  : "bg-[#0b0f19] text-slate-400 border-slate-800 hover:text-slate-200"
+                  ? "bg-[#1C1C1F] text-white border-[#1C1C1F]"
+                  : "bg-[#F9F9F9] text-[#6E6E77] border-[#E2E2E2] hover:text-[#1C1C1F]"
               }`}
             >
               {cat.label}
@@ -522,11 +519,11 @@ export default function ActivityClient({
       {/* Content */}
       {viewMode === "timeline" ? (
         groupedEvents.length === 0 ? (
-          <div className="bg-[#131924] border border-slate-800/80 rounded-2xl p-10 text-center space-y-2">
-            <p className="text-slate-300 font-semibold">
+          <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-10 text-center space-y-2 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
+            <p className="text-[#1C1C1F] font-bold">
               No recorded activity in this range
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-[#6E6E77]">
               Try clicking Sync Now to pull your latest GitHub events, or switch the time range.
             </p>
           </div>
@@ -535,13 +532,13 @@ export default function ActivityClient({
             {groupedEvents.map(([dateKey, dayEvents]) => (
               <div key={dateKey} className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <h3 className="text-sm font-bold text-slate-200">
+                  <h3 className="text-sm font-bold text-[#1C1C1F]">
                     {formatGroupHeading(dateKey)}
                   </h3>
-                  <span className="text-xs text-slate-500 font-medium">
+                  <span className="text-xs text-[#6E6E77] font-medium">
                     {dayEvents.length} {dayEvents.length === 1 ? "event" : "events"}
                   </span>
-                  <div className="flex-1 h-px bg-slate-800/80" />
+                  <div className="flex-1 h-px bg-[#E2E2E2]" />
                 </div>
 
                 <div className="space-y-2.5">
@@ -560,20 +557,20 @@ export default function ActivityClient({
                             window.open(ev.url, "_blank", "noopener,noreferrer");
                           }
                         }}
-                        className="bg-[#131924] border border-slate-800/80 rounded-xl p-4 hover:border-indigo-500/40 hover:bg-[#172030] transition-all cursor-pointer flex items-start gap-3"
+                        className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-2xl p-4 hover:border-[#5432EE]/45 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(28,28,31,0.06)] transition-all cursor-pointer flex items-start gap-3"
                       >
-                        <div className="w-9 h-9 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center shrink-0">
-                          <Icon className="w-4 h-4 text-indigo-400" />
+                        <div className="w-9 h-9 rounded-xl bg-[#F4F4F6] border border-[#E2E2E2] flex items-center justify-center shrink-0">
+                          <Icon className="w-4 h-4 text-[#5432EE]" />
                         </div>
 
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2 mb-1">
-                            <p className="text-sm font-semibold text-slate-100 truncate">
+                            <p className="text-sm font-bold text-[#1C1C1F] truncate">
                               {ev.title}
                             </p>
                             <div className="flex items-center gap-1.5 shrink-0">
                               <span
-                                className={`px-2 py-0.5 rounded-md text-[11px] font-semibold border whitespace-nowrap ${meta.badgeClass}`}
+                                className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border whitespace-nowrap ${meta.badgeClass}`}
                               >
                                 {meta.label}
                               </span>
@@ -582,7 +579,7 @@ export default function ActivityClient({
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={(e) => e.stopPropagation()}
-                                className="p-1 rounded-md text-slate-500 hover:text-slate-200 hover:bg-slate-800"
+                                className="p-1.5 rounded-full text-[#6E6E77] hover:text-[#1C1C1F] hover:bg-[#EEEEEE]"
                                 title="Open on GitHub"
                               >
                                 <ExternalLink className="w-3.5 h-3.5" />
@@ -591,14 +588,14 @@ export default function ActivityClient({
                           </div>
 
                           {ev.description && (
-                            <p className="text-xs text-slate-400 mb-2 line-clamp-2">
+                            <p className="text-xs text-[#6E6E77] mb-2 line-clamp-2">
                               {ev.description}
                             </p>
                           )}
 
-                          <div className="flex items-center gap-2 text-xs text-slate-500">
-                            <span className="flex items-center gap-1 text-slate-300 font-medium">
-                              <GitBranch className="w-3 h-3 text-slate-400" />
+                          <div className="flex items-center gap-2 text-xs text-[#6E6E77]">
+                            <span className="flex items-center gap-1 text-[#1C1C1F] font-medium">
+                              <GitBranch className="w-3 h-3 text-[#6E6E77]" />
                               {ev.repoName}
                             </span>
                             {ev.targetNumber && (
@@ -622,11 +619,11 @@ export default function ActivityClient({
           </div>
         )
       ) : touchedPRs.length === 0 ? (
-        <div className="bg-[#131924] border border-slate-800/80 rounded-2xl p-10 text-center space-y-2">
-          <p className="text-slate-300 font-semibold">
+        <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-10 text-center space-y-2 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
+          <p className="text-[#1C1C1F] font-bold">
             No pull requests touched in this range
           </p>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-[#6E6E77]">
             Click Sync Now or adjust your filters to see PRs you created, updated, reviewed, or closed.
           </p>
         </div>
@@ -638,7 +635,7 @@ export default function ActivityClient({
                 {Array.from(actions).map((act) => (
                   <span
                     key={act}
-                    className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${
+                    className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${
                       TYPE_META[act]?.badgeClass || ""
                     }`}
                   >
@@ -665,4 +662,3 @@ export default function ActivityClient({
     </div>
   );
 }
-

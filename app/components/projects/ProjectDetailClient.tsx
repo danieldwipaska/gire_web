@@ -75,7 +75,6 @@ export default function ProjectDetailClient({
   const [activeTab, setActiveTab] = useState<TabKey>("github");
   const [reviewFilter, setReviewFilter] = useState<ReviewFilter>("all");
 
-  // Edit Modal state
   const [editOpen, setEditOpen] = useState(false);
   const [name, setName] = useState(project.name);
   const [category, setCategory] = useState<ProjectCategory>(project.category);
@@ -87,7 +86,6 @@ export default function ProjectDetailClient({
   const [saving, setSaving] = useState(false);
   const [editError, setEditError] = useState("");
 
-  // Member invite state
   const [inviteEmail, setInviteEmail] = useState("");
   const [memberError, setMemberError] = useState("");
   const [memberLoading, setMemberLoading] = useState(false);
@@ -182,48 +180,48 @@ export default function ProjectDetailClient({
   return (
     <div className="min-h-screen container space-y-6">
       {/* Breadcrumb & Header */}
-      <div className="space-y-4">
+      <div className="space-y-4 animate-fade-up">
         <Link
           href="/projects"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-200 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6E6E77] hover:text-[#1C1C1F] transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           Back to Projects
         </Link>
 
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 bg-[#131924] border border-slate-800/80 rounded-2xl p-6">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-6 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
           <div className="space-y-2 min-w-0">
             <div className="flex flex-wrap items-center gap-2.5">
-              <h2 className="text-2xl font-bold text-slate-100">
+              <h2 className="text-2xl font-bold text-[#1C1C1F] tracking-tight">
                 {project.name}
               </h2>
-              <span className="px-2.5 py-0.5 rounded-md text-xs font-semibold border bg-indigo-950/60 text-indigo-300 border-indigo-700/50 flex items-center gap-1 capitalize">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold border bg-[#5432EE]/10 text-[#5432EE] border-[#5432EE]/25 flex items-center gap-1 capitalize">
                 <CategoryIcon className="w-3 h-3" />
                 {project.category}
               </span>
-              <span className="px-2.5 py-0.5 rounded-md text-xs font-semibold uppercase bg-slate-800 text-slate-300 border border-slate-700">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase bg-[#EEEEEE] text-[#1C1C1F] border border-[#E2E2E2]">
                 {project.status.replace("_", " ")}
               </span>
             </div>
 
             {project.clientOrTeam && (
-              <p className="text-sm text-slate-300 font-medium">
+              <p className="text-sm text-[#1C1C1F] font-semibold">
                 {project.clientOrTeam}
               </p>
             )}
             {project.description && (
-              <p className="text-sm text-slate-400 max-w-3xl">
+              <p className="text-sm text-[#6E6E77] max-w-3xl">
                 {project.description}
               </p>
             )}
 
             {project.repos && project.repos.length > 0 && (
               <div className="flex flex-wrap items-center gap-2 pt-1">
-                <FolderGit2 className="w-3.5 h-3.5 text-slate-400" />
+                <FolderGit2 className="w-3.5 h-3.5 text-[#6E6E77]" />
                 {project.repos.map((r) => (
                   <span
                     key={r}
-                    className="px-2 py-0.5 rounded bg-[#0b0f19] border border-slate-800 text-xs font-mono text-slate-300"
+                    className="px-2.5 py-0.5 rounded-full bg-[#F4F4F6] border border-[#E2E2E2] text-xs font-mono text-[#1C1C1F]"
                   >
                     {r}
                   </span>
@@ -236,7 +234,7 @@ export default function ProjectDetailClient({
             <button
               type="button"
               onClick={() => setEditOpen(true)}
-              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-semibold text-slate-200 flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 bg-[#F4F4F6] hover:bg-[#EEEEEE] border border-[#E2E2E2] rounded-full text-xs font-semibold text-[#1C1C1F] flex items-center gap-1.5 cursor-pointer transition-colors"
             >
               <Edit3 className="w-3.5 h-3.5" />
               Edit Project
@@ -245,7 +243,7 @@ export default function ProjectDetailClient({
               <button
                 type="button"
                 onClick={handleDeleteProject}
-                className="p-2 bg-rose-950/40 hover:bg-rose-900/50 border border-rose-800/50 rounded-lg text-rose-300 cursor-pointer"
+                className="p-2 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-full text-rose-600 cursor-pointer transition-colors"
                 title="Delete Project"
               >
                 <Trash2 className="w-4 h-4" />
@@ -256,90 +254,90 @@ export default function ProjectDetailClient({
       </div>
 
       {/* Tabs */}
-      <div className="flex flex-wrap items-center gap-1 bg-[#131924] p-1 border border-slate-800 rounded-xl w-fit">
+      <div className="flex flex-wrap items-center gap-1 bg-[#EEEEEE] p-1 border border-[#E2E2E2] rounded-full w-fit">
         <button
           type="button"
           onClick={() => setActiveTab("github")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
             activeTab === "github"
-              ? "bg-indigo-600 text-white"
-              : "text-slate-400 hover:text-slate-200"
+              ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
+              : "text-[#6E6E77] hover:text-[#1C1C1F]"
           }`}
         >
-          <GitPullRequest className="w-3.5 h-3.5" />
+          <GitPullRequest className="w-3.5 h-3.5 text-[#5432EE]" />
           My GitHub Work ({pullRequests.length} PRs · {issues.length} Issues)
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("reviews")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
             activeTab === "reviews"
-              ? "bg-indigo-600 text-white"
-              : "text-slate-400 hover:text-slate-200"
+              ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
+              : "text-[#6E6E77] hover:text-[#1C1C1F]"
           }`}
         >
-          <MessageSquareCode className="w-3.5 h-3.5 text-amber-400" />
+          <MessageSquareCode className="w-3.5 h-3.5 text-[#EA5DEE]" />
           Reviews ({reviewPullRequests.length})
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("figma")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
             activeTab === "figma"
-              ? "bg-indigo-600 text-white"
-              : "text-slate-400 hover:text-slate-200"
+              ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
+              : "text-[#6E6E77] hover:text-[#1C1C1F]"
           }`}
         >
-          <Figma className="w-3.5 h-3.5 text-pink-400" />
+          <Figma className="w-3.5 h-3.5 text-[#EA5DEE]" />
           Figma Preview ({project.figmaLinks?.length || 0})
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("notes")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
             activeTab === "notes"
-              ? "bg-indigo-600 text-white"
-              : "text-slate-400 hover:text-slate-200"
+              ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
+              : "text-[#6E6E77] hover:text-[#1C1C1F]"
           }`}
         >
-          <FileText className="w-3.5 h-3.5 text-amber-400" />
-          Notes & Tasks ({projectNotes.length} · {projectTasks.length})
+          <FileText className="w-3.5 h-3.5 text-[#418CFF]" />
+          Notes &amp; Tasks ({projectNotes.length} · {projectTasks.length})
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("members")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
             activeTab === "members"
-              ? "bg-indigo-600 text-white"
-              : "text-slate-400 hover:text-slate-200"
+              ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
+              : "text-[#6E6E77] hover:text-[#1C1C1F]"
           }`}
         >
-          <Users className="w-3.5 h-3.5" />
+          <Users className="w-3.5 h-3.5 text-[#0F766E]" />
           Members ({project.members?.length || 0})
         </button>
       </div>
 
       {/* Tab Content */}
       {activeTab === "github" && (
-        <div className="space-y-6">
+        <div className="space-y-6 animate-fade-up">
           {project.repos.length === 0 ? (
-            <div className="bg-[#131924] border border-dashed border-slate-800 rounded-2xl p-10 text-center space-y-2">
-              <p className="text-sm font-semibold text-slate-200">
+            <div className="bg-[#FFFFFF] border border-dashed border-[#D2D2DA] rounded-3xl p-10 text-center space-y-2">
+              <p className="text-sm font-bold text-[#1C1C1F]">
                 No GitHub repositories linked yet
               </p>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-[#6E6E77]">
                 Click &ldquo;Edit Project&rdquo; to attach repositories to this project.
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
               <div className="lg:col-span-3 space-y-4">
-                <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
-                  <GitPullRequest className="w-4 h-4 text-indigo-400" />
+                <h3 className="text-sm font-bold text-[#1C1C1F] flex items-center gap-2">
+                  <GitPullRequest className="w-4 h-4 text-[#5432EE]" />
                   My Pull Requests ({pullRequests.length})
                 </h3>
                 {pullRequests.length === 0 ? (
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[#6E6E77]">
                     No PRs authored by you for linked repositories.
                   </p>
                 ) : (
@@ -365,12 +363,12 @@ export default function ProjectDetailClient({
 
               <div className="lg:col-span-2 space-y-6">
                 <div className="space-y-3">
-                  <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
-                    <CircleDot className="w-4 h-4 text-sky-400" />
+                  <h3 className="text-sm font-bold text-[#1C1C1F] flex items-center gap-2">
+                    <CircleDot className="w-4 h-4 text-[#2563EB]" />
                     Open Issues ({issues.length})
                   </h3>
                   {issues.length === 0 ? (
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-[#6E6E77]">
                       No open issues for linked repositories.
                     </p>
                   ) : (
@@ -390,12 +388,12 @@ export default function ProjectDetailClient({
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
-                    <GitBranch className="w-4 h-4 text-emerald-400" />
+                  <h3 className="text-sm font-bold text-[#1C1C1F] flex items-center gap-2">
+                    <GitBranch className="w-4 h-4 text-[#0F766E]" />
                     Recent Activity ({events.length})
                   </h3>
                   {events.length === 0 ? (
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-[#6E6E77]">
                       No activity events yet for these repos.
                     </p>
                   ) : (
@@ -410,12 +408,12 @@ export default function ProjectDetailClient({
                               window.open(ev.url, "_blank", "noopener,noreferrer");
                             }
                           }}
-                          className="bg-[#131924] border border-slate-800 rounded-xl p-3 hover:border-indigo-500/40 cursor-pointer"
+                          className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-2xl p-3 hover:border-[#5432EE]/45 cursor-pointer transition-all"
                         >
-                          <p className="text-xs font-semibold text-slate-200 truncate">
+                          <p className="text-xs font-bold text-[#1C1C1F] truncate">
                             {ev.title}
                           </p>
-                          <p className="text-[11px] text-slate-400 mt-0.5">
+                          <p className="text-[11px] text-[#6E6E77] mt-0.5">
                             {ev.type.replace(/_/g, " ")} •{" "}
                             <span suppressHydrationWarning>
                               {getTimeAgo(ev.occurredAt)}
@@ -449,42 +447,42 @@ export default function ProjectDetailClient({
         const REVIEW_BADGE_META = {
           needs_review: {
             label: "Needs Review",
-            cls: "bg-amber-950/60 text-amber-300 border-amber-700/50",
+            cls: "bg-[#EA5DEE]/15 text-[#A21CAF] border-[#EA5DEE]/30",
           },
           approved: {
             label: "Approved",
-            cls: "bg-emerald-950/60 text-emerald-300 border-emerald-700/50",
+            cls: "bg-[#69D7D8]/25 text-[#0F766E] border-[#69D7D8]/50",
           },
           changes_requested: {
             label: "Changes Requested",
-            cls: "bg-rose-950/60 text-rose-300 border-rose-700/50",
+            cls: "bg-rose-100 text-rose-700 border-rose-200",
           },
           reviewed: {
             label: "Reviewed",
-            cls: "bg-indigo-950/60 text-indigo-300 border-indigo-700/50",
+            cls: "bg-[#5432EE]/12 text-[#5432EE] border-[#5432EE]/25",
           },
         } as const;
 
         return (
-          <div className="space-y-4">
+          <div className="space-y-4 animate-fade-up">
             {project.repos.length === 0 ? (
-              <div className="bg-[#131924] border border-dashed border-slate-800 rounded-2xl p-10 text-center space-y-2">
-                <p className="text-sm font-semibold text-slate-200">
+              <div className="bg-[#FFFFFF] border border-dashed border-[#D2D2DA] rounded-3xl p-10 text-center space-y-2">
+                <p className="text-sm font-bold text-[#1C1C1F]">
                   No GitHub repositories linked yet
                 </p>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-[#6E6E77]">
                   Click &ldquo;Edit Project&rdquo; to attach repositories to this project.
                 </p>
               </div>
             ) : (
               <>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
-                    <MessageSquareCode className="w-4 h-4 text-amber-400" />
+                  <h3 className="text-sm font-bold text-[#1C1C1F] flex items-center gap-2">
+                    <MessageSquareCode className="w-4 h-4 text-[#EA5DEE]" />
                     PR Reviews ({filteredReviews.length})
                   </h3>
 
-                  <div className="flex items-center gap-1 bg-[#131924] p-1 border border-slate-800 rounded-xl w-fit">
+                  <div className="flex items-center gap-1 bg-[#EEEEEE] p-1 border border-[#E2E2E2] rounded-full w-fit">
                     {(
                       [
                         { id: "all", label: "All" },
@@ -496,10 +494,10 @@ export default function ProjectDetailClient({
                         key={pill.id}
                         type="button"
                         onClick={() => setReviewFilter(pill.id)}
-                        className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                        className={`px-3.5 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                           reviewFilter === pill.id
-                            ? "bg-indigo-600 text-white"
-                            : "text-slate-400 hover:text-slate-200"
+                            ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
+                            : "text-[#6E6E77] hover:text-[#1C1C1F]"
                         }`}
                       >
                         {pill.label}
@@ -509,8 +507,8 @@ export default function ProjectDetailClient({
                 </div>
 
                 {filteredReviews.length === 0 ? (
-                  <div className="bg-[#131924] border border-slate-800/80 rounded-2xl p-8 text-center">
-                    <p className="text-xs text-slate-400">
+                  <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-8 text-center">
+                    <p className="text-xs text-[#6E6E77]">
                       No pull requests needing review or reviewed by you in this project yet.
                     </p>
                   </div>
@@ -524,7 +522,7 @@ export default function ProjectDetailClient({
                         <div key={pr._id} className="space-y-1.5">
                           <div className="flex items-center justify-end px-1">
                             <span
-                              className={`px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider border ${badge.cls}`}
+                              className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider border ${badge.cls}`}
                             >
                               {badge.label}
                             </span>
@@ -560,22 +558,22 @@ export default function ProjectDetailClient({
       )}
 
       {activeTab === "notes" && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-[#131924] border border-slate-800/80 rounded-2xl p-5 space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-up">
+          <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-5 space-y-4 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-indigo-400" />
+              <h3 className="text-sm font-bold text-[#1C1C1F] flex items-center gap-2">
+                <FileText className="w-4 h-4 text-[#5432EE]" />
                 Project Notes ({projectNotes.length})
               </h3>
               <Link
                 href={`/notes?projectId=${project._id}`}
-                className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-xs font-semibold text-white"
+                className="px-3.5 py-1.5 bg-[#1C1C1F] hover:bg-[#2C2C32] rounded-full text-xs font-semibold text-white"
               >
                 Open in Notes
               </Link>
             </div>
             {projectNotes.length === 0 ? (
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[#6E6E77]">
                 No notes linked to this project yet.
               </p>
             ) : (
@@ -584,13 +582,13 @@ export default function ProjectDetailClient({
                   <Link
                     key={note._id}
                     href={`/notes?noteId=${note._id}`}
-                    className="block bg-[#0b0f19] border border-slate-800 hover:border-indigo-500/40 rounded-xl p-3.5 transition-colors"
+                    className="block bg-[#F9F9F9] border border-[#E2E2E2] hover:border-[#5432EE]/45 hover:bg-[#FFFFFF] rounded-2xl p-3.5 transition-all"
                   >
-                    <p className="text-sm font-semibold text-slate-100 truncate">
+                    <p className="text-sm font-bold text-[#1C1C1F] truncate">
                       {note.title}
                     </p>
                     {note.updatedAt && (
-                      <p className="text-[11px] text-slate-500 mt-1" suppressHydrationWarning>
+                      <p className="text-[11px] text-[#6E6E77] mt-1" suppressHydrationWarning>
                         Updated {getTimeAgo(note.updatedAt)}
                       </p>
                     )}
@@ -600,21 +598,21 @@ export default function ProjectDetailClient({
             )}
           </div>
 
-          <div className="bg-[#131924] border border-slate-800/80 rounded-2xl p-5 space-y-4">
+          <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-5 space-y-4 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
-                <ListTodo className="w-4 h-4 text-emerald-400" />
+              <h3 className="text-sm font-bold text-[#1C1C1F] flex items-center gap-2">
+                <ListTodo className="w-4 h-4 text-[#0F766E]" />
                 Project Delegated Tasks ({projectTasks.length})
               </h3>
               <Link
                 href="/notes?tab=tasks"
-                className="text-xs font-semibold text-indigo-400 hover:text-indigo-300"
+                className="text-xs font-semibold text-[#5432EE] hover:text-[#418CFF]"
               >
                 Manage All
               </Link>
             </div>
             {projectTasks.length === 0 ? (
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[#6E6E77]">
                 No tasks linked to this project yet.
               </p>
             ) : (
@@ -622,17 +620,17 @@ export default function ProjectDetailClient({
                 {projectTasks.map((task) => (
                   <div
                     key={task._id}
-                    className="bg-[#0b0f19] border border-slate-800 rounded-xl p-3.5 flex items-center justify-between gap-3"
+                    className="bg-[#F9F9F9] border border-[#E2E2E2] rounded-2xl p-3.5 flex items-center justify-between gap-3"
                   >
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-slate-100 truncate">
+                      <p className="text-sm font-bold text-[#1C1C1F] truncate">
                         {task.title}
                       </p>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
+                      <p className="text-[11px] text-[#6E6E77] mt-0.5">
                         Assigned to {task.assignedToName} • {task.priority}
                       </p>
                     </div>
-                    <span className="px-2 py-0.5 rounded text-[11px] font-semibold uppercase bg-slate-800 text-slate-300 border border-slate-700 shrink-0">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold uppercase bg-[#EEEEEE] text-[#1C1C1F] border border-[#E2E2E2] shrink-0">
                       {task.status.replace("_", " ")}
                     </span>
                   </div>
@@ -644,25 +642,25 @@ export default function ProjectDetailClient({
       )}
 
       {activeTab === "members" && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-[#131924] border border-slate-800/80 rounded-2xl p-5 space-y-4">
-            <h3 className="text-sm font-bold text-slate-200">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-up">
+          <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-5 space-y-4 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
+            <h3 className="text-sm font-bold text-[#1C1C1F]">
               Project Members
             </h3>
             <div className="space-y-2.5">
               {project.members.map((m) => (
                 <div
                   key={m.userId}
-                  className="flex items-center justify-between gap-3 bg-[#0b0f19] border border-slate-800 rounded-xl px-4 py-3"
+                  className="flex items-center justify-between gap-3 bg-[#F9F9F9] border border-[#E2E2E2] rounded-2xl px-4 py-3"
                 >
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-slate-200 truncate">
+                    <p className="text-sm font-bold text-[#1C1C1F] truncate">
                       {m.name}
                     </p>
-                    <p className="text-xs text-slate-400 truncate">{m.email}</p>
+                    <p className="text-xs text-[#6E6E77] truncate">{m.email}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-slate-800 text-slate-300 border border-slate-700">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase bg-[#EEEEEE] text-[#1C1C1F] border border-[#E2E2E2]">
                       {m.role}
                     </span>
                     {isSuperUser && isOwner && m.role !== "owner" && (
@@ -670,7 +668,7 @@ export default function ProjectDetailClient({
                         type="button"
                         disabled={memberLoading}
                         onClick={() => handleRemoveMember(m.userId)}
-                        className="p-1 text-slate-500 hover:text-rose-400 cursor-pointer"
+                        className="p-1 text-[#8A8A93] hover:text-rose-600 cursor-pointer"
                         title="Remove member"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -683,16 +681,16 @@ export default function ProjectDetailClient({
           </div>
 
           {isSuperUser && (
-          <div className="bg-[#131924] border border-slate-800/80 rounded-2xl p-5 space-y-4 h-fit">
-            <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
-              <UserPlus className="w-4 h-4 text-indigo-400" />
+          <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-5 space-y-4 h-fit shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
+            <h3 className="text-sm font-bold text-[#1C1C1F] flex items-center gap-2">
+              <UserPlus className="w-4 h-4 text-[#5432EE]" />
               Invite Workspace Member
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[#6E6E77]">
               Add members from this same Workspace by email to collaborate on this project.
             </p>
             {memberError && (
-              <p className="text-xs text-rose-400">{memberError}</p>
+              <p className="text-xs text-rose-600 font-medium">{memberError}</p>
             )}
             <form onSubmit={handleInviteMember} className="flex gap-2">
               <input
@@ -701,7 +699,7 @@ export default function ProjectDetailClient({
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
                 placeholder="teammate@company.com"
-                className="flex-1 px-3 py-2 bg-[#0b0f19] border border-slate-800 rounded-lg text-xs text-slate-100"
+                className="flex-1 px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-full text-xs text-[#1C1C1F]"
               />
               <Button type="submit" disabled={memberLoading}>
                 {memberLoading ? "Adding..." : "Invite"}
@@ -723,12 +721,12 @@ export default function ProjectDetailClient({
             className="flex flex-col gap-4 w-full max-w-lg max-h-[75vh] overflow-y-auto pr-1"
           >
             {editError && (
-              <p className="text-xs text-rose-400">{editError}</p>
+              <p className="text-xs text-rose-600 font-medium">{editError}</p>
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-slate-300">
+                <label className="text-xs font-semibold text-[#1C1C1F]">
                   Name
                 </label>
                 <input
@@ -736,11 +734,11 @@ export default function ProjectDetailClient({
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-sm text-white"
+                  className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F]"
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-slate-300">
+                <label className="text-xs font-semibold text-[#1C1C1F]">
                   Category
                 </label>
                 <select
@@ -748,7 +746,7 @@ export default function ProjectDetailClient({
                   onChange={(e) =>
                     setCategory(e.target.value as ProjectCategory)
                   }
-                  className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-sm text-white"
+                  className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F]"
                 >
                   <option value="office">Office</option>
                   <option value="freelance">Freelance</option>
@@ -759,24 +757,24 @@ export default function ProjectDetailClient({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-slate-300">
+                <label className="text-xs font-semibold text-[#1C1C1F]">
                   Client / Team
                 </label>
                 <input
                   type="text"
                   value={clientOrTeam}
                   onChange={(e) => setClientOrTeam(e.target.value)}
-                  className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-sm text-white"
+                  className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F]"
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-slate-300">
+                <label className="text-xs font-semibold text-[#1C1C1F]">
                   Status
                 </label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as ProjectStatus)}
-                  className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-sm text-white"
+                  className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F]"
                 >
                   <option value="active">Active</option>
                   <option value="on_hold">On Hold</option>
@@ -787,27 +785,27 @@ export default function ProjectDetailClient({
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-slate-300">
+              <label className="text-xs font-semibold text-[#1C1C1F]">
                 Description
               </label>
               <textarea
                 rows={2}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-sm text-white"
+                className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F]"
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold text-slate-300">
+              <label className="text-xs font-semibold text-[#1C1C1F]">
                 Linked Repositories
               </label>
               {availableRepos.length > 0 && (
-                <div className="max-h-32 overflow-y-auto bg-[#0b0f19] border border-slate-800 rounded-lg p-2 space-y-1">
+                <div className="max-h-32 overflow-y-auto bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl p-2 space-y-1">
                   {availableRepos.map((repo) => (
                     <label
                       key={repo}
-                      className="flex items-center gap-2 text-xs text-slate-300 px-1.5 py-1 hover:bg-slate-800/60 rounded cursor-pointer"
+                      className="flex items-center gap-2 text-xs text-[#1C1C1F] px-2 py-1 hover:bg-[#FFFFFF] rounded-xl cursor-pointer"
                     >
                       <input
                         type="checkbox"
@@ -831,7 +829,7 @@ export default function ProjectDetailClient({
                   value={customRepo}
                   onChange={(e) => setCustomRepo(e.target.value)}
                   placeholder="Add repo (owner/repo)"
-                  className="flex-1 px-3 py-1.5 bg-[#0b0f19] border border-slate-700 rounded-lg text-xs text-white"
+                  className="flex-1 px-3.5 py-1.5 bg-[#F4F4F6] border border-[#E2E2E2] rounded-full text-xs text-[#1C1C1F]"
                 />
                 <button
                   type="button"
@@ -846,7 +844,7 @@ export default function ProjectDetailClient({
                     }
                     setCustomRepo("");
                   }}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold text-slate-200 cursor-pointer"
+                  className="px-4 py-1.5 bg-[#EEEEEE] hover:bg-[#E2E2E2] rounded-full text-xs font-semibold text-[#1C1C1F] cursor-pointer"
                 >
                   Add
                 </button>
@@ -857,7 +855,7 @@ export default function ProjectDetailClient({
               <button
                 type="button"
                 onClick={() => setEditOpen(false)}
-                className="px-4 py-2 text-xs text-slate-400 hover:text-white cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold text-[#6E6E77] hover:text-[#1C1C1F] cursor-pointer"
               >
                 Cancel
               </button>
@@ -871,4 +869,3 @@ export default function ProjectDetailClient({
     </div>
   );
 }
-

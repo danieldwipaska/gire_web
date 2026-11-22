@@ -49,30 +49,30 @@ export default async function GitHubIssuesAndPRsPage({ searchParams }: Props) {
 
   return (
     <div className="min-h-screen container">
-      <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between items-start md:items-center">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between items-start md:items-center animate-fade-up">
         <div className="flex flex-col gap-1">
-          <h2 className="text-2xl font-bold text-slate-100">
+          <h2 className="text-2xl font-bold text-[#1C1C1F] tracking-tight">
             Issues &amp; Pull Requests
           </h2>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-[#6E6E77]">
             Monitor your active pull requests, review requests, and assigned issues
           </p>
         </div>
-        <div className="flex flex-wrap gap-3 h-fit">
+        <div className="flex flex-wrap gap-2.5 h-fit">
           <ContextFilterDropdown projects={projects} />
           <SyncButton />
         </div>
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 my-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-5 my-6">
         <SummaryCard
           title="Today's PRs"
           desc={`${todayStats.merged} merged, ${todayStats.open} open${todayStats.closed ? `, ${todayStats.closed} closed` : ""}`}
           value={todayStats.total}
           icon={
-            <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center justify-center">
-              <GitPullRequest className="w-5 h-5 text-emerald-400" />
+            <div className="w-10 h-10 bg-[#69D7D8]/25 border border-[#69D7D8]/40 rounded-2xl flex items-center justify-center">
+              <GitPullRequest className="w-5 h-5 text-[#0F766E]" />
             </div>
           }
         />
@@ -81,8 +81,8 @@ export default async function GitHubIssuesAndPRsPage({ searchParams }: Props) {
           desc="Awaiting your review"
           value={reviews.length}
           icon={
-            <div className="w-10 h-10 bg-amber-500/10 border border-amber-500/20 rounded-lg flex items-center justify-center">
-              <MessageSquareCode className="w-5 h-5 text-amber-400" />
+            <div className="w-10 h-10 bg-[#EA5DEE]/15 border border-[#EA5DEE]/25 rounded-2xl flex items-center justify-center">
+              <MessageSquareCode className="w-5 h-5 text-[#A21CAF]" />
             </div>
           }
         />
@@ -91,8 +91,8 @@ export default async function GitHubIssuesAndPRsPage({ searchParams }: Props) {
           desc="Assigned to you"
           value={issues.length}
           icon={
-            <div className="w-10 h-10 bg-sky-500/10 border border-sky-500/20 rounded-lg flex items-center justify-center">
-              <CircleDot className="w-5 h-5 text-sky-400" />
+            <div className="w-10 h-10 bg-[#418CFF]/15 border border-[#418CFF]/25 rounded-2xl flex items-center justify-center">
+              <CircleDot className="w-5 h-5 text-[#2563EB]" />
             </div>
           }
         />
@@ -101,15 +101,15 @@ export default async function GitHubIssuesAndPRsPage({ searchParams }: Props) {
           desc="Total PRs created"
           value={myPRsThisMonthCount}
           icon={
-            <div className="w-10 h-10 bg-indigo-500/10 border border-indigo-500/20 rounded-lg flex items-center justify-center">
-              <GitPullRequest className="w-5 h-5 text-indigo-400" />
+            <div className="w-10 h-10 bg-[#5432EE]/12 border border-[#5432EE]/20 rounded-2xl flex items-center justify-center">
+              <GitPullRequest className="w-5 h-5 text-[#5432EE]" />
             </div>
           }
         />
       </div>
 
       {/* PRs & Issues */}
-      <div className="mb-8">
+      <div className="mb-8 animate-fade-up-delay-1">
         <TaskIndex
           issues={issues}
           pullRequests={userPullRequests}
@@ -119,12 +119,12 @@ export default async function GitHubIssuesAndPRsPage({ searchParams }: Props) {
       </div>
 
       {/* Weekly Activity Chart */}
-      <div className="mb-6">
+      <div className="mb-6 animate-fade-up-delay-2">
         <ChartIndex data={chartData} />
       </div>
 
       {/* Reviews & GitHub Integration */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start animate-fade-up-delay-3">
         <div className="lg:col-span-7">
           <ReviewList
             reviews={reviews}
@@ -140,4 +140,3 @@ export default async function GitHubIssuesAndPRsPage({ searchParams }: Props) {
     </div>
   );
 }
-
