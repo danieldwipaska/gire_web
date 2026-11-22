@@ -13,12 +13,26 @@ import ListContainer from "../lists/ListContainer";
 
 import { IMergedPRData } from "@/lib/types";
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+interface TooltipItem {
+  name?: string;
+  value?: number;
+  color?: string;
+}
+
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: TooltipItem[];
+  label?: string;
+}) => {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-[#131924] border border-slate-800 rounded-lg p-3 text-xs">
       <p className="text-slate-300 font-semibold mb-1">{label}</p>
-      {payload.map((p: any, i: any) => (
+      {payload.map((p, i) => (
         <p key={i} style={{ color: p.color }} className="capitalize font-medium">
           {p.name}: <span className="font-bold">{p.value}</span>
         </p>

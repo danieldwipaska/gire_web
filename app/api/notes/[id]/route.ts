@@ -17,7 +17,10 @@ async function canAccessNoteInWorkspace(
   userId: string,
   activeWorkspaceId: string,
 ) {
-  if (note.workspaceId && note.workspaceId.toString() !== activeWorkspaceId) {
+  if (!note.workspaceId) {
+    return note.userId.toString() === userId;
+  }
+  if (note.workspaceId.toString() !== activeWorkspaceId) {
     return false;
   }
   if (note.userId.toString() === userId) return true;

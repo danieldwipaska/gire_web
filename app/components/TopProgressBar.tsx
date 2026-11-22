@@ -9,28 +9,30 @@ export default function TopProgressBar() {
 
   const [progress, setProgress] = useState(0);
   const [visible, setVisible] = useState(false);
+  const visibleRef = useRef(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const finishTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Complete progress when pathname or searchParams change
   useEffect(() => {
-    if (!visible) return;
+    if (!visibleRef.current) return;
 
-    setProgress(100);
-
-    finishTimerRef.current = setTimeout(() => {
-      setVisible(false);
-      setTimeout(() => {
-        setProgress(0);
+    const completeTimer = setTimeout(() => {
+      setProgress(100);
+      finishTimerRef.current = setTimeout(() => {
+        visibleRef.current = false;
+        setVisible(false);
+        setTimeout(() => {
+          setProgress(0);
+        }, 200);
       }, 200);
-    }, 200);
+    }, 0);
 
     return () => {
+      clearTimeout(completeTimer);
       if (finishTimerRef.current) clearTimeout(finishTimerRef.current);
     };
   }, [pathname, searchParams]);
 
-  // Intercept link clicks to trigger progress bar start
   useEffect(() => {
     const handleLinkClick = (e: MouseEvent) => {
       const target = (e.target as HTMLElement).closest("a");
@@ -49,7 +51,6 @@ export default function TopProgressBar() {
       const targetUrl = new URL(href, window.location.href);
       const currentUrl = new URL(window.location.href);
 
-      // Only trigger if navigating to a different pathname/search
       if (
         targetUrl.origin === currentUrl.origin &&
         (targetUrl.pathname !== currentUrl.pathname ||
@@ -58,6 +59,7 @@ export default function TopProgressBar() {
         if (timerRef.current) clearTimeout(timerRef.current);
         if (finishTimerRef.current) clearTimeout(finishTimerRef.current);
 
+        visibleRef.current = true;
         setVisible(true);
         setProgress(30);
 
@@ -82,7 +84,7 @@ export default function TopProgressBar() {
       style={{
         width: `${progress}%`,
         opacity: visible ? 1 : 0,
-        backgroundColor: "#6366f1", // Solid Indigo 500 (No gradients)
+        backgroundColor: "#6366f1",
         boxShadow: "0 0 10px rgba(99, 102, 241, 0.7)",
       }}
     />

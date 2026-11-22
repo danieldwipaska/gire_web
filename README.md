@@ -1,94 +1,63 @@
-# 🎯 GiRe Web
+# GiRe Web — Engineer Command Center
 
-> **Visualize your GitHub journey like never before!** 🚀
-
-GiRe Web is your personal command center for tracking GitHub activity. No more boring lists—experience your contributions through beautiful dashboards and insightful analytics. whether you're a heavy contributor or just starting out, GiRe Web helps you stay on top of your game! ✨
+**GiRe Web** is a unified engineering workspace built with Next.js, MongoDB, and the GitHub API. It brings together **GitHub monitoring & actions** (Issues, Pull Requests, Review Requests, Activity Timeline, Code Analytics), **Office & Freelance Project Management** (with interactive Figma design/prototype embeds), and a **Notion-style Notes & Task Delegation** system inside isolated multi-tenant **Workspaces**.
 
 ---
 
-## 🔥 Features that Shine
+## Key Features
 
-- **📊 Dashboard Magic:** Get a bird's-eye view of your daily and weekly wins.
-- **📈 Deep Analytics:** Dive into code churn, merged PRs, and review requests with stunning charts.
-- **🔄 Smart Sync:** Keep your data fresh with our seamless GitHub synchronization.
-- **🛡️ Secure & Private:** built with robust authentication to keep your data yours.
-
----
-
-## 🚀 Getting Started
-
-Ready to lift off? Follow these simple steps to get GiRe Web running on your machine!
-
-### 🛠️ Prerequisites
-
-Before we start, make sure you have:
-
-- **Node.js** (v18+ recommended) 🟢
-- **MongoDB** (Local or Cloud) 🍃
-
-### 📦 Installation
-
-1.  **Clone the Magic:**
-
-    ```bash
-    git clone https://github.com/yourusername/gire_web.git
-    cd gire_web
-    ```
-
-2.  **Install the Goods:**
-
-    ```bash
-    npm install
-    # or if you act cool
-    pnpm install
-    ```
-
-3.  **Secret Sauce (.env.local):**
-    Create a `.env.local` file in the root and add these lines:
-
-    ```env
-    # 🍃 Your MongoDB Connection
-    MONGODB_URI=mongodb://127.0.0.1:27017/gireWeb
-
-    # 🔑 Your Super Secret Key
-    JWT_SECRET=shhh_its_a_secret
-    ```
-
-4.  **Ignite the Engine:**
-
-    ```bash
-    npm run dev
-    ```
-
-5.  **Blast Off:**
-    Open [http://localhost:3000](http://localhost:3000) and witness the greatness! 🎉
+- **Multi-Tenant Workspaces & RBAC:**
+  - Public registration creates a **Super User** account who sets up one or more isolated **Workspaces** (e.g., *Office*, *Freelance*, *Client X*).
+  - Super Users create and manage **Member** accounts inside their own Workspaces; Members are bound to a single Workspace and cannot self-register or create Workspaces.
+  - Projects, Notes, and Delegated Tasks are strictly isolated per Workspace.
+- **User-Oriented GitHub Workspace (Private Per User):**
+  - Connect **multiple GitHub accounts** (e.g., Office + Freelance) per user. GitHub data (`Integration`, `PullRequest`, `Issue`, `ActivityEvent`) is always private to the individual user—even inside the same Workspace.
+  - **Dashboard:** Holistic daily command center combining Needs Attention (PR reviews + urgent tasks), Active Tasks, Active Projects, Office vs. Freelance split, GitHub Queue, Recent Notes, and Recent Activity.
+  - **GitHub -> Activity:** Full timeline of PRs you created, updated, pushed to, reviewed, commented on, merged, or closed, with one-click **Copy Standup** Markdown export.
+  - **GitHub -> Issue and PRs:** Active PRs (`Today`, `Last Week`, `Last Month`), Issues Assigned, and PRs Needing Review with independent `All | Office | Freelance | Personal` filters.
+  - **GitHub -> Analysis:** Code churn per day, merged PR velocity, review vs. merged ratio, and per-repository activity.
+  - **PR & Issue Detail Drawer:** Inspect PR diffs, CI check runs, descriptions, and comment threads—and **post comments, approve/request changes, merge, or close/reopen** directly inside GiRe.
+- **Projects & Figma Embeds:**
+  - Group repositories under `Office`, `Freelance`, or `Personal` projects, track live open PRs/issues, and preview **Figma designs & interactive prototypes** inline.
+- **Rich Notes & Task Delegation (Notion Replacement):**
+  - WYSIWYG block editor powered by Tiptap + Lowlight: headings, checklists, tables, syntax-highlighted code blocks, and **VPS image uploads / screenshot paste (`Ctrl+V`)**.
+  - **Super Users** can highlight text in a Note and delegate it as a tracked Task (`todo`, `in_progress`, `in_review`, `done`) to any user in the same Workspace.
 
 ---
 
-## 🕹️ How to Use
+## Documentation
 
-1.  **📝 Register:** Sign up and create your personal account.
-2.  **🔗 Connect:** Go to your **Dashboard** -> **Integrations** -> **Add New**.
-    - Enter your **GitHub Username**.
-    - Paste your **Personal Access Token** (make sure it has `repo` scope!).
-3.  **⚡ Sync:** Hit that **"Sync Now"** button and watching your stats roll in!
-4.  **😎 Flex:** Enjoy your beautiful analytics.
+- **New Users:** See the [User Guide](docs/USER_GUIDE.md) for onboarding, Workspace setup, connecting GitHub accounts, reviewing PRs, embedding Figma previews, and delegating tasks.
+- **Developers & Contributors:** See the [Developer Guide](docs/DEVELOPER_GUIDE.md) for architecture, data isolation rules, local setup, testing (Vitest & Playwright), and VPS deployment.
 
 ---
 
-## 🤝 Contribute & Support
+## Quick Start
 
-Love what you see? Want to make it even better? We'd love your help!
-
-If you want to contribute, report bugs, or just say hi, you can find me here:
-
-- 📸 **Instagram:** [@nielnimation](https://www.instagram.com/nielnimation/)
-- 💼 **LinkedIn:** [daniel-w-k](https://www.linkedin.com/in/daniel-w-k/)
-
-**Feeling generous?** Support the development and keep the caffeine flowing! ☕
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+2. **Configure `.env.local`:**
+   ```env
+   MONGODB_URI=mongodb://127.0.0.1:27017/gireWeb
+   JWT_SECRET=replace_with_a_strong_random_secret
+   ```
+3. **Run development server:**
+   ```bash
+   npm run dev
+   ```
+4. Open [http://localhost:3000](http://localhost:3000) and register a **Super User** account.
 
 ---
 
-## 📜 License
+## Scripts
 
-This project is proudly licensed under the **MIT License**. Build, break, and create! 🛠️
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start Next.js development server |
+| `npm run build` | Build production bundle |
+| `npm run start` | Start production server |
+| `npm run lint` | Run ESLint across the codebase |
+| `npm run test:unit` | Run Vitest unit tests |
+| `npm run test:e2e` | Run Playwright end-to-end tests |

@@ -1,6 +1,5 @@
 "use client";
 
-import { mockActivityData } from "@/mocks/data.mock";
 import {
   CartesianGrid,
   Legend,

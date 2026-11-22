@@ -19,7 +19,7 @@ const IntegrationList = ({ integrations, isLoading }: { integrations: IIntegrati
         <div className="space-y-3 max-h-125 overflow-auto pr-2">
           {integrations.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              No integrations yet. Click "Add New" to connect GitHub.
+              No integrations yet. Click &ldquo;Add New&rdquo; to connect GitHub.
             </div>
           ) : (
             integrations.map((integration, index) => (

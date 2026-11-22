@@ -1,4 +1,4 @@
-import { BarChart3, FileText, GitPullRequest } from "lucide-react";
+import { BarChart3, GitPullRequest } from "lucide-react";
 
 export default function Home() {
   return (

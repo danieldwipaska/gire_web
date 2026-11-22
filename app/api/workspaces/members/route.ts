@@ -4,6 +4,8 @@ import mongoose from "mongoose";
 import { verifyAuth, WORKSPACE_COOKIE_NAME } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import { getWorkspaceContext, getWorkspaceUsers } from "@/lib/workspace";
+import Note from "@/models/Note";
+import Project from "@/models/Project";
 import User from "@/models/User";
 
 export async function GET(req: NextRequest) {
@@ -174,6 +176,17 @@ export async function DELETE(req: NextRequest) {
         { status: 404 },
       );
     }
+
+    await Promise.all([
+      Project.updateMany(
+        { workspaceId: { $in: ownedIds } },
+        { $pull: { members: { userId: memberId } } },
+      ),
+      Note.updateMany(
+        { workspaceId: { $in: ownedIds } },
+        { $pull: { sharedWith: memberId } },
+      ),
+    ]);
 
     return NextResponse.json({ message: "Member removed" });
   } catch (error) {

@@ -36,7 +36,7 @@ const TaskChartIndex = ({ data }: { data: ITaskChartData[] }) => {
             dataKey="value"
             paddingAngle={4}
           >
-            {data.map((e: any, i: any) => (
+            {data.map((e, i) => (
               <Cell key={i} fill={e.color} stroke="transparent" />
             ))}
           </Pie>
