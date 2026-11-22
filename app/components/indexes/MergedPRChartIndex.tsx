@@ -30,8 +30,8 @@ const CustomTooltip = ({
 }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#131924] border border-slate-800 rounded-lg p-3 text-xs">
-      <p className="text-slate-300 font-semibold mb-1">{label}</p>
+    <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-xl p-3 text-xs shadow-[0_10px_25px_rgba(28,28,31,0.08)]">
+      <p className="text-[#1C1C1F] font-bold mb-1">{label}</p>
       {payload.map((p, i) => (
         <p key={i} style={{ color: p.color }} className="capitalize font-medium">
           {p.name}: <span className="font-bold">{p.value}</span>
@@ -48,16 +48,16 @@ const MergedPRChartIndex = ({ data }: { data: IMergedPRData[] }) => {
         <BarChart data={data} barSize={24}>
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke="rgba(255,255,255,0.05)"
+            stroke="rgba(28,28,31,0.06)"
           />
           <XAxis
             dataKey="week"
-            tick={{ fill: "#94a3b8", fontSize: 11 }}
+            tick={{ fill: "#6E6E77", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
-            tick={{ fill: "#94a3b8", fontSize: 11 }}
+            tick={{ fill: "#6E6E77", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
           />
@@ -65,8 +65,8 @@ const MergedPRChartIndex = ({ data }: { data: IMergedPRData[] }) => {
           <Bar
             dataKey="merged"
             name="Merged PRs"
-            fill="#10b981"
-            radius={[4, 4, 0, 0]}
+            fill="#418CFF"
+            radius={[6, 6, 0, 0]}
           />
         </BarChart>
       </ResponsiveContainer>

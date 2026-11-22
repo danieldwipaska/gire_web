@@ -25,48 +25,49 @@ const ChartIndex = ({ data }: { data: ChartData[] }) => {
         <LineChart data={data}>
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke="rgba(255,255,255,0.06)"
+            stroke="rgba(28,28,31,0.06)"
           />
           <XAxis
             dataKey="date"
-            stroke="#64748b"
-            tick={{ fill: "#94a3b8", fontSize: 12 }}
+            stroke="#8A8A93"
+            tick={{ fill: "#6E6E77", fontSize: 12 }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
-            stroke="#64748b"
-            tick={{ fill: "#94a3b8", fontSize: 12 }}
+            stroke="#8A8A93"
+            tick={{ fill: "#6E6E77", fontSize: 12 }}
             axisLine={false}
             tickLine={false}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "#131924",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              borderRadius: "8px",
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E2E2E2",
+              borderRadius: "12px",
+              boxShadow: "0 10px 25px rgba(28,28,31,0.08)",
               fontSize: "12px",
             }}
-            itemStyle={{ color: "#f8fafc" }}
-            labelStyle={{ color: "#94a3b8", fontWeight: 600 }}
+            itemStyle={{ color: "#1C1C1F" }}
+            labelStyle={{ color: "#6E6E77", fontWeight: 600 }}
           />
-          <Legend wrapperStyle={{ fontSize: "12px", color: "#94a3b8", paddingTop: "10px" }} />
+          <Legend wrapperStyle={{ fontSize: "12px", color: "#6E6E77", paddingTop: "10px" }} />
           <Line
             type="monotone"
             dataKey="prs"
-            stroke="#6366f1"
+            stroke="#5432EE"
             strokeWidth={2.5}
             name="My PRs Created"
-            dot={{ fill: "#6366f1", r: 4 }}
+            dot={{ fill: "#5432EE", r: 4 }}
             activeDot={{ r: 6 }}
           />
           <Line
             type="monotone"
             dataKey="reviews"
-            stroke="#f59e0b"
+            stroke="#EA5DEE"
             strokeWidth={2.5}
             name="Reviews Needed"
-            dot={{ fill: "#f59e0b", r: 4 }}
+            dot={{ fill: "#EA5DEE", r: 4 }}
             activeDot={{ r: 6 }}
           />
         </LineChart>

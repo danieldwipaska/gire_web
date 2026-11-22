@@ -168,7 +168,6 @@ export default async function DashboardPage({ searchParams }: Props) {
 
   const myOpenPRs = userPullRequests.filter((pr) => pr.state === "open");
 
-  // Task breakdown
   const urgentHighTasksCount = delegatedTasks.filter(
     (t) => t.priority === "urgent" || t.priority === "high",
   ).length;
@@ -180,14 +179,12 @@ export default async function DashboardPage({ searchParams }: Props) {
     (t) => t.dueDate && new Date(t.dueDate).getTime() <= dueSoonThreshold,
   ).length;
 
-  // Projects breakdown
   const activeProjects = projects.filter((p) => p.status === "active");
   const officeProjects = activeProjects.filter((p) => p.category === "office");
   const freelanceProjects = activeProjects.filter(
     (p) => p.category === "freelance",
   );
 
-  // Office vs Freelance split stats
   const { repoCategoriesMap, integrationCategoryMap } = buildCategoryMaps(
     projects,
     integrations,
@@ -237,7 +234,6 @@ export default async function DashboardPage({ searchParams }: Props) {
   const officeStats = computeWorkspaceStats("office");
   const freelanceStats = computeWorkspaceStats("freelance");
 
-  // Precompute open PR/Issue count per active project for the snapshot list
   const projectSnapshotList: (IProject & {
     openPRs: number;
     openIssues: number;
@@ -253,12 +249,12 @@ export default async function DashboardPage({ searchParams }: Props) {
   return (
     <div className="min-h-screen container space-y-6">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
+      <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center animate-fade-up">
         <div className="flex flex-col gap-1">
-          <h2 className="text-2xl font-bold text-slate-100">
+          <h2 className="text-2xl font-bold text-[#1C1C1F] tracking-tight">
             Welcome back, {session.name || "Engineer"}
           </h2>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-[#6E6E77]">
             Daily command center across your office &amp; freelance projects, GitHub queue, and notes
           </p>
         </div>
@@ -268,9 +264,9 @@ export default async function DashboardPage({ searchParams }: Props) {
           <SyncButton />
           <Link
             href="/notes"
-            className="px-3.5 py-1.5 bg-[#131924] hover:bg-slate-800 border border-slate-800 hover:border-slate-700 rounded-lg text-xs font-semibold text-slate-200 transition-all inline-flex items-center gap-1.5"
+            className="px-4 py-2 bg-[#FFFFFF] hover:bg-[#EEEEEE] border border-[#E2E2E2] rounded-full text-xs font-semibold text-[#1C1C1F] transition-all inline-flex items-center gap-1.5 shadow-[0_2px_8px_rgba(28,28,31,0.03)]"
           >
-            <Plus className="w-3.5 h-3.5 text-indigo-400" />
+            <Plus className="w-3.5 h-3.5 text-[#5432EE]" />
             New Note
           </Link>
         </div>
@@ -283,8 +279,8 @@ export default async function DashboardPage({ searchParams }: Props) {
           desc={`${reviews.length} PR reviews · ${urgentHighTasksCount} urgent/high tasks`}
           value={reviews.length + urgentHighTasksCount}
           icon={
-            <div className="w-10 h-10 bg-amber-500/10 border border-amber-500/20 rounded-lg flex items-center justify-center">
-              <AlertTriangle className="w-5 h-5 text-amber-400" />
+            <div className="w-10 h-10 bg-[#EA5DEE]/15 border border-[#EA5DEE]/25 rounded-2xl flex items-center justify-center">
+              <AlertTriangle className="w-5 h-5 text-[#A21CAF]" />
             </div>
           }
         />
@@ -293,8 +289,8 @@ export default async function DashboardPage({ searchParams }: Props) {
           desc={`${inProgressTasksCount} in progress · ${dueSoonCount} due within 48h`}
           value={delegatedTasks.length}
           icon={
-            <div className="w-10 h-10 bg-indigo-500/10 border border-indigo-500/20 rounded-lg flex items-center justify-center">
-              <ListTodo className="w-5 h-5 text-indigo-400" />
+            <div className="w-10 h-10 bg-[#5432EE]/12 border border-[#5432EE]/20 rounded-2xl flex items-center justify-center">
+              <ListTodo className="w-5 h-5 text-[#5432EE]" />
             </div>
           }
         />
@@ -303,8 +299,8 @@ export default async function DashboardPage({ searchParams }: Props) {
           desc={`${officeProjects.length} office · ${freelanceProjects.length} freelance`}
           value={activeProjects.length}
           icon={
-            <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center justify-center">
-              <FolderKanban className="w-5 h-5 text-emerald-400" />
+            <div className="w-10 h-10 bg-[#69D7D8]/25 border border-[#69D7D8]/40 rounded-2xl flex items-center justify-center">
+              <FolderKanban className="w-5 h-5 text-[#0F766E]" />
             </div>
           }
         />
@@ -313,40 +309,40 @@ export default async function DashboardPage({ searchParams }: Props) {
           desc={`${todayStats.total} PRs today · ${issues.length} open issues · ${myPRsThisMonthCount} this month`}
           value={myOpenPRs.length + issues.length}
           icon={
-            <div className="w-10 h-10 bg-sky-500/10 border border-sky-500/20 rounded-lg flex items-center justify-center">
-              <GitPullRequest className="w-5 h-5 text-sky-400" />
+            <div className="w-10 h-10 bg-[#418CFF]/15 border border-[#418CFF]/25 rounded-2xl flex items-center justify-center">
+              <GitPullRequest className="w-5 h-5 text-[#2563EB]" />
             </div>
           }
         />
       </div>
 
       {/* Row 2: Office vs Freelance Split */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div className="bg-[#131924] border border-slate-800/80 rounded-xl p-5 space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 animate-fade-up-delay-1">
+        <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-5 space-y-4 shadow-[0_2px_12px_rgba(28,28,31,0.03)] hover:shadow-[0_12px_28px_rgba(28,28,31,0.06)] transition-all">
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-lg bg-indigo-950/60 border border-indigo-500/30 flex items-center justify-center">
-                <Briefcase className="w-4 h-4 text-indigo-400" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-[#5432EE]/10 border border-[#5432EE]/20 flex items-center justify-center">
+                <Briefcase className="w-4 h-4 text-[#5432EE]" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-100">
+                <h3 className="text-base font-bold text-[#1C1C1F]">
                   Office Workspace
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-[#6E6E77]">
                   {officeStats.projectCount} active projects
                 </p>
               </div>
             </div>
             <Link
               href="/github/issues-prs?context=office"
-              className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 inline-flex items-center gap-1"
+              className="text-xs font-semibold text-[#5432EE] hover:text-[#418CFF] inline-flex items-center gap-1 transition-colors"
             >
               Open Office GitHub
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-4 gap-2 text-center">
+          <div className="grid grid-cols-4 gap-2.5 text-center">
             {[
               { label: "Open PRs", val: officeStats.openPRsCount },
               { label: "To Review", val: officeStats.reviewsCount },
@@ -355,40 +351,40 @@ export default async function DashboardPage({ searchParams }: Props) {
             ].map((s) => (
               <div
                 key={s.label}
-                className="bg-[#0b0f19] border border-slate-800/80 rounded-lg py-2.5 px-2"
+                className="bg-[#F4F4F6] border border-[#EEEEEE] rounded-2xl py-2.5 px-2"
               >
-                <p className="text-lg font-bold text-slate-100">{s.val}</p>
-                <p className="text-[11px] text-slate-400">{s.label}</p>
+                <p className="text-lg font-bold text-[#1C1C1F] tabular-nums">{s.val}</p>
+                <p className="text-[11px] text-[#6E6E77] font-medium">{s.label}</p>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="bg-[#131924] border border-slate-800/80 rounded-xl p-5 space-y-4">
+        <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-5 space-y-4 shadow-[0_2px_12px_rgba(28,28,31,0.03)] hover:shadow-[0_12px_28px_rgba(28,28,31,0.06)] transition-all">
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-lg bg-emerald-950/60 border border-emerald-500/30 flex items-center justify-center">
-                <Laptop className="w-4 h-4 text-emerald-400" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-[#69D7D8]/25 border border-[#69D7D8]/40 flex items-center justify-center">
+                <Laptop className="w-4 h-4 text-[#0F766E]" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-100">
+                <h3 className="text-base font-bold text-[#1C1C1F]">
                   Freelance Workspace
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-[#6E6E77]">
                   {freelanceStats.projectCount} active client projects
                 </p>
               </div>
             </div>
             <Link
               href="/github/issues-prs?context=freelance"
-              className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1"
+              className="text-xs font-semibold text-[#0F766E] hover:text-[#418CFF] inline-flex items-center gap-1 transition-colors"
             >
               Open Freelance GitHub
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-4 gap-2 text-center">
+          <div className="grid grid-cols-4 gap-2.5 text-center">
             {[
               { label: "Open PRs", val: freelanceStats.openPRsCount },
               { label: "To Review", val: freelanceStats.reviewsCount },
@@ -397,10 +393,10 @@ export default async function DashboardPage({ searchParams }: Props) {
             ].map((s) => (
               <div
                 key={s.label}
-                className="bg-[#0b0f19] border border-slate-800/80 rounded-lg py-2.5 px-2"
+                className="bg-[#F4F4F6] border border-[#EEEEEE] rounded-2xl py-2.5 px-2"
               >
-                <p className="text-lg font-bold text-slate-100">{s.val}</p>
-                <p className="text-[11px] text-slate-400">{s.label}</p>
+                <p className="text-lg font-bold text-[#1C1C1F] tabular-nums">{s.val}</p>
+                <p className="text-[11px] text-[#6E6E77] font-medium">{s.label}</p>
               </div>
             ))}
           </div>
@@ -408,7 +404,7 @@ export default async function DashboardPage({ searchParams }: Props) {
       </div>
 
       {/* Row 3: Priority Action Queues */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-up-delay-2">
         <PriorityGitHubQueue
           reviews={reviews}
           issues={issues}
@@ -418,18 +414,18 @@ export default async function DashboardPage({ searchParams }: Props) {
       </div>
 
       {/* Row 4: Projects, Notes, & Recent GitHub Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-up-delay-3">
         {/* Active Projects Snapshot */}
-        <div className="bg-[#131924] border border-slate-800/80 rounded-xl p-5 flex flex-col justify-between">
+        <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-5 flex flex-col justify-between shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
           <div>
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800/60">
-              <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
-                <FolderKanban className="w-4 h-4 text-emerald-400" />
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#EEEEEE]">
+              <h3 className="text-base font-bold text-[#1C1C1F] flex items-center gap-2">
+                <FolderKanban className="w-4 h-4 text-[#0F766E]" />
                 Active Projects
               </h3>
               <Link
                 href="/projects"
-                className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 inline-flex items-center gap-1"
+                className="text-xs font-semibold text-[#5432EE] hover:text-[#418CFF] inline-flex items-center gap-1"
               >
                 All projects
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -437,7 +433,7 @@ export default async function DashboardPage({ searchParams }: Props) {
             </div>
 
             {projectSnapshotList.length === 0 ? (
-              <p className="text-xs text-slate-500 py-4">
+              <p className="text-xs text-[#6E6E77] py-4">
                 No active projects yet. Create one to group repos &amp; Figma designs.
               </p>
             ) : (
@@ -446,22 +442,22 @@ export default async function DashboardPage({ searchParams }: Props) {
                   <Link
                     key={proj._id}
                     href={`/projects/${proj._id}`}
-                    className="block bg-[#0b0f19] border border-slate-800/80 hover:border-indigo-500/40 rounded-xl p-3 transition-colors"
+                    className="block bg-[#F9F9F9] border border-[#E2E2E2] hover:border-[#5432EE]/40 hover:bg-[#FFFFFF] rounded-2xl p-3.5 transition-all hover:-translate-y-0.5"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-semibold text-slate-100 truncate">
+                      <span className="text-xs font-bold text-[#1C1C1F] truncate">
                         {proj.name}
                       </span>
-                      <span className="text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 shrink-0">
+                      <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-[#EEEEEE] text-[#1C1C1F] shrink-0">
                         {proj.category}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between gap-2 text-[11px] text-slate-400 mt-1.5">
+                    <div className="flex items-center justify-between gap-2 text-[11px] text-[#6E6E77] mt-1.5">
                       <span>
                         {proj.openPRs} open PRs · {proj.openIssues} issues
                       </span>
                       {proj.figmaLinks && proj.figmaLinks.length > 0 && (
-                        <span className="flex items-center gap-1 text-pink-300">
+                        <span className="flex items-center gap-1 text-[#A21CAF] font-semibold">
                           <Figma className="w-3 h-3" />
                           {proj.figmaLinks.length}
                         </span>
@@ -475,16 +471,16 @@ export default async function DashboardPage({ searchParams }: Props) {
         </div>
 
         {/* Recent Notes Snapshot */}
-        <div className="bg-[#131924] border border-slate-800/80 rounded-xl p-5 flex flex-col justify-between">
+        <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-5 flex flex-col justify-between shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
           <div>
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800/60">
-              <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-amber-400" />
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#EEEEEE]">
+              <h3 className="text-base font-bold text-[#1C1C1F] flex items-center gap-2">
+                <FileText className="w-4 h-4 text-[#5432EE]" />
                 Recent Notes
               </h3>
               <Link
                 href="/notes"
-                className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 inline-flex items-center gap-1"
+                className="text-xs font-semibold text-[#5432EE] hover:text-[#418CFF] inline-flex items-center gap-1"
               >
                 Open Notes
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -492,7 +488,7 @@ export default async function DashboardPage({ searchParams }: Props) {
             </div>
 
             {recentNotes.length === 0 ? (
-              <p className="text-xs text-slate-500 py-4">
+              <p className="text-xs text-[#6E6E77] py-4">
                 No notes yet. Create specs, snippets, or meeting notes in Notes.
               </p>
             ) : (
@@ -501,17 +497,17 @@ export default async function DashboardPage({ searchParams }: Props) {
                   <Link
                     key={note._id}
                     href={`/notes?noteId=${note._id}`}
-                    className="block bg-[#0b0f19] border border-slate-800/80 hover:border-indigo-500/40 rounded-xl p-3 transition-colors"
+                    className="block bg-[#F9F9F9] border border-[#E2E2E2] hover:border-[#5432EE]/40 hover:bg-[#FFFFFF] rounded-2xl p-3.5 transition-all hover:-translate-y-0.5"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-semibold text-slate-100 truncate">
+                      <span className="text-xs font-bold text-[#1C1C1F] truncate">
                         {note.title}
                       </span>
                       {note.isPinned && (
-                        <Pin className="w-3 h-3 text-amber-400 shrink-0" />
+                        <Pin className="w-3 h-3 text-[#EA5DEE] shrink-0" />
                       )}
                     </div>
-                    <div className="flex items-center justify-between gap-2 text-[11px] text-slate-500 mt-1">
+                    <div className="flex items-center justify-between gap-2 text-[11px] text-[#6E6E77] mt-1">
                       <span className="truncate">
                         {note.projectName || "Standalone"}
                       </span>

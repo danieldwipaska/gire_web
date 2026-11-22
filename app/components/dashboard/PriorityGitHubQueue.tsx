@@ -28,54 +28,54 @@ export default function PriorityGitHubQueue({
   );
 
   return (
-    <div className="bg-[#131924] border border-slate-800/80 rounded-xl p-5 flex flex-col justify-between h-full">
+    <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-5 flex flex-col justify-between h-full shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
       <div>
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-800/60">
-          <h2 className="text-lg font-bold text-slate-100">GitHub Queue</h2>
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-4 pb-3 border-b border-[#EEEEEE]">
+          <h2 className="text-base font-bold text-[#1C1C1F] tracking-tight">GitHub Queue</h2>
           <Link
             href="/github/issues-prs"
-            className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 inline-flex items-center gap-1"
+            className="text-xs font-semibold text-[#5432EE] hover:text-[#418CFF] inline-flex items-center gap-1"
           >
             Open Issue &amp; PRs
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
-        <div className="flex flex-wrap items-center gap-1 bg-[#0b0f19] p-1 border border-slate-800 rounded-xl w-fit mb-4">
+        <div className="flex flex-wrap items-center gap-1 bg-[#EEEEEE] p-1 border border-[#E2E2E2] rounded-full w-fit mb-4">
           <button
             type="button"
             onClick={() => setTab("reviews")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
               tab === "reviews"
-                ? "bg-indigo-600 text-white"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
+                : "text-[#6E6E77] hover:text-[#1C1C1F]"
             }`}
           >
-            <MessageSquareCode className="w-3.5 h-3.5" />
+            <MessageSquareCode className="w-3.5 h-3.5 text-[#EA5DEE]" />
             To Review ({reviews.length})
           </button>
           <button
             type="button"
             onClick={() => setTab("issues")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
               tab === "issues"
-                ? "bg-indigo-600 text-white"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
+                : "text-[#6E6E77] hover:text-[#1C1C1F]"
             }`}
           >
-            <CircleDot className="w-3.5 h-3.5" />
+            <CircleDot className="w-3.5 h-3.5 text-[#418CFF]" />
             Issues Assigned ({issues.length})
           </button>
           <button
             type="button"
             onClick={() => setTab("open_prs")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
               tab === "open_prs"
-                ? "bg-indigo-600 text-white"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
+                : "text-[#6E6E77] hover:text-[#1C1C1F]"
             }`}
           >
-            <GitPullRequest className="w-3.5 h-3.5" />
+            <GitPullRequest className="w-3.5 h-3.5 text-[#5432EE]" />
             My Open PRs ({openPullRequests.length})
           </button>
         </div>
@@ -83,7 +83,7 @@ export default function PriorityGitHubQueue({
         <div className="space-y-3 max-h-96 overflow-auto pr-1">
           {tab === "reviews" &&
             (reviews.length === 0 ? (
-              <p className="text-slate-400 text-sm py-4">
+              <p className="text-[#6E6E77] text-sm py-4">
                 No PRs awaiting your review.
               </p>
             ) : (
@@ -106,7 +106,7 @@ export default function PriorityGitHubQueue({
 
           {tab === "issues" &&
             (issues.length === 0 ? (
-              <p className="text-slate-400 text-sm py-4">
+              <p className="text-[#6E6E77] text-sm py-4">
                 No open issues assigned to you.
               </p>
             ) : (
@@ -124,7 +124,7 @@ export default function PriorityGitHubQueue({
 
           {tab === "open_prs" &&
             (openPullRequests.length === 0 ? (
-              <p className="text-slate-400 text-sm py-4">
+              <p className="text-[#6E6E77] text-sm py-4">
                 No open pull requests right now.
               </p>
             ) : (
@@ -149,4 +149,3 @@ export default function PriorityGitHubQueue({
     </div>
   );
 }
-

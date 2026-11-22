@@ -19,16 +19,16 @@ export default function CategoryFilterPills({
   onChange: (next: CategoryFilterValue) => void;
 }) {
   return (
-    <div className="flex items-center gap-1 bg-[#0b0f19] p-0.5 border border-slate-800 rounded-lg">
+    <div className="flex items-center gap-1 bg-[#EEEEEE] p-1 border border-[#E2E2E2] rounded-full">
       {OPTIONS.map((opt) => (
         <button
           key={opt.value}
           type="button"
           onClick={() => onChange(opt.value)}
-          className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
+          className={`px-3 py-1 rounded-full text-[11px] font-semibold transition-all duration-200 cursor-pointer ${
             value === opt.value
-              ? "bg-indigo-600 text-white shadow-xs"
-              : "text-slate-400 hover:text-slate-200"
+              ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-[0_1px_4px_rgba(28,28,31,0.08)]"
+              : "text-[#6E6E77] hover:text-[#1C1C1F]"
           }`}
         >
           {opt.label}
@@ -37,4 +37,3 @@ export default function CategoryFilterPills({
     </div>
   );
 }
-

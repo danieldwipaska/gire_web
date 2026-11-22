@@ -28,9 +28,9 @@ export default async function RootLayout({
     : null;
 
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body
-        className={`${plusJakartaSans.variable} font-sans antialiased bg-[#0b0f19] text-slate-100 min-h-screen selection:bg-indigo-500/30 selection:text-indigo-200`}
+        className={`${plusJakartaSans.variable} font-sans antialiased bg-[#F9F9F9] text-[#1C1C1F] min-h-screen selection:bg-[#5432EE]/15 selection:text-[#5432EE]`}
       >
         <DetailDrawerProvider>
           <AppShell

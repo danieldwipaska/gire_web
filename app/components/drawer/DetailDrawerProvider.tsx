@@ -56,22 +56,22 @@ export const useDetailDrawer = () => {
 const renderDiffLines = (patch?: string) => {
   if (!patch) {
     return (
-      <p className="text-xs text-slate-500 italic p-3">
+      <p className="text-xs text-[#6E6E77] italic p-3">
         Diff preview not available for this file (binary or too large).
       </p>
     );
   }
 
   return (
-    <pre className="text-xs font-mono overflow-x-auto p-3 leading-5 bg-[#090d16]">
+    <pre className="text-xs font-mono overflow-x-auto p-3 leading-5 bg-[#1C1C1F] rounded-b-xl">
       {patch.split("\n").map((line, idx) => {
-        let lineClass = "text-slate-300";
+        let lineClass = "text-slate-200";
         if (line.startsWith("+") && !line.startsWith("+++")) {
-          lineClass = "bg-emerald-950/50 text-emerald-300";
+          lineClass = "bg-emerald-950/60 text-[#69D7D8]";
         } else if (line.startsWith("-") && !line.startsWith("---")) {
-          lineClass = "bg-rose-950/50 text-rose-300";
+          lineClass = "bg-rose-950/60 text-rose-300";
         } else if (line.startsWith("@@")) {
-          lineClass = "bg-indigo-950/40 text-indigo-300";
+          lineClass = "bg-indigo-950/50 text-[#418CFF]";
         }
         return (
           <div key={idx} className={`px-2 whitespace-pre ${lineClass}`}>
@@ -96,7 +96,6 @@ export function DetailDrawerProvider({
   const [activeTab, setActiveTab] = useState<"overview" | "files">("overview");
   const [expandedFiles, setExpandedFiles] = useState<Record<string, boolean>>({});
 
-  // Action states
   const [commentBody, setCommentBody] = useState("");
   const [reviewMode, setReviewMode] = useState<"COMMENT" | "APPROVE" | "REQUEST_CHANGES">("COMMENT");
   const [mergeMethod, setMergeMethod] = useState<"merge" | "squash" | "rebase">("squash");
@@ -121,7 +120,6 @@ export function DetailDrawerProvider({
         throw new Error(data.error || "Failed to load details");
       }
       setDetail(data);
-      // Auto-expand first 3 changed files
       if (Array.isArray(data.files)) {
         const initialExpanded: Record<string, boolean> = {};
         data.files.slice(0, 3).forEach((f: { filename: string }) => {
@@ -224,20 +222,20 @@ export function DetailDrawerProvider({
     if (!detail) return null;
     if (detail.merged) {
       return (
-        <span className="px-2.5 py-0.5 rounded-md text-xs font-semibold uppercase bg-purple-950/60 text-purple-300 border border-purple-700/50">
+        <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase bg-[#5432EE]/12 text-[#5432EE] border border-[#5432EE]/25">
           Merged
         </span>
       );
     }
     if (detail.state === "open") {
       return (
-        <span className="px-2.5 py-0.5 rounded-md text-xs font-semibold uppercase bg-emerald-950/60 text-emerald-300 border border-emerald-700/50">
+        <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase bg-[#69D7D8]/25 text-[#0F766E] border border-[#69D7D8]/50">
           {detail.draft ? "Draft" : "Open"}
         </span>
       );
     }
     return (
-      <span className="px-2.5 py-0.5 rounded-md text-xs font-semibold uppercase bg-rose-950/60 text-rose-300 border border-rose-700/50">
+      <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase bg-rose-100 text-rose-700 border border-rose-200">
         Closed
       </span>
     );
@@ -252,26 +250,26 @@ export function DetailDrawerProvider({
       {/* Backdrop & Slide-over Drawer */}
       {target && (
         <div
-          className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-xs"
+          className="fixed inset-0 z-50 flex justify-end bg-[#1C1C1F]/35 backdrop-blur-xs"
           onClick={closeDetail}
         >
           <aside
-            className="relative w-full max-w-3xl h-full bg-[#0e1420] border-l border-slate-800 shadow-2xl flex flex-col overflow-hidden"
+            className="relative w-full max-w-3xl h-full bg-[#FFFFFF] border-l border-[#E2E2E2] shadow-2xl flex flex-col overflow-hidden animate-slide-in-right"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Top Bar */}
-            <div className="flex items-center justify-between gap-3 px-6 py-4 border-b border-slate-800 bg-[#131924]">
+            <div className="flex items-center justify-between gap-3 px-6 py-4 border-b border-[#EEEEEE] bg-[#F9F9F9]">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-lg bg-indigo-950/70 border border-indigo-500/30 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-xl bg-[#5432EE]/10 border border-[#5432EE]/20 flex items-center justify-center shrink-0">
                   {target.kind === "pr" ? (
-                    <GitPullRequest className="w-4 h-4 text-indigo-400" />
+                    <GitPullRequest className="w-4 h-4 text-[#5432EE]" />
                   ) : (
-                    <CircleDot className="w-4 h-4 text-sky-400" />
+                    <CircleDot className="w-4 h-4 text-[#2563EB]" />
                   )}
                 </div>
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2 text-xs text-slate-400">
-                    <span className="font-semibold text-slate-300 truncate">
+                  <div className="flex items-center gap-2 text-xs text-[#6E6E77]">
+                    <span className="font-bold text-[#1C1C1F] truncate">
                       {target.repo}
                     </span>
                     <span>•</span>
@@ -286,7 +284,7 @@ export function DetailDrawerProvider({
                     href={detail.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 flex items-center gap-1.5 transition-colors"
+                    className="px-3.5 py-1.5 rounded-full bg-[#FFFFFF] hover:bg-[#EEEEEE] border border-[#E2E2E2] text-xs font-semibold text-[#1C1C1F] flex items-center gap-1.5 transition-colors"
                   >
                     Open on GitHub
                     <ExternalLink className="w-3.5 h-3.5" />
@@ -294,7 +292,7 @@ export function DetailDrawerProvider({
                 )}
                 <button
                   onClick={closeDetail}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                  className="p-1.5 rounded-full text-[#6E6E77] hover:text-[#1C1C1F] hover:bg-[#EEEEEE] transition-colors cursor-pointer"
                   aria-label="Close drawer"
                 >
                   <X className="w-5 h-5" />
@@ -303,16 +301,16 @@ export function DetailDrawerProvider({
             </div>
 
             {/* Body */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-[#FFFFFF]">
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-20 gap-3">
                   <Spinner size={3} />
-                  <p className="text-sm text-slate-400">
+                  <p className="text-sm text-[#6E6E77]">
                     Loading {target.kind === "pr" ? "pull request" : "issue"} from GitHub...
                   </p>
                 </div>
               ) : error ? (
-                <div className="bg-rose-950/30 border border-rose-800/50 rounded-xl p-4 text-sm text-rose-300">
+                <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 text-sm text-rose-700 font-medium">
                   {error}
                 </div>
               ) : detail ? (
@@ -320,15 +318,15 @@ export function DetailDrawerProvider({
                   {/* Title & Meta */}
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-3">
-                      <h3 className="text-xl font-bold text-slate-100 leading-snug">
+                      <h3 className="text-xl font-bold text-[#1C1C1F] leading-snug">
                         {detail.title}
                       </h3>
                       {statusBadge}
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-[#6E6E77]">
                       <span>
-                        by <strong className="text-slate-200">@{detail.author}</strong>
+                        by <strong className="text-[#1C1C1F]">@{detail.author}</strong>
                       </span>
                       <span>•</span>
                       <span suppressHydrationWarning>
@@ -337,19 +335,19 @@ export function DetailDrawerProvider({
                       {detail.kind === "pr" && detail.headBranch && (
                         <>
                           <span>•</span>
-                          <span className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-slate-800/70 border border-slate-700/70 text-slate-300 font-mono">
-                            <GitBranch className="w-3 h-3 text-indigo-400" />
+                          <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#F4F4F6] border border-[#E2E2E2] text-[#1C1C1F] font-mono">
+                            <GitBranch className="w-3 h-3 text-[#5432EE]" />
                             {detail.headBranch} → {detail.baseBranch}
                           </span>
                         </>
                       )}
                       {detail.kind === "pr" && (
                         <span className="flex items-center gap-2 font-semibold">
-                          <span className="text-emerald-400 flex items-center gap-0.5">
+                          <span className="text-[#0F766E] flex items-center gap-0.5">
                             <Plus className="w-3 h-3" />
                             {detail.additions ?? 0}
                           </span>
-                          <span className="text-rose-400 flex items-center gap-0.5">
+                          <span className="text-rose-600 flex items-center gap-0.5">
                             <Minus className="w-3 h-3" />
                             {detail.deletions ?? 0}
                           </span>
@@ -357,14 +355,13 @@ export function DetailDrawerProvider({
                       )}
                     </div>
 
-                    {/* Labels & Checks */}
                     {(detail.labels.length > 0 ||
                       (detail.checks && detail.checks.length > 0)) && (
                       <div className="flex flex-wrap gap-2 pt-1">
                         {detail.labels.map((label) => (
                           <span
                             key={label.name}
-                            className="px-2 py-0.5 rounded-full text-[11px] font-semibold border border-slate-700 bg-slate-800/70 text-slate-200"
+                            className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border border-[#E2E2E2] bg-[#F4F4F6] text-[#1C1C1F]"
                           >
                             {label.name}
                           </span>
@@ -377,12 +374,12 @@ export function DetailDrawerProvider({
                           return (
                             <span
                               key={c.id}
-                              className={`px-2 py-0.5 rounded-md text-[11px] font-semibold border flex items-center gap-1 ${
+                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border flex items-center gap-1 ${
                                 isSuccess
-                                  ? "bg-emerald-950/40 text-emerald-300 border-emerald-800/50"
+                                  ? "bg-[#69D7D8]/25 text-[#0F766E] border-[#69D7D8]/50"
                                   : isFailure
-                                    ? "bg-rose-950/40 text-rose-300 border-rose-800/50"
-                                    : "bg-amber-950/40 text-amber-300 border-amber-800/50"
+                                    ? "bg-rose-100 text-rose-700 border-rose-200"
+                                    : "bg-amber-50 text-amber-700 border-amber-200"
                               }`}
                             >
                               {isSuccess ? (
@@ -402,24 +399,24 @@ export function DetailDrawerProvider({
 
                   {/* Tabs for PRs */}
                   {detail.kind === "pr" && (
-                    <div className="flex items-center gap-1 bg-[#131924] p-1 border border-slate-800 rounded-xl w-fit">
+                    <div className="flex items-center gap-1 bg-[#EEEEEE] p-1 border border-[#E2E2E2] rounded-full w-fit">
                       <button
                         onClick={() => setActiveTab("overview")}
-                        className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                        className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                           activeTab === "overview"
-                            ? "bg-indigo-600 text-white"
-                            : "text-slate-400 hover:text-slate-200"
+                            ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
+                            : "text-[#6E6E77] hover:text-[#1C1C1F]"
                         }`}
                       >
                         <MessageSquare className="w-3.5 h-3.5" />
-                        Overview & Review ({detail.comments.length})
+                        Overview &amp; Review ({detail.comments.length})
                       </button>
                       <button
                         onClick={() => setActiveTab("files")}
-                        className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                        className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                           activeTab === "files"
-                            ? "bg-indigo-600 text-white"
-                            : "text-slate-400 hover:text-slate-200"
+                            ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
+                            : "text-[#6E6E77] hover:text-[#1C1C1F]"
                         }`}
                       >
                         <FileCode2 className="w-3.5 h-3.5" />
@@ -431,16 +428,16 @@ export function DetailDrawerProvider({
                   {activeTab === "overview" ? (
                     <div className="space-y-5">
                       {/* Description */}
-                      <div className="bg-[#131924] border border-slate-800/80 rounded-xl p-4">
-                        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                      <div className="bg-[#F9F9F9] border border-[#E2E2E2] rounded-2xl p-4">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-[#6E6E77] mb-2">
                           Description
                         </p>
                         {detail.body ? (
-                          <div className="text-sm text-slate-200 whitespace-pre-wrap leading-relaxed break-words">
+                          <div className="text-sm text-[#1C1C1F] whitespace-pre-wrap leading-relaxed break-words">
                             {detail.body}
                           </div>
                         ) : (
-                          <p className="text-sm text-slate-500 italic">
+                          <p className="text-sm text-[#8A8A93] italic">
                             No description provided.
                           </p>
                         )}
@@ -448,32 +445,32 @@ export function DetailDrawerProvider({
 
                       {/* Timeline of Comments & Reviews */}
                       <div className="space-y-3">
-                        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-[#6E6E77]">
                           Conversation ({detail.comments.length})
                         </p>
                         {detail.comments.length === 0 ? (
-                          <p className="text-sm text-slate-500">
+                          <p className="text-sm text-[#6E6E77]">
                             No comments or reviews yet.
                           </p>
                         ) : (
                           detail.comments.map((c) => (
                             <div
                               key={`${c.kind}-${c.id}`}
-                              className="bg-[#131924] border border-slate-800/80 rounded-xl p-4 space-y-2"
+                              className="bg-[#F9F9F9] border border-[#E2E2E2] rounded-2xl p-4 space-y-2"
                             >
                               <div className="flex items-center justify-between gap-2 text-xs">
                                 <div className="flex items-center gap-2">
-                                  <span className="font-semibold text-slate-200">
+                                  <span className="font-bold text-[#1C1C1F]">
                                     @{c.user}
                                   </span>
                                   {c.kind === "review" && c.reviewState && (
                                     <span
-                                      className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                                         c.reviewState === "APPROVED"
-                                          ? "bg-emerald-950/60 text-emerald-300 border border-emerald-700/40"
+                                          ? "bg-[#69D7D8]/25 text-[#0F766E] border border-[#69D7D8]/50"
                                           : c.reviewState === "CHANGES_REQUESTED"
-                                            ? "bg-rose-950/60 text-rose-300 border border-rose-700/40"
-                                            : "bg-slate-800 text-slate-300"
+                                            ? "bg-rose-100 text-rose-700 border border-rose-200"
+                                            : "bg-[#EEEEEE] text-[#1C1C1F]"
                                       }`}
                                     >
                                       {c.reviewState.replace(/_/g, " ")}
@@ -481,14 +478,14 @@ export function DetailDrawerProvider({
                                   )}
                                 </div>
                                 <span
-                                  className="text-slate-500"
+                                  className="text-[#8A8A93]"
                                   suppressHydrationWarning
                                 >
                                   {getTimeAgo(c.createdAt)}
                                 </span>
                               </div>
                               {c.body && (
-                                <div className="text-sm text-slate-300 whitespace-pre-wrap break-words">
+                                <div className="text-sm text-[#1C1C1F] whitespace-pre-wrap break-words">
                                   {c.body}
                                 </div>
                               )}
@@ -498,17 +495,17 @@ export function DetailDrawerProvider({
                       </div>
 
                       {/* Action Box */}
-                      <div className="bg-[#131924] border border-slate-800 rounded-xl p-4 space-y-4">
-                        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                      <div className="bg-[#F9F9F9] border border-[#E2E2E2] rounded-2xl p-4 space-y-4">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-[#6E6E77]">
                           Actions
                         </p>
 
                         {actionFeedback && (
                           <div
-                            className={`text-xs rounded-lg p-3 border ${
+                            className={`text-xs rounded-2xl p-3 border font-medium ${
                               actionFeedback.type === "success"
-                                ? "bg-emerald-950/40 border-emerald-800/60 text-emerald-300"
-                                : "bg-rose-950/40 border-rose-800/60 text-rose-300"
+                                ? "bg-[#69D7D8]/20 border-[#69D7D8]/40 text-[#0F766E]"
+                                : "bg-rose-50 border-rose-200 text-rose-700"
                             }`}
                           >
                             {actionFeedback.text}
@@ -524,7 +521,7 @@ export function DetailDrawerProvider({
                               ? "Write a comment or review feedback..."
                               : "Write a comment on this issue..."
                           }
-                          className="w-full bg-[#0b0f19] border border-slate-800 rounded-lg p-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                          className="w-full bg-[#FFFFFF] border border-[#E2E2E2] rounded-2xl p-3 text-sm text-[#1C1C1F] placeholder-[#8A8A93] focus:outline-none focus:border-[#5432EE]"
                         />
 
                         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -541,7 +538,7 @@ export function DetailDrawerProvider({
                                         | "REQUEST_CHANGES",
                                     )
                                   }
-                                  className="bg-[#0b0f19] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200"
+                                  className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-full px-3 py-1.5 text-xs font-semibold text-[#1C1C1F]"
                                 >
                                   <option value="COMMENT">Comment</option>
                                   <option value="APPROVE">Approve PR</option>
@@ -557,7 +554,7 @@ export function DetailDrawerProvider({
                                       reviewMode === "COMMENT" ? "comment" : "review",
                                     )
                                   }
-                                  className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                                  className="px-4 py-1.5 bg-[#1C1C1F] hover:bg-[#2C2C32] disabled:opacity-50 text-white rounded-full text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
                                 >
                                   {reviewMode === "APPROVE" ? (
                                     <ShieldCheck className="w-3.5 h-3.5" />
@@ -576,7 +573,7 @@ export function DetailDrawerProvider({
                                 type="button"
                                 disabled={actionLoading || !commentBody.trim()}
                                 onClick={() => performAction("comment")}
-                                className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                                className="px-4 py-1.5 bg-[#1C1C1F] hover:bg-[#2C2C32] disabled:opacity-50 text-white rounded-full text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
                               >
                                 <Send className="w-3.5 h-3.5" />
                                 Post Comment
@@ -597,7 +594,7 @@ export function DetailDrawerProvider({
                                         | "rebase",
                                     )
                                   }
-                                  className="bg-[#0b0f19] border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200"
+                                  className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-full px-3 py-1.5 text-xs font-semibold text-[#1C1C1F]"
                                 >
                                   <option value="squash">Squash</option>
                                   <option value="merge">Merge</option>
@@ -607,7 +604,7 @@ export function DetailDrawerProvider({
                                   type="button"
                                   disabled={actionLoading}
                                   onClick={() => performAction("merge")}
-                                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                                  className="px-3.5 py-1.5 bg-[#5432EE] hover:bg-[#418CFF] disabled:opacity-50 text-white rounded-full text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
                                 >
                                   <GitMerge className="w-3.5 h-3.5" />
                                   Merge
@@ -624,10 +621,10 @@ export function DetailDrawerProvider({
                                     detail.state === "open" ? "close" : "reopen",
                                   )
                                 }
-                                className={`px-3 py-1.5 rounded-lg text-xs font-semibold border cursor-pointer disabled:opacity-50 ${
+                                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border cursor-pointer disabled:opacity-50 ${
                                   detail.state === "open"
-                                    ? "bg-rose-950/50 hover:bg-rose-900/60 text-rose-300 border-rose-800/60"
-                                    : "bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700"
+                                    ? "bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-200"
+                                    : "bg-[#FFFFFF] hover:bg-[#EEEEEE] text-[#1C1C1F] border-[#E2E2E2]"
                                 }`}
                               >
                                 {detail.state === "open" ? "Close" : "Reopen"}
@@ -641,7 +638,7 @@ export function DetailDrawerProvider({
                     /* Files Changed Tab */
                     <div className="space-y-3">
                       {!detail.files || detail.files.length === 0 ? (
-                        <p className="text-sm text-slate-400">
+                        <p className="text-sm text-[#6E6E77]">
                           No changed files found.
                         </p>
                       ) : (
@@ -650,7 +647,7 @@ export function DetailDrawerProvider({
                           return (
                             <div
                               key={file.filename}
-                              className="border border-slate-800 rounded-xl overflow-hidden bg-[#131924]"
+                              className="border border-[#E2E2E2] rounded-2xl overflow-hidden bg-[#F9F9F9]"
                             >
                               <button
                                 type="button"
@@ -660,29 +657,29 @@ export function DetailDrawerProvider({
                                     [file.filename]: !prev[file.filename],
                                   }))
                                 }
-                                className="w-full flex items-center justify-between gap-3 px-4 py-2.5 text-left hover:bg-slate-800/50 transition-colors cursor-pointer"
+                                className="w-full flex items-center justify-between gap-3 px-4 py-2.5 text-left hover:bg-[#EEEEEE] transition-colors cursor-pointer"
                               >
                                 <div className="flex items-center gap-2 min-w-0">
                                   {isExpanded ? (
-                                    <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
+                                    <ChevronDown className="w-4 h-4 text-[#6E6E77] shrink-0" />
                                   ) : (
-                                    <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
+                                    <ChevronRight className="w-4 h-4 text-[#6E6E77] shrink-0" />
                                   )}
-                                  <span className="text-xs font-mono text-slate-200 truncate">
+                                  <span className="text-xs font-mono text-[#1C1C1F] truncate">
                                     {file.filename}
                                   </span>
                                 </div>
                                 <div className="flex items-center gap-2 text-xs font-semibold shrink-0">
-                                  <span className="text-emerald-400">
+                                  <span className="text-[#0F766E]">
                                     +{file.additions}
                                   </span>
-                                  <span className="text-rose-400">
+                                  <span className="text-rose-600">
                                     -{file.deletions}
                                   </span>
                                 </div>
                               </button>
                               {isExpanded && (
-                                <div className="border-t border-slate-800">
+                                <div className="border-t border-[#E2E2E2]">
                                   {renderDiffLines(file.patch)}
                                 </div>
                               )}
@@ -701,4 +698,3 @@ export function DetailDrawerProvider({
     </DetailDrawerContext.Provider>
   );
 }
-

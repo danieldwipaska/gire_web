@@ -5,6 +5,7 @@ import Modal from "../modals/Modal";
 import { useEffect, useRef, useState, useTransition } from "react";
 import Spinner from "../spinners/Spinner";
 import { useRouter } from "next/navigation";
+import { RefreshCw } from "lucide-react";
 
 const SyncButton = () => {
   const [open, setOpen] = useState(false);
@@ -166,6 +167,7 @@ const SyncButton = () => {
   return (
     <>
       <Button onClick={handleSync} disabled={buttonDisabled}>
+        <RefreshCw className={`w-3.5 h-3.5 ${buttonDisabled ? "animate-spin" : ""}`} />
         Sync Github Now
       </Button>
       <Modal
@@ -181,21 +183,21 @@ const SyncButton = () => {
           <div className="flex flex-col gap-4 items-center justify-center w-full min-w-[300px]">
             {errorMessage ? (
               <>
-                <p className="text-sm text-rose-400 text-center">{errorMessage}</p>
+                <p className="text-sm text-rose-600 text-center font-medium">{errorMessage}</p>
                 <Button onClick={handleClose}>Close</Button>
               </>
             ) : isRefreshing ? (
               <>
                 <Spinner size={3} />
-                <p className="text-sm text-slate-400">{statusMessage}</p>
+                <p className="text-sm text-[#6E6E77]">{statusMessage}</p>
               </>
             ) : (
               <>
-                <h2 className="text-xl font-bold">{progress}%</h2>
-                <p className="text-sm text-gray-400">{statusMessage || "Starting..."}</p>
-                <div className="w-full bg-gray-700 rounded-full h-2.5 dark:bg-gray-700">
+                <h2 className="text-2xl font-bold text-[#1C1C1F] tabular-nums">{progress}%</h2>
+                <p className="text-sm text-[#6E6E77]">{statusMessage || "Starting..."}</p>
+                <div className="w-full bg-[#EEEEEE] rounded-full h-2.5 overflow-hidden">
                   <div
-                    className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                    className="bg-[#1C1C1F] h-2.5 rounded-full transition-all duration-300"
                     style={{ width: `${progress}%` }}
                   />
                 </div>

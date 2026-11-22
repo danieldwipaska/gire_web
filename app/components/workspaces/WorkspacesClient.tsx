@@ -39,14 +39,12 @@ export default function WorkspacesClient({
 }) {
   const router = useRouter();
 
-  // Create Workspace Modal
   const [wsModalOpen, setWsModalOpen] = useState(false);
   const [wsName, setWsName] = useState("");
   const [wsDesc, setWsDesc] = useState("");
   const [wsLoading, setWsLoading] = useState(false);
   const [wsError, setWsError] = useState("");
 
-  // Create Member Form
   const [memberName, setMemberName] = useState("");
   const [memberEmail, setMemberEmail] = useState("");
   const [memberPassword, setMemberPassword] = useState("");
@@ -136,12 +134,12 @@ export default function WorkspacesClient({
   return (
     <div className="min-h-screen container space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center animate-fade-up">
         <div className="flex flex-col gap-1">
-          <h2 className="text-2xl font-bold text-slate-100">
+          <h2 className="text-2xl font-bold text-[#1C1C1F] tracking-tight">
             Workspace &amp; Members
           </h2>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-[#6E6E77]">
             Isolated tenant workspace for projects, notes, and task delegations. GitHub data remains private per user.
           </p>
         </div>
@@ -154,13 +152,13 @@ export default function WorkspacesClient({
       </div>
 
       {/* Workspaces Grid */}
-      <div className="bg-[#131924] border border-slate-800/80 rounded-2xl p-5 space-y-4">
+      <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-5 space-y-4 shadow-[0_2px_12px_rgba(28,28,31,0.03)] animate-fade-up-delay-1">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-indigo-400" />
+          <h3 className="text-sm font-bold text-[#1C1C1F] flex items-center gap-2">
+            <Building2 className="w-4 h-4 text-[#5432EE]" />
             {isSuperUser ? `Your Workspaces (${workspaces.length})` : "Your Workspace"}
           </h3>
-          <span className="text-xs text-slate-500 flex items-center gap-1">
+          <span className="text-xs text-[#6E6E77] flex items-center gap-1">
             <Lock className="w-3 h-3" />
             Strictly isolated tenant
           </span>
@@ -174,27 +172,27 @@ export default function WorkspacesClient({
                 key={ws._id}
                 type="button"
                 onClick={() => isSuperUser && handleSwitchWorkspace(ws._id)}
-                className={`text-left p-4 rounded-xl border transition-all ${
+                className={`text-left p-4 rounded-2xl border transition-all ${
                   isSuperUser ? "cursor-pointer" : "cursor-default"
                 } ${
                   isActive
-                    ? "bg-indigo-950/50 border-indigo-500/60"
-                    : "bg-[#0b0f19] border-slate-800 hover:border-slate-700"
+                    ? "bg-iridescent-card border-[#5432EE]/30 shadow-[0_8px_20px_rgba(65,140,255,0.16)]"
+                    : "bg-[#F9F9F9] border-[#E2E2E2] hover:border-[#5432EE]/40 hover:bg-[#FFFFFF]"
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-bold text-slate-100 truncate">
+                  <span className="text-sm font-bold text-[#1C1C1F] truncate">
                     {ws.name}
                   </span>
                   {isActive && (
-                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-600 text-white flex items-center gap-1 shrink-0">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#1C1C1F] text-white flex items-center gap-1 shrink-0">
                       <Check className="w-3 h-3" />
                       Active
                     </span>
                   )}
                 </div>
                 {ws.description && (
-                  <p className="text-xs text-slate-400 mt-1 line-clamp-2">
+                  <p className="text-xs text-[#6E6E77] mt-1 line-clamp-2">
                     {ws.description}
                   </p>
                 )}
@@ -205,14 +203,14 @@ export default function WorkspacesClient({
       </div>
 
       {/* Members Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-up-delay-2">
         <div
           className={`${
             isSuperUser ? "lg:col-span-7" : "lg:col-span-12"
-          } bg-[#131924] border border-slate-800/80 rounded-2xl p-5 space-y-4`}
+          } bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-5 space-y-4 shadow-[0_2px_12px_rgba(28,28,31,0.03)]`}
         >
-          <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
-            <Users className="w-4 h-4 text-emerald-400" />
+          <h3 className="text-sm font-bold text-[#1C1C1F] flex items-center gap-2">
+            <Users className="w-4 h-4 text-[#0F766E]" />
             Members in {activeWorkspace.name} ({members.length})
           </h3>
 
@@ -222,26 +220,31 @@ export default function WorkspacesClient({
               return (
                 <div
                   key={m._id}
-                  className="flex items-center justify-between gap-3 bg-[#0b0f19] border border-slate-800 rounded-xl px-4 py-3"
+                  className="flex items-center justify-between gap-3 bg-[#F9F9F9] border border-[#E2E2E2] rounded-2xl px-4 py-3"
                 >
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-semibold text-slate-100 truncate">
-                        {m.name}
-                      </p>
-                      {m._id === currentUserId && (
-                        <span className="text-[10px] text-slate-400">(You)</span>
-                      )}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-8 h-8 rounded-full bg-[#1C1C1F] text-white text-xs font-bold flex items-center justify-center shrink-0">
+                      {m.name?.[0]?.toUpperCase() || "U"}
                     </div>
-                    <p className="text-xs text-slate-400 truncate">{m.email}</p>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-bold text-[#1C1C1F] truncate">
+                          {m.name}
+                        </p>
+                        {m._id === currentUserId && (
+                          <span className="text-[10px] text-[#6E6E77]">(You)</span>
+                        )}
+                      </div>
+                      <p className="text-xs text-[#6E6E77] truncate">{m.email}</p>
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
                     <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase border flex items-center gap-1 ${
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase border flex items-center gap-1 ${
                         isOwner
-                          ? "bg-amber-950/50 text-amber-300 border-amber-700/50"
-                          : "bg-slate-800 text-slate-300 border-slate-700"
+                          ? "bg-[#EA5DEE]/15 text-[#A21CAF] border-[#EA5DEE]/30"
+                          : "bg-[#EEEEEE] text-[#1C1C1F] border-[#E2E2E2]"
                       }`}
                     >
                       {isOwner && <Crown className="w-3 h-3" />}
@@ -251,7 +254,7 @@ export default function WorkspacesClient({
                       <button
                         type="button"
                         onClick={() => handleRemoveMember(m._id, m.email)}
-                        className="p-1.5 text-slate-500 hover:text-rose-400 cursor-pointer"
+                        className="p-1.5 text-[#8A8A93] hover:text-rose-600 cursor-pointer"
                         title="Delete Member Account"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -265,29 +268,29 @@ export default function WorkspacesClient({
         </div>
 
         {isSuperUser && (
-          <div className="lg:col-span-5 bg-[#131924] border border-slate-800/80 rounded-2xl p-5 space-y-4 h-fit">
-            <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
-              <UserPlus className="w-4 h-4 text-indigo-400" />
+          <div className="lg:col-span-5 bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-5 space-y-4 h-fit shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
+            <h3 className="text-sm font-bold text-[#1C1C1F] flex items-center gap-2">
+              <UserPlus className="w-4 h-4 text-[#5432EE]" />
               Create Member in {activeWorkspace.name}
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[#6E6E77]">
               Regular users cannot self-register. Create an account here so they can sign in, view their own GitHub activity, and work on delegated tasks inside this Workspace.
             </p>
 
             {memberError && (
-              <div className="text-xs text-rose-400 bg-rose-950/30 border border-rose-800/50 rounded-lg p-2.5">
+              <div className="text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-2xl p-3 font-medium">
                 {memberError}
               </div>
             )}
             {memberSuccess && (
-              <div className="text-xs text-emerald-300 bg-emerald-950/30 border border-emerald-800/50 rounded-lg p-2.5">
+              <div className="text-xs text-[#0F766E] bg-[#69D7D8]/20 border border-[#69D7D8]/40 rounded-2xl p-3 font-medium">
                 {memberSuccess}
               </div>
             )}
 
             <form onSubmit={handleCreateMember} className="space-y-3">
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-slate-300">
+                <label className="text-xs font-semibold text-[#1C1C1F]">
                   Full Name *
                 </label>
                 <input
@@ -296,12 +299,12 @@ export default function WorkspacesClient({
                   value={memberName}
                   onChange={(e) => setMemberName(e.target.value)}
                   placeholder="e.g. Budi Santoso"
-                  className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-xs text-slate-100"
+                  className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F]"
                 />
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-slate-300">
+                <label className="text-xs font-semibold text-[#1C1C1F]">
                   Email *
                 </label>
                 <input
@@ -310,12 +313,12 @@ export default function WorkspacesClient({
                   value={memberEmail}
                   onChange={(e) => setMemberEmail(e.target.value)}
                   placeholder="budi@company.com"
-                  className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-xs text-slate-100"
+                  className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F]"
                 />
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-slate-300">
+                <label className="text-xs font-semibold text-[#1C1C1F]">
                   Initial Password (min 6 chars) *
                 </label>
                 <input
@@ -325,7 +328,7 @@ export default function WorkspacesClient({
                   value={memberPassword}
                   onChange={(e) => setMemberPassword(e.target.value)}
                   placeholder="••••••"
-                  className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-xs text-slate-100"
+                  className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F]"
                 />
               </div>
 
@@ -347,9 +350,9 @@ export default function WorkspacesClient({
             onSubmit={handleCreateWorkspace}
             className="space-y-4 min-w-[330px]"
           >
-            {wsError && <p className="text-xs text-rose-400">{wsError}</p>}
+            {wsError && <p className="text-xs text-rose-600 font-medium">{wsError}</p>}
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-slate-300">
+              <label className="text-xs font-semibold text-[#1C1C1F]">
                 Workspace Name *
               </label>
               <input
@@ -358,25 +361,25 @@ export default function WorkspacesClient({
                 value={wsName}
                 onChange={(e) => setWsName(e.target.value)}
                 placeholder="e.g. Freelance Client X"
-                className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-sm text-white"
+                className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F]"
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-slate-300">
+              <label className="text-xs font-semibold text-[#1C1C1F]">
                 Description
               </label>
               <textarea
                 rows={2}
                 value={wsDesc}
                 onChange={(e) => setWsDesc(e.target.value)}
-                className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-sm text-white"
+                className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F]"
               />
             </div>
             <div className="flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setWsModalOpen(false)}
-                className="px-3 py-1.5 text-xs text-slate-400 hover:text-white cursor-pointer"
+                className="px-3.5 py-1.5 text-xs font-semibold text-[#6E6E77] hover:text-[#1C1C1F] cursor-pointer"
               >
                 Cancel
               </button>
@@ -390,4 +393,3 @@ export default function WorkspacesClient({
     </div>
   );
 }
-

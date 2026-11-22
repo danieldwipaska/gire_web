@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 interface Props {
   tabs: Tab[];
@@ -14,17 +14,17 @@ const Tabs = (props: Props) => {
   const { tabs } = props;
 
   return (
-    <div className="flex items-center gap-1 bg-[#131924] p-1 border border-slate-800/80 rounded-xl w-fit">
+    <div className="flex items-center gap-1 bg-[#EEEEEE] p-1 border border-[#E2E2E2] rounded-full w-fit">
       {tabs.map((tab, index) => (
         <button
           key={index}
           onClick={() => {
             tab.action();
           }}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer ${
             tab.isActive
-              ? 'bg-indigo-600 text-white shadow-sm'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+              ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-[0_2px_8px_rgba(28,28,31,0.08)]"
+              : "text-[#6E6E77] hover:text-[#1C1C1F]"
           }`}
         >
           {tab.label}

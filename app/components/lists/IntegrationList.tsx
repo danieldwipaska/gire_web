@@ -1,24 +1,24 @@
 "use client";
 
-import { useState } from 'react';
-import IntegrationCard from '../cards/IntegrationCard';
-import ListContainer from './ListContainer';
-import AddIntegrationModal from '../modals/AddIntegrationModal';
-import { IIntegration } from '@/lib/types';
+import { useState } from "react";
+import IntegrationCard from "../cards/IntegrationCard";
+import ListContainer from "./ListContainer";
+import AddIntegrationModal from "../modals/AddIntegrationModal";
+import { IIntegration } from "@/lib/types";
 
 const IntegrationList = ({ integrations, isLoading }: { integrations: IIntegration[]; isLoading: boolean }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div className="text-sm text-[#6E6E77]">Loading...</div>;
 
-  const actions = [{ label: 'Add New', onClick: () => setIsModalOpen(true) }];
+  const actions = [{ label: "Add New", onClick: () => setIsModalOpen(true) }];
 
   return (
     <>
       <ListContainer title="Integrations" links={actions}>
         <div className="space-y-3 max-h-125 overflow-auto pr-2">
           {integrations.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-[#6E6E77] text-sm">
               No integrations yet. Click &ldquo;Add New&rdquo; to connect GitHub.
             </div>
           ) : (

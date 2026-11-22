@@ -49,18 +49,18 @@ export default function ContextFilterDropdown({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="px-3.5 py-1.5 bg-[#131924] hover:bg-slate-800 border border-slate-800/80 hover:border-slate-700 rounded-lg text-xs font-semibold text-slate-200 transition-all flex items-center gap-2 cursor-pointer shadow-sm"
+        className="px-4 py-2 bg-[#FFFFFF] hover:bg-[#EEEEEE] border border-[#E2E2E2] rounded-full text-xs font-semibold text-[#1C1C1F] transition-all flex items-center gap-2 cursor-pointer shadow-[0_2px_8px_rgba(28,28,31,0.03)]"
       >
-        <FolderKanban className="w-3.5 h-3.5 text-indigo-400" />
+        <FolderKanban className="w-3.5 h-3.5 text-[#5432EE]" />
         <span>{currentLabel}</span>
         <ChevronDown
-          className={`w-3.5 h-3.5 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`w-3.5 h-3.5 text-[#6E6E77] transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1.5 w-60 bg-[#131924] border border-slate-800 rounded-xl shadow-xl z-50 overflow-hidden py-1">
-          <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+        <div className="absolute right-0 top-full mt-1.5 w-60 bg-[#FFFFFF] border border-[#E2E2E2] rounded-2xl shadow-[0_16px_40px_rgba(28,28,31,0.12)] z-50 overflow-hidden py-1.5 animate-scale-in">
+          <div className="px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#8A8A93]">
             Workspace Context
           </div>
           {[
@@ -76,23 +76,23 @@ export default function ContextFilterDropdown({
                 onClick={() => applyFilter({ context: value })}
                 className={`w-full text-left px-3.5 py-2 text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer ${
                   isSelected
-                    ? "bg-indigo-950/60 text-indigo-300"
-                    : "text-slate-300 hover:bg-slate-800/60"
+                    ? "bg-[#F4F4F6] text-[#5432EE]"
+                    : "text-[#1C1C1F] hover:bg-[#F9F9F9]"
                 }`}
               >
                 <span className="flex items-center gap-2">
-                  <Icon className="w-3.5 h-3.5 text-slate-400" />
+                  <Icon className="w-3.5 h-3.5 text-[#6E6E77]" />
                   {label}
                 </span>
-                {isSelected && <Check className="w-3.5 h-3.5 text-indigo-400" />}
+                {isSelected && <Check className="w-3.5 h-3.5 text-[#5432EE]" />}
               </button>
             );
           })}
 
           {projects.length > 0 && (
             <>
-              <div className="my-1 border-t border-slate-800/80" />
-              <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              <div className="my-1 border-t border-[#EEEEEE]" />
+              <div className="px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#8A8A93]">
                 By Project
               </div>
               <div className="max-h-48 overflow-y-auto">
@@ -105,12 +105,12 @@ export default function ContextFilterDropdown({
                       onClick={() => applyFilter({ project: p._id })}
                       className={`w-full text-left px-3.5 py-2 text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer ${
                         isSelected
-                          ? "bg-indigo-950/60 text-indigo-300"
-                          : "text-slate-300 hover:bg-slate-800/60"
+                          ? "bg-[#F4F4F6] text-[#5432EE]"
+                          : "text-[#1C1C1F] hover:bg-[#F9F9F9]"
                       }`}
                     >
                       <span className="truncate pr-2">{p.name}</span>
-                      <span className="text-[10px] uppercase text-slate-500 shrink-0">
+                      <span className="text-[10px] uppercase text-[#8A8A93] shrink-0">
                         {p.category}
                       </span>
                     </button>
@@ -124,4 +124,3 @@ export default function ContextFilterDropdown({
     </div>
   );
 }
-

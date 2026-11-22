@@ -14,16 +14,16 @@ export default function RecentActivityCard({
   const { openDetailByUrl } = useDetailDrawer();
 
   return (
-    <div className="bg-[#131924] border border-slate-800/80 rounded-xl p-5 flex flex-col justify-between">
+    <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-5 flex flex-col justify-between shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
       <div>
-        <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800/60">
-          <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
-            <Activity className="w-4 h-4 text-indigo-400" />
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#EEEEEE]">
+          <h3 className="text-base font-bold text-[#1C1C1F] flex items-center gap-2">
+            <Activity className="w-4 h-4 text-[#418CFF]" />
             Recent GitHub Activity
           </h3>
           <Link
             href="/github/activity"
-            className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 inline-flex items-center gap-1"
+            className="text-xs font-semibold text-[#5432EE] hover:text-[#418CFF] inline-flex items-center gap-1"
           >
             View all
             <ArrowRight className="w-3.5 h-3.5" />
@@ -31,7 +31,7 @@ export default function RecentActivityCard({
         </div>
 
         {events.length === 0 ? (
-          <p className="text-xs text-slate-500 py-4">
+          <p className="text-xs text-[#6E6E77] py-4">
             No recorded GitHub activity yet. Click Sync Now to fetch events.
           </p>
         ) : (
@@ -46,19 +46,19 @@ export default function RecentActivityCard({
                     window.open(ev.url, "_blank", "noopener,noreferrer");
                   }
                 }}
-                className="bg-[#0b0f19] border border-slate-800/80 hover:border-indigo-500/40 rounded-xl p-3 transition-colors cursor-pointer"
+                className="bg-[#F9F9F9] border border-[#E2E2E2] hover:border-[#418CFF] hover:bg-[#FFFFFF] rounded-2xl p-3.5 transition-all cursor-pointer hover:-translate-y-0.5"
               >
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-xs font-semibold text-slate-200 truncate">
+                  <p className="text-xs font-bold text-[#1C1C1F] truncate">
                     {ev.title}
                   </p>
-                  <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 shrink-0">
+                  <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-[#EEEEEE] text-[#1C1C1F] shrink-0">
                     {ev.type.replace(/_/g, " ")}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-1">
-                  <span className="flex items-center gap-1 text-slate-400 truncate">
-                    <GitBranch className="w-3 h-3 shrink-0" />
+                <div className="flex items-center gap-2 text-[11px] text-[#6E6E77] mt-1">
+                  <span className="flex items-center gap-1 text-[#1C1C1F] font-medium truncate">
+                    <GitBranch className="w-3 h-3 text-[#6E6E77] shrink-0" />
                     {ev.repoName}
                   </span>
                   <span>•</span>
@@ -74,4 +74,3 @@ export default function RecentActivityCard({
     </div>
   );
 }
-
