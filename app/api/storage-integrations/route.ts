@@ -1,5 +1,8 @@
-import { verifyAuth } from "@/lib/auth";
+import { verifyActiveAuth } from "@/lib/auth-server";
 import connectDB from "@/lib/mongodb";
+import { decryptSecret, encryptSecret } from "@/lib/security/crypto";
+import { validateSafeHttpsUrl } from "@/lib/security/network";
+import { checkRateLimit } from "@/lib/security/rate-limit";
 import {
   buildR2Endpoint,
   parseGcpServiceAccountJson,
@@ -17,7 +20,7 @@ import { NextRequest, NextResponse } from "next/server";
 const VALID_PROVIDERS: StorageProviderType[] = ["cloudflare_r2", "gcp_gcs"];
 
 export async function GET(req: NextRequest) {
-  const session = await verifyAuth(req);
+  const session = await verifyActiveAuth(req);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -46,9 +49,21 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await verifyAuth(req);
+  const session = await verifyActiveAuth(req);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const rate = checkRateLimit({
+    key: `storage-config:${session.id}`,
+    limit: 20,
+    windowMs: 10 * 60 * 1000,
+  });
+  if (!rate.allowed) {
+    return NextResponse.json(
+      { error: "Too many storage configuration attempts. Please wait a few minutes." },
+      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
+    );
   }
 
   await connectDB();
@@ -87,12 +102,22 @@ export async function POST(req: NextRequest) {
       .trim()
       .replace(/^\/+|\/+$/g, "")
       .replace(/\.\./g, "");
-    const publicUrl = (body.publicUrl || "").trim().replace(/\/+$/, "");
-    if (publicUrl && !/^https?:\/\//i.test(publicUrl)) {
-      return NextResponse.json(
-        { error: "Public Base URL must start with http:// or https://" },
-        { status: 400 },
-      );
+    const rawPublicUrl = (body.publicUrl || "").trim().replace(/\/+$/, "");
+    let publicUrl = "";
+    if (rawPublicUrl) {
+      try {
+        publicUrl = validateSafeHttpsUrl(rawPublicUrl, "Public Base URL");
+      } catch (urlErr) {
+        return NextResponse.json(
+          {
+            error:
+              urlErr instanceof Error
+                ? urlErr.message
+                : "Invalid Public Base URL",
+          },
+          { status: 400 },
+        );
+      }
     }
 
     const existing = (await StorageIntegration.findOne({
@@ -104,7 +129,18 @@ export async function POST(req: NextRequest) {
 
     if (provider === "cloudflare_r2") {
       const r2AccountId = (body.r2AccountId || "").trim();
-      const r2Endpoint = buildR2Endpoint(r2AccountId, body.r2Endpoint);
+      let r2Endpoint: string;
+      try {
+        r2Endpoint = buildR2Endpoint(r2AccountId, body.r2Endpoint);
+      } catch (epErr) {
+        return NextResponse.json(
+          {
+            error:
+              epErr instanceof Error ? epErr.message : "Invalid R2 Endpoint",
+          },
+          { status: 400 },
+        );
+      }
       const r2AccessKeyId = (
         body.r2AccessKeyId ||
         existing?.r2AccessKeyId ||
@@ -112,8 +148,7 @@ export async function POST(req: NextRequest) {
       ).trim();
       const r2SecretAccessKey = (
         body.r2SecretAccessKey ||
-        existing?.r2SecretAccessKey ||
-        ""
+        decryptSecret(existing?.r2SecretAccessKey || "")
       ).trim();
 
       if (!r2AccessKeyId || !r2SecretAccessKey) {
@@ -162,7 +197,7 @@ export async function POST(req: NextRequest) {
           r2AccountId,
           r2Endpoint,
           r2AccessKeyId,
-          r2SecretAccessKey,
+          r2SecretAccessKey: encryptSecret(r2SecretAccessKey),
           status: "active",
           lastError: "",
           lastTestedAt: new Date(),
@@ -178,7 +213,7 @@ export async function POST(req: NextRequest) {
     // GCP Cloud Storage
     let gcpProjectId = existing?.gcpProjectId || "";
     let gcpClientEmail = existing?.gcpClientEmail || "";
-    let gcpPrivateKey = existing?.gcpPrivateKey || "";
+    let gcpPrivateKey = decryptSecret(existing?.gcpPrivateKey || "");
 
     if (body.gcpServiceAccountJson?.trim()) {
       let parsed;
@@ -244,7 +279,7 @@ export async function POST(req: NextRequest) {
         publicUrl,
         gcpProjectId,
         gcpClientEmail,
-        gcpPrivateKey,
+        gcpPrivateKey: encryptSecret(gcpPrivateKey),
         status: "active",
         lastError: "",
         lastTestedAt: new Date(),
@@ -265,7 +300,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const session = await verifyAuth(req);
+  const session = await verifyActiveAuth(req);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -330,7 +365,7 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const session = await verifyAuth(req);
+  const session = await verifyActiveAuth(req);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

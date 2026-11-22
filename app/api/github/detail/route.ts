@@ -1,4 +1,4 @@
-import { verifyAuth } from "@/lib/auth";
+import { verifyActiveAuth } from "@/lib/auth-server";
 import { runWithRepoOctokit } from "@/lib/github/client";
 import connectDB from "@/lib/mongodb";
 import { IGitHubCheckRun, IGitHubComment, IGitHubDetail } from "@/lib/types";
@@ -7,9 +7,11 @@ import PullRequest from "@/models/PullRequest";
 import { NextRequest, NextResponse } from "next/server";
 import { Octokit } from "octokit";
 
+const GITHUB_REPO_REGEX = /^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/;
+
 export async function GET(req: NextRequest) {
   try {
-    const session = await verifyAuth(req);
+    const session = await verifyActiveAuth(req);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -23,7 +25,8 @@ export async function GET(req: NextRequest) {
     if (
       (kind !== "pr" && kind !== "issue") ||
       !repo ||
-      !repo.includes("/") ||
+      !GITHUB_REPO_REGEX.test(repo) ||
+      repo.includes("..") ||
       !Number.isInteger(itemNumber) ||
       itemNumber <= 0
     ) {
@@ -252,8 +255,16 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(detail);
   } catch (error) {
     console.error("Error fetching GitHub detail:", error);
-    const message =
-      error instanceof Error ? error.message : "Failed to fetch GitHub detail";
-    return NextResponse.json({ error: message }, { status: 500 });
+    const status = (error as { status?: number })?.status;
+    if (status === 401 || status === 403 || status === 404) {
+      return NextResponse.json(
+        { error: "Unable to access this GitHub resource" },
+        { status },
+      );
+    }
+    return NextResponse.json(
+      { error: "Failed to fetch GitHub detail" },
+      { status: 500 },
+    );
   }
 }

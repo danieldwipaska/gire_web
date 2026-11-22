@@ -1,5 +1,6 @@
 import { verifyAuth, WORKSPACE_COOKIE_NAME } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
+import { sanitizeNoteHtml } from "@/lib/security/sanitize";
 import { getWorkspaceContext } from "@/lib/workspace";
 import Note from "@/models/Note";
 import Project from "@/models/Project";
@@ -76,9 +77,16 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const title =
       typeof body?.title === "string" && body.title.trim()
-        ? body.title.trim()
+        ? body.title.trim().slice(0, 200)
         : "Untitled Note";
-    const content = typeof body?.content === "string" ? body.content : "";
+    const rawContent = typeof body?.content === "string" ? body.content : "";
+    if (rawContent.length > 500_000) {
+      return NextResponse.json(
+        { error: "Note content exceeds maximum length" },
+        { status: 400 },
+      );
+    }
+    const content = sanitizeNoteHtml(rawContent);
     const tags: string[] = Array.isArray(body?.tags)
       ? Array.from(
           new Set(

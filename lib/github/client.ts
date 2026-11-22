@@ -1,4 +1,5 @@
 import connectDB from "@/lib/mongodb";
+import { decryptSecret } from "@/lib/security/crypto";
 import ActivityEvent from "@/models/ActivityEvent";
 import Integration from "@/models/Integration";
 import Issue from "@/models/Issue";
@@ -30,7 +31,7 @@ export async function getCandidateIntegrationsForRepo(
     return integrations.map((i) => ({
       _id: i._id.toString(),
       githubUsername: i.githubUsername,
-      accessToken: i.accessToken,
+      accessToken: decryptSecret(i.accessToken),
     }));
   }
 
@@ -61,7 +62,7 @@ export async function getCandidateIntegrationsForRepo(
   return sorted.map((i) => ({
     _id: i._id.toString(),
     githubUsername: i.githubUsername,
-    accessToken: i.accessToken,
+    accessToken: decryptSecret(i.accessToken),
   }));
 }
 

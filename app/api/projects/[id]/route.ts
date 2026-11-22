@@ -183,7 +183,10 @@ export async function PATCH(
       project.members.push({ userId: targetUser._id, role: "member" });
     }
 
-    if (typeof body.removeMemberId === "string" && body.removeMemberId) {
+    if (
+      typeof body.removeMemberId === "string" &&
+      mongoose.Types.ObjectId.isValid(body.removeMemberId)
+    ) {
       if (!ctx.isSuperUser) {
         return NextResponse.json(
           { error: "Only Super Users can manage project members" },

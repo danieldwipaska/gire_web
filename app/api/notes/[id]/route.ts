@@ -1,5 +1,6 @@
 import { verifyAuth, WORKSPACE_COOKIE_NAME } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
+import { sanitizeNoteHtml } from "@/lib/security/sanitize";
 import { getWorkspaceContext, isUserInWorkspace } from "@/lib/workspace";
 import Note from "@/models/Note";
 import Project from "@/models/Project";
@@ -112,13 +113,27 @@ export async function PATCH(
       return NextResponse.json({ error: "Note not found" }, { status: 404 });
     }
 
-    const body = await req.json();
+    let body: Record<string, unknown>;
+    try {
+      body = (await req.json()) as Record<string, unknown>;
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid JSON body" },
+        { status: 400 },
+      );
+    }
 
     if (typeof body.title === "string") {
-      note.title = body.title.trim() || "Untitled Note";
+      note.title = body.title.trim().slice(0, 200) || "Untitled Note";
     }
     if (typeof body.content === "string") {
-      note.content = body.content;
+      if (body.content.length > 500_000) {
+        return NextResponse.json(
+          { error: "Note content exceeds maximum length" },
+          { status: 400 },
+        );
+      }
+      note.content = sanitizeNoteHtml(body.content);
     }
     if (typeof body.isPinned === "boolean") {
       note.isPinned = body.isPinned;
