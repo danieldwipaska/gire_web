@@ -34,12 +34,14 @@ Rules enforced in `lib/workspace.ts` and API routes:
 - All queries and mutations on Projects, Notes, Tasks, and Member search (`/api/users/search`) verify `workspaceId === activeWorkspace._id`.
 - Only `super_user` accounts can create Workspaces, create/delete Members, or create/delegate/delete Tasks (`POST /api/tasks`, `DELETE /api/tasks/[id]`).
 
-### B. User-Oriented (GitHub Isolation)
+### B. User-Oriented (GitHub, Storage, & E2EE Notes Isolation)
 Entities scoped strictly by `userId` (never shared across Workspace members):
-- `Integration` (`models/Integration.ts`) — compound unique index `{ userId, provider, githubUsername }`
+- `Integration` (`models/Integration.ts`) — compound unique index `{ userId, provider, githubUsername }` (`accessToken` encrypted at rest with AES-256-GCM)
+- `StorageIntegration` (`models/StorageIntegration.ts`) — per-user Cloudflare R2 (`cloudflare_r2`) & GCP Cloud Storage (`gcp_gcs`) configs (secrets encrypted at rest)
 - `PullRequest` (`models/PullRequest.ts`) — compound unique index `{ userId, githubId }`
 - `Issue` (`models/Issue.ts`) — compound unique index `{ userId, githubId }`
 - `ActivityEvent` (`models/ActivityEvent.ts`) — compound unique index `{ userId, githubEventId }`
+- **E2EE Notes (`isEncrypted: true`):** Encrypted client-side via `lib/security/e2ee.ts` (`PBKDF2` + `AES-256-GCM`) and enforced as strictly owner-only on all server queries and `PATCH /api/notes/[id]`.
 
 `lib/github/client.ts` (`runWithRepoOctokit`) resolves the matching connected GitHub integration token for a repository (with fallback across the user's connected GitHub accounts for private repos).
 
@@ -68,12 +70,23 @@ app/
     uploads/                      # Image upload (R2 / GCP / local fallback) & serving
     workspaces/                   # Workspace CRUD, switch, members management
 lib/
-  auth.ts                         # JWT sign/verify, role helpers, cookie constants
+  auth.ts                         # Edge-safe JWT sign/verify, role helpers, cookie constants
+  auth-server.ts                  # DB-backed session & tokenVersion verification
   workspace.ts                    # getWorkspaceContext, requirePageWorkspaceContext, membership checks
   dashboard-service.ts            # Dashboard metrics & 7-day chart aggregation
   dates.ts                        # Local date keys & analytics range boundaries
   project-filter.ts               # ContextFilterDropdown repo resolution
   utils.ts                        # Case-insensitive user matching, Figma embed, category filters
+  security/
+    crypto.ts                     # AES-256-GCM encryption at rest for PAT & cloud keys
+    e2ee.ts                       # Browser Web Crypto PBKDF2 + AES-GCM E2EE note helper
+    network.ts                    # SSRF URL/IP/DNS validation for R2 endpoints
+    rate-limit.ts                 # Bounded sliding-window rate limiter
+    sanitize.ts                   # Allowlist HTML sanitizer for Note content
+    upload-validation.ts          # Binary magic-byte image signature verification
+  storage/
+    providers.ts                  # Cloudflare R2 (SigV4) & GCP Storage (RS256 OAuth2) clients
+    upload.ts                     # Active cloud storage router with local disk fallback
   github/
     client.ts                     # Multi-account Octokit candidate resolver
     sync.ts                       # Issues, PRs (from Jan 1), reviews, and Events sync

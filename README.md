@@ -11,17 +11,21 @@
   - Super Users create and manage **Member** accounts inside their own Workspaces; Members are bound to a single Workspace and cannot self-register or create Workspaces.
   - Projects, Notes, and Delegated Tasks are strictly isolated per Workspace.
 - **User-Oriented GitHub Workspace (Private Per User):**
-  - Connect **multiple GitHub accounts** (e.g., Office + Freelance) per user. GitHub data (`Integration`, `PullRequest`, `Issue`, `ActivityEvent`) is always private to the individual user—even inside the same Workspace.
+  - Connect **multiple GitHub accounts** (e.g., Office + Freelance) via the inline **GitHub Integration** panel; tokens are encrypted at rest (**AES-256-GCM**) and GitHub data (`Integration`, `PullRequest`, `Issue`, `ActivityEvent`) is always private to the individual user—even inside the same Workspace.
   - **Dashboard:** Holistic daily command center combining Needs Attention (PR reviews + urgent tasks), Active Tasks, Active Projects, Office vs. Freelance split, GitHub Queue, Recent Notes, and Recent Activity.
   - **GitHub -> Activity:** Full timeline of PRs you created, updated, pushed to, reviewed, commented on, merged, or closed, with one-click **Copy Standup** Markdown export.
-  - **GitHub -> Issue and PRs:** Active PRs (`Today`, `Last Week`, `Last Month`), Issues Assigned, and PRs Needing Review with independent `All | Office | Freelance | Personal` filters.
+  - **GitHub -> Issue and PRs:** Active PRs (`Today`, `Last Week`, `Last Month`), Issues Assigned, and PRs Needing Review with independent `All | Office | Freelance | Personal` filters, plus the compact non-list **GitHub Integration** card.
   - **GitHub -> Analysis:** Code churn per day, merged PR velocity, review vs. merged ratio, and per-repository activity.
   - **PR & Issue Detail Drawer:** Inspect PR diffs, CI check runs, descriptions, and comment threads—and **post comments, approve/request changes, merge, or close/reopen** directly inside GiRe.
 - **Projects & Figma Embeds:**
   - Group repositories under `Office`, `Freelance`, or `Personal` projects, track live open PRs/issues, and preview **Figma designs & interactive prototypes** inline.
-- **Rich Notes & Task Delegation (Notion Replacement):**
-  - WYSIWYG block editor powered by Tiptap + Lowlight: headings, checklists, tables, syntax-highlighted code blocks, and **VPS image uploads / screenshot paste (`Ctrl+V`)**.
-  - **Super Users** can highlight text in a Note and delegate it as a tracked Task (`todo`, `in_progress`, `in_review`, `done`) to any user in the same Workspace.
+- **Rich Notes, Cloud Storage, E2EE Vault & Task Delegation:**
+  - WYSIWYG block editor powered by Tiptap + Lowlight: headings, checklists, tables, syntax-highlighted code blocks, and screenshot paste (`Ctrl+V`).
+  - **Flexible Image Storage (`/notes` → Integrations):** Connect **Cloudflare R2** or **Google Cloud Storage (GCP)** (including private-bucket authenticated proxying), or fall back automatically to **Local Server (`uploads/`)** when neither is active.
+  - **End-to-End Encrypted (E2EE) Secret Notes:** Optional client-side Web Crypto (**PBKDF2 + AES-256-GCM**) vault per Note for passwords and confidential secrets—zero-knowledge to the server and strictly owner-only.
+  - **Super Users** can highlight text in unencrypted Notes and delegate it as a tracked Task (`todo`, `in_progress`, `in_review`, `done`) to any user in the same Workspace.
+- **Hardened Application Security:**
+  - Enforced `JWT_SECRET` + `tokenVersion` revocation on logout/removal, AES-256-GCM secret encryption at rest, SSRF protections for custom R2 endpoints, server-side HTML sanitization against stored XSS, image magic-byte validation, rate limiting, and strict HTTP security headers.
 
 ---
 

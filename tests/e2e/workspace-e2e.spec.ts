@@ -10,6 +10,15 @@ test.describe("GiRe Multi-Tenant Workspace, Notes, & Navigation E2E", () => {
     const superBEmail = `super-b-${runId}@other.test`;
     const password = "Password123!";
 
+    // 0. Verify Homepage & interactive showcase
+    await page.goto("/");
+    await expect(
+      page.getByRole("heading", { name: /Your Unified Engineer Command Center/i }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: /E2EE Notes & Storage/i }).click();
+    await page.getByRole("button", { name: /Click to Unlock Demo/i }).click();
+    await expect(page.getByText(/Decrypted locally in your browser/i)).toBeVisible();
+
     // 1. Register Super User A -> forced to /onboarding/workspace
     await page.goto("/register");
     await page.fill("#name", "Alice Super");
