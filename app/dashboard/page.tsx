@@ -249,7 +249,7 @@ export default async function DashboardPage({ searchParams }: Props) {
   return (
     <div className="min-h-screen container space-y-6">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center animate-fade-up">
+      <div className="relative z-40 flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center animate-fade-up">
         <div className="flex flex-col gap-1">
           <h2 className="text-2xl font-bold text-ink tracking-tight">
             Welcome back, {session.name || "Engineer"}
