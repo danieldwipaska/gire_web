@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { decryptSecret, encryptSecret } from "@/lib/security/crypto";
 import {
+  decryptNoteContent,
+  encryptNoteContent,
+  isE2eeEnvelope,
+} from "@/lib/security/e2ee";
+import {
   isPrivateIpAddress,
   validateR2AccountId,
   validateSafeHttpsUrl,
@@ -115,6 +120,22 @@ describe("security hardening utilities", () => {
     const blocked = checkRateLimit({ key, limit: 2, windowMs: 60_000 });
     expect(blocked.allowed).toBe(false);
     expect(blocked.retryAfterSeconds).toBeGreaterThan(0);
+  });
+
+  it("encrypts and decrypts E2EE note content client-side with PBKDF2 + AES-GCM", async () => {
+    const html = "<p>DB_PASS=super-secret-company-credential</p>";
+    const envelope = await encryptNoteContent(html, "my-vault-passphrase");
+
+    expect(isE2eeEnvelope(envelope)).toBe(true);
+    expect(envelope).not.toContain("super-secret-company-credential");
+
+    const decrypted = await decryptNoteContent(envelope, "my-vault-passphrase");
+    expect(decrypted).toBe(html);
+
+    await expect(
+      decryptNoteContent(envelope, "wrong-passphrase"),
+    ).rejects.toThrow(/Incorrect passphrase/i);
+    expect(isE2eeEnvelope("<p>plaintext</p>")).toBe(false);
   });
 });
 

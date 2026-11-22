@@ -9,14 +9,18 @@ import {
   FileText,
   FolderKanban,
   HardDrive,
+  KeyRound,
   ListTodo,
+  Lock,
   Pin,
   PinOff,
   Plus,
   Save,
   Search,
   Share2,
+  ShieldCheck,
   Trash2,
+  Unlock,
   UserCheck,
 } from "lucide-react";
 import {
@@ -28,6 +32,11 @@ import {
   TaskPriority,
   TaskStatus,
 } from "@/lib/types";
+import {
+  decryptNoteContent,
+  encryptNoteContent,
+  isE2eeEnvelope,
+} from "@/lib/security/e2ee";
 import { getTimeAgo } from "@/lib/utils";
 import Button from "../buttons/Button";
 import Modal from "../modals/Modal";
@@ -165,8 +174,29 @@ export default function NotesClient({
     "all",
   );
 
+  // Client-side End-to-End Encryption (memory-only passphrases & plaintext)
+  const [unlockedPlaintext, setUnlockedPlaintext] = useState<
+    Record<string, string>
+  >({});
+  const activePassphrasesRef = useRef<Record<string, string>>({});
+  const [unlockPassphrase, setUnlockPassphrase] = useState("");
+  const [unlockError, setUnlockError] = useState("");
+  const [unlocking, setUnlocking] = useState(false);
+
+  const [encryptModalOpen, setEncryptModalOpen] = useState(false);
+  const [encryptPassphrase, setEncryptPassphrase] = useState("");
+  const [encryptConfirm, setEncryptConfirm] = useState("");
+  const [encryptError, setEncryptError] = useState("");
+  const [encryptSubmitting, setEncryptSubmitting] = useState(false);
+
+  const isActiveNoteLocked = Boolean(
+    activeNote?.isEncrypted && unlockedPlaintext[activeNote._id] === undefined,
+  );
+
   // Sync draft state when switching notes
   useEffect(() => {
+    setUnlockPassphrase("");
+    setUnlockError("");
     if (!activeNote) {
       setDraftTitle("");
       setDraftContent("");
@@ -175,7 +205,11 @@ export default function NotesClient({
       return;
     }
     setDraftTitle(activeNote.title);
-    setDraftContent(activeNote.content);
+    if (activeNote.isEncrypted) {
+      setDraftContent(unlockedPlaintext[activeNote._id] ?? "");
+    } else {
+      setDraftContent(activeNote.content);
+    }
     setDraftProjectId(activeNote.projectId || "");
     setDraftTagsText((activeNote.tags || []).join(", "));
     setSaveState("idle");
@@ -230,14 +264,36 @@ export default function NotesClient({
       projectId?: string | null;
       tags?: string[];
       isPinned?: boolean;
+      isEncrypted?: boolean;
     },
   ) => {
     setSaveState("saving");
     try {
+      const targetNote = notes.find((n) => n._id === noteId);
+      const nextPayload = { ...payload };
+      const effectiveEncrypted =
+        typeof nextPayload.isEncrypted === "boolean"
+          ? nextPayload.isEncrypted
+          : Boolean(targetNote?.isEncrypted);
+
+      if (typeof nextPayload.content === "string" && effectiveEncrypted) {
+        if (!isE2eeEnvelope(nextPayload.content)) {
+          const pass = activePassphrasesRef.current[noteId];
+          if (!pass) {
+            // Never overwrite encrypted note ciphertext when locked
+            delete nextPayload.content;
+          } else {
+            const plain = nextPayload.content;
+            nextPayload.content = await encryptNoteContent(plain, pass);
+            setUnlockedPlaintext((prev) => ({ ...prev, [noteId]: plain }));
+          }
+        }
+      }
+
       const res = await fetch(`/api/notes/${noteId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(nextPayload),
       });
       if (!res.ok) throw new Error("Failed to save note");
       const updated = await res.json();
@@ -253,6 +309,110 @@ export default function NotesClient({
     } catch {
       setSaveState("idle");
     }
+  };
+
+  const handleUnlockNote = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeNote || !unlockPassphrase) return;
+    setUnlocking(true);
+    setUnlockError("");
+    try {
+      const plaintext = activeNote.content
+        ? await decryptNoteContent(activeNote.content, unlockPassphrase)
+        : "";
+      activePassphrasesRef.current[activeNote._id] = unlockPassphrase;
+      setUnlockedPlaintext((prev) => ({
+        ...prev,
+        [activeNote._id]: plaintext,
+      }));
+      setDraftContent(plaintext);
+      setUnlockPassphrase("");
+    } catch (err) {
+      setUnlockError(
+        err instanceof Error ? err.message : "Incorrect passphrase",
+      );
+    } finally {
+      setUnlocking(false);
+    }
+  };
+
+  const handleLockNote = (noteId: string) => {
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    delete activePassphrasesRef.current[noteId];
+    setUnlockedPlaintext((prev) => {
+      const next = { ...prev };
+      delete next[noteId];
+      return next;
+    });
+    if (activeNoteId === noteId) {
+      setDraftContent("");
+      setUnlockPassphrase("");
+      setUnlockError("");
+    }
+  };
+
+  const handleEnableE2ee = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeNote) return;
+    if (encryptPassphrase.length < 6) {
+      setEncryptError("Passphrase must be at least 6 characters.");
+      return;
+    }
+    if (encryptPassphrase !== encryptConfirm) {
+      setEncryptError("Passphrases do not match.");
+      return;
+    }
+
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    setEncryptSubmitting(true);
+    setEncryptError("");
+    try {
+      const currentPlain = draftContent;
+      const ciphertext = await encryptNoteContent(
+        currentPlain,
+        encryptPassphrase,
+      );
+      activePassphrasesRef.current[activeNote._id] = encryptPassphrase;
+      await saveNote(activeNote._id, {
+        isEncrypted: true,
+        content: ciphertext,
+      });
+      setUnlockedPlaintext((prev) => ({
+        ...prev,
+        [activeNote._id]: currentPlain,
+      }));
+      setEncryptPassphrase("");
+      setEncryptConfirm("");
+      setEncryptModalOpen(false);
+    } catch (err) {
+      setEncryptError(
+        err instanceof Error ? err.message : "Failed to encrypt note",
+      );
+    } finally {
+      setEncryptSubmitting(false);
+    }
+  };
+
+  const handleDisableE2ee = async (noteId: string) => {
+    if (
+      !confirm(
+        "Remove End-to-End Encryption and store this note normally on the server?",
+      )
+    ) {
+      return;
+    }
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    const plain = unlockedPlaintext[noteId] ?? draftContent;
+    await saveNote(noteId, {
+      isEncrypted: false,
+      content: plain,
+    });
+    delete activePassphrasesRef.current[noteId];
+    setUnlockedPlaintext((prev) => {
+      const next = { ...prev };
+      delete next[noteId];
+      return next;
+    });
   };
 
   const scheduleAutoSave = (
@@ -558,9 +718,16 @@ export default function NotesClient({
                         <span className="text-xs font-semibold text-slate-100 truncate">
                           {n.title || "Untitled Note"}
                         </span>
-                        {n.isPinned && (
-                          <Pin className="w-3 h-3 text-amber-400 shrink-0" />
-                        )}
+                        <div className="flex items-center gap-1 shrink-0">
+                          {n.isEncrypted && (
+                            <span title="End-to-End Encrypted">
+                              <Lock className="w-3 h-3 text-emerald-400" />
+                            </span>
+                          )}
+                          {n.isPinned && (
+                            <Pin className="w-3 h-3 text-amber-400" />
+                          )}
+                        </div>
                       </div>
                       <div className="flex items-center justify-between gap-2 text-[11px] text-slate-500">
                         <span className="truncate">
@@ -688,17 +855,66 @@ export default function NotesClient({
                         })()}
                       </button>
 
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShareError("");
-                          setShareOpen(true);
-                        }}
-                        className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold text-slate-200 flex items-center gap-1 cursor-pointer"
-                      >
-                        <Share2 className="w-3.5 h-3.5" />
-                        Share
-                      </button>
+                      {activeNote.userId === currentUserId &&
+                        (activeNote.isEncrypted ? (
+                          isActiveNoteLocked ? (
+                            <span className="px-2.5 py-1.5 bg-emerald-950/50 border border-emerald-700/50 rounded-lg text-[11px] font-semibold text-emerald-300 flex items-center gap-1.5">
+                              <Lock className="w-3 h-3" />
+                              E2EE Locked
+                            </span>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => handleLockNote(activeNote._id)}
+                                className="px-2.5 py-1.5 bg-emerald-950/50 hover:bg-emerald-900/60 border border-emerald-700/50 rounded-lg text-xs font-semibold text-emerald-300 flex items-center gap-1 cursor-pointer"
+                                title="Clear decrypted note from memory and lock it"
+                              >
+                                <Lock className="w-3.5 h-3.5" />
+                                Lock
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  void handleDisableE2ee(activeNote._id)
+                                }
+                                className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold text-slate-300 flex items-center gap-1 cursor-pointer"
+                                title="Remove E2EE and store unencrypted"
+                              >
+                                <Unlock className="w-3.5 h-3.5" />
+                                Decrypt
+                              </button>
+                            </>
+                          )
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEncryptPassphrase("");
+                                setEncryptConfirm("");
+                                setEncryptError("");
+                                setEncryptModalOpen(true);
+                              }}
+                              className="px-2.5 py-1.5 bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-800/50 rounded-lg text-xs font-semibold text-emerald-300 flex items-center gap-1 cursor-pointer"
+                              title="Encrypt this note end-to-end in your browser"
+                            >
+                              <Lock className="w-3.5 h-3.5" />
+                              Encrypt (E2EE)
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShareError("");
+                                setShareOpen(true);
+                              }}
+                              className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold text-slate-200 flex items-center gap-1 cursor-pointer"
+                            >
+                              <Share2 className="w-3.5 h-3.5" />
+                              Share
+                            </button>
+                          </>
+                        ))}
 
                       {activeNote.userId === currentUserId && (
                         <button
@@ -760,26 +976,76 @@ export default function NotesClient({
                     />
                   </div>
 
-                  {/* Rich Editor */}
-                  <RichNoteEditor
-                    noteId={activeNote._id}
-                    initialContent={activeNote.content}
-                    onChange={(html) => {
-                      setDraftContent(html);
-                      scheduleAutoSave(
-                        activeNote._id,
-                        draftTitle,
-                        html,
-                        draftProjectId,
-                        draftTagsText,
-                      );
-                    }}
-                    onDelegateSelection={
-                      isSuperUser
-                        ? (selected) => openDelegateModal(selected, activeNote)
-                        : undefined
-                    }
-                  />
+                  {/* Rich Editor or Locked E2EE Vault */}
+                  {isActiveNoteLocked ? (
+                    <div className="min-h-[360px] bg-[#0b0f19] border border-emerald-800/40 rounded-xl p-8 flex flex-col items-center justify-center text-center space-y-4">
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-950/60 border border-emerald-500/30 flex items-center justify-center">
+                        <ShieldCheck className="w-6 h-6 text-emerald-400" />
+                      </div>
+                      <div className="space-y-1 max-w-md">
+                        <h4 className="text-base font-bold text-slate-100">
+                          End-to-End Encrypted Note
+                        </h4>
+                        <p className="text-xs text-slate-400">
+                          Protected in your browser with PBKDF2 + AES-256-GCM.
+                          Neither the server nor the database can read this
+                          note.
+                        </p>
+                      </div>
+
+                      <form
+                        onSubmit={handleUnlockNote}
+                        className="w-full max-w-sm space-y-3"
+                      >
+                        {unlockError && (
+                          <p className="text-xs text-rose-400">{unlockError}</p>
+                        )}
+                        <div className="relative">
+                          <KeyRound className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                          <input
+                            type="password"
+                            required
+                            value={unlockPassphrase}
+                            onChange={(e) => {
+                              setUnlockPassphrase(e.target.value);
+                              setUnlockError("");
+                            }}
+                            placeholder="Enter encryption passphrase..."
+                            className="w-full pl-9 pr-3 py-2.5 bg-[#131924] border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                          />
+                        </div>
+                        <Button type="submit" disabled={unlocking}>
+                          <Unlock className="w-4 h-4" />
+                          {unlocking ? "Decrypting..." : "Unlock Note"}
+                        </Button>
+                      </form>
+                    </div>
+                  ) : (
+                    <RichNoteEditor
+                      key={`${activeNote._id}-${activeNote.isEncrypted ? "e2ee" : "plain"}`}
+                      noteId={activeNote._id}
+                      initialContent={
+                        activeNote.isEncrypted
+                          ? unlockedPlaintext[activeNote._id] ?? ""
+                          : activeNote.content
+                      }
+                      onChange={(html) => {
+                        setDraftContent(html);
+                        scheduleAutoSave(
+                          activeNote._id,
+                          draftTitle,
+                          html,
+                          draftProjectId,
+                          draftTagsText,
+                        );
+                      }}
+                      onDelegateSelection={
+                        isSuperUser && !activeNote.isEncrypted
+                          ? (selected) => openDelegateModal(selected, activeNote)
+                          : undefined
+                      }
+                    />
+                  )}
                 </div>
 
                 {/* Delegated Tasks Linked to This Note */}
@@ -789,7 +1055,7 @@ export default function NotesClient({
                       <ListTodo className="w-4 h-4 text-indigo-400" />
                       Delegated Tasks from this Note ({noteTasks.length})
                     </h3>
-                    {isSuperUser && (
+                    {isSuperUser && !activeNote.isEncrypted && (
                       <Button
                         onClick={() => openDelegateModal("", activeNote)}
                       >
@@ -799,7 +1065,12 @@ export default function NotesClient({
                     )}
                   </div>
 
-                  {noteTasks.length === 0 ? (
+                  {activeNote.isEncrypted ? (
+                    <p className="text-xs text-emerald-300/80">
+                      End-to-End Encrypted notes are private to your account and
+                      cannot be shared or delegated to other users.
+                    </p>
+                  ) : noteTasks.length === 0 ? (
                     <p className="text-xs text-slate-500">
                       {isSuperUser
                         ? 'Highlight text in the editor above and click "Delegate Selection as Task", or click "Delegate Task" to assign action items to users in this Workspace.'
@@ -1045,6 +1316,70 @@ export default function NotesClient({
           )}
         </div>
       )}
+
+      {/* Enable E2EE Modal */}
+      <Modal
+        open={encryptModalOpen}
+        onClose={() => setEncryptModalOpen(false)}
+        title="Enable End-to-End Encryption"
+        body={
+          <form onSubmit={handleEnableE2ee} className="space-y-4 min-w-[340px] max-w-md">
+            <div className="text-xs text-amber-200/90 bg-amber-950/40 border border-amber-700/40 rounded-lg p-3 space-y-1">
+              <p className="font-semibold">Zero-Knowledge Encryption</p>
+              <p className="text-amber-200/80">
+                Your passphrase stays in your browser and is never sent to the
+                server. If you forget it, this note cannot be recovered.
+                Encrypted notes are private to your account only.
+              </p>
+            </div>
+            {encryptError && (
+              <p className="text-xs text-rose-400">{encryptError}</p>
+            )}
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-slate-300">
+                Encryption Passphrase (min 6 characters)
+              </label>
+              <input
+                type="password"
+                required
+                minLength={6}
+                value={encryptPassphrase}
+                onChange={(e) => setEncryptPassphrase(e.target.value)}
+                placeholder="Enter a strong passphrase"
+                className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-sm text-white"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-slate-300">
+                Confirm Passphrase
+              </label>
+              <input
+                type="password"
+                required
+                minLength={6}
+                value={encryptConfirm}
+                onChange={(e) => setEncryptConfirm(e.target.value)}
+                placeholder="Re-enter passphrase"
+                className="px-3 py-2 bg-[#0b0f19] border border-slate-700 rounded-lg text-sm text-white"
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setEncryptModalOpen(false)}
+                className="px-3 py-1.5 text-xs text-slate-400 hover:text-white cursor-pointer"
+                disabled={encryptSubmitting}
+              >
+                Cancel
+              </button>
+              <Button type="submit" disabled={encryptSubmitting}>
+                <Lock className="w-3.5 h-3.5" />
+                {encryptSubmitting ? "Encrypting..." : "Encrypt Note"}
+              </Button>
+            </div>
+          </form>
+        }
+      />
 
       {/* Share Note Modal */}
       <Modal

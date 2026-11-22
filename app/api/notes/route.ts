@@ -1,5 +1,6 @@
 import { verifyAuth, WORKSPACE_COOKIE_NAME } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
+import { isE2eeEnvelope } from "@/lib/security/e2ee";
 import { sanitizeNoteHtml } from "@/lib/security/sanitize";
 import { getWorkspaceContext } from "@/lib/workspace";
 import Note from "@/models/Note";
@@ -34,9 +35,14 @@ export async function GET(req: NextRequest) {
       workspaceId,
       $or: [
         { userId: session.id },
-        { sharedWith: session.id },
+        { isEncrypted: { $ne: true }, sharedWith: session.id },
         ...(accessibleProjectIds.length > 0
-          ? [{ projectId: { $in: accessibleProjectIds } }]
+          ? [
+              {
+                isEncrypted: { $ne: true },
+                projectId: { $in: accessibleProjectIds },
+              },
+            ]
           : []),
       ],
     };
@@ -86,7 +92,14 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
-    const content = sanitizeNoteHtml(rawContent);
+    const isEncrypted = Boolean(body?.isEncrypted);
+    if (isEncrypted && rawContent && !isE2eeEnvelope(rawContent)) {
+      return NextResponse.json(
+        { error: "Invalid E2EE encrypted note payload" },
+        { status: 400 },
+      );
+    }
+    const content = isEncrypted ? rawContent : sanitizeNoteHtml(rawContent);
     const tags: string[] = Array.isArray(body?.tags)
       ? Array.from(
           new Set(
@@ -120,6 +133,7 @@ export async function POST(req: NextRequest) {
       tags,
       sharedWith: [],
       isPinned: Boolean(body?.isPinned),
+      isEncrypted,
     });
 
     return NextResponse.json(note, { status: 201 });

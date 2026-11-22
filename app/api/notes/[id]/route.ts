@@ -1,5 +1,6 @@
 import { verifyAuth, WORKSPACE_COOKIE_NAME } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
+import { isE2eeEnvelope } from "@/lib/security/e2ee";
 import { sanitizeNoteHtml } from "@/lib/security/sanitize";
 import { getWorkspaceContext, isUserInWorkspace } from "@/lib/workspace";
 import Note from "@/models/Note";
@@ -14,6 +15,7 @@ async function canAccessNoteInWorkspace(
     workspaceId?: mongoose.Types.ObjectId | null;
     sharedWith?: mongoose.Types.ObjectId[];
     projectId?: mongoose.Types.ObjectId | null;
+    isEncrypted?: boolean;
   },
   userId: string,
   activeWorkspaceId: string,
@@ -23,6 +25,10 @@ async function canAccessNoteInWorkspace(
   }
   if (note.workspaceId.toString() !== activeWorkspaceId) {
     return false;
+  }
+  // E2EE notes are strictly private to their owner
+  if (note.isEncrypted) {
+    return note.userId.toString() === userId;
   }
   if (note.userId.toString() === userId) return true;
   if (note.sharedWith?.some((id) => id.toString() === userId)) return true;
@@ -123,6 +129,19 @@ export async function PATCH(
       );
     }
 
+    if (typeof body.isEncrypted === "boolean") {
+      if (note.userId.toString() !== session.id) {
+        return NextResponse.json(
+          { error: "Only the note owner can change E2EE encryption" },
+          { status: 403 },
+        );
+      }
+      note.isEncrypted = body.isEncrypted;
+      if (body.isEncrypted) {
+        note.sharedWith = [];
+      }
+    }
+
     if (typeof body.title === "string") {
       note.title = body.title.trim().slice(0, 200) || "Untitled Note";
     }
@@ -133,7 +152,17 @@ export async function PATCH(
           { status: 400 },
         );
       }
-      note.content = sanitizeNoteHtml(body.content);
+      if (note.isEncrypted) {
+        if (body.content && !isE2eeEnvelope(body.content)) {
+          return NextResponse.json(
+            { error: "Encrypted notes require a valid E2EE ciphertext payload" },
+            { status: 400 },
+          );
+        }
+        note.content = body.content;
+      } else {
+        note.content = sanitizeNoteHtml(body.content);
+      }
     }
     if (typeof body.isPinned === "boolean") {
       note.isPinned = body.isPinned;
@@ -164,6 +193,15 @@ export async function PATCH(
     }
 
     if (typeof body.shareWithEmail === "string" && body.shareWithEmail.trim()) {
+      if (note.isEncrypted) {
+        return NextResponse.json(
+          {
+            error:
+              "Encrypted notes are private to your account and cannot be shared",
+          },
+          { status: 400 },
+        );
+      }
       const targetUser = await User.findOne({
         email: body.shareWithEmail.trim().toLowerCase(),
       }).select("_id");
