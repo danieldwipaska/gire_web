@@ -119,13 +119,13 @@ const calculatePrMergedAndPrReviewsRequested = (
       name: "My Merged PRs",
       value: mergedCount,
       fraction: mergedCount / total,
-      color: "#69D7D8",
+      color: "var(--ui-mint)",
     },
     {
       name: "PR Reviews Needed",
       value: reviewsRequestedCount,
       fraction: reviewsRequestedCount / total,
-      color: "#5432EE",
+      color: "var(--ui-violet)",
     },
   ];
 };
@@ -220,9 +220,9 @@ export default async function GitHubAnalysisPage({ searchParams }: Props) {
   if (githubIntegrations.length === 0) {
     return (
       <div className="min-h-screen container">
-        <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-8 flex flex-col gap-2 shadow-[0_2px_12px_rgba(28,28,31,0.03)] animate-fade-up">
-          <h1 className="text-2xl font-bold text-[#1C1C1F]">Analysis</h1>
-          <p className="text-sm text-[#6E6E77]">No GitHub integration found</p>
+        <div className="bg-card border border-line rounded-3xl p-8 flex flex-col gap-2 shadow-[0_2px_12px_rgba(28,28,31,0.04)] animate-fade-up">
+          <h1 className="text-2xl font-bold text-ink">Analysis</h1>
+          <p className="text-sm text-ink-muted">No GitHub integration found</p>
         </div>
       </div>
     );
@@ -300,8 +300,8 @@ export default async function GitHubAnalysisPage({ searchParams }: Props) {
     <div className="min-h-screen container">
       <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between animate-fade-up">
         <div className="flex flex-col gap-1">
-          <h2 className="text-2xl font-bold text-[#1C1C1F] tracking-tight">GitHub Analysis</h2>
-          <p className="text-sm text-[#6E6E77]">
+          <h2 className="text-2xl font-bold text-ink tracking-tight">GitHub Analysis</h2>
+          <p className="text-sm text-ink-muted">
             Overview of your GitHub pull requests, code churn, and repository metrics
           </p>
         </div>
@@ -318,8 +318,8 @@ export default async function GitHubAnalysisPage({ searchParams }: Props) {
           desc="Total PRs merged in period"
           value={totalPRsMerged}
           icon={
-            <div className="w-10 h-10 bg-[#69D7D8]/25 border border-[#69D7D8]/40 rounded-2xl flex items-center justify-center">
-              <Merge className="w-5 h-5 text-[#0F766E]" />
+            <div className="w-10 h-10 bg-brand-mint/25 border border-brand-mint/40 rounded-2xl flex items-center justify-center">
+              <Merge className="w-5 h-5 text-brand-mint-ink" />
             </div>
           }
         />
@@ -328,14 +328,14 @@ export default async function GitHubAnalysisPage({ searchParams }: Props) {
           desc="Lines added & removed in merged PRs"
           value={totalLinesChanged.added + totalLinesChanged.removed}
           icon={
-            <div className="w-10 h-10 bg-[#5432EE]/12 border border-[#5432EE]/20 rounded-2xl flex items-center justify-center">
-              <Activity className="w-5 h-5 text-[#5432EE]" />
+            <div className="w-10 h-10 bg-brand-violet/12 border border-brand-violet/20 rounded-2xl flex items-center justify-center">
+              <Activity className="w-5 h-5 text-brand-violet" />
             </div>
           }
           footer={
             <div className="flex items-center gap-1.5 text-xs font-semibold">
-              <span className="text-[#0F766E]">+{totalLinesChanged.added}</span>
-              <span className="text-[#C8C8CE]">/</span>
+              <span className="text-brand-mint-ink">+{totalLinesChanged.added}</span>
+              <span className="text-line-dashed">/</span>
               <span className="text-rose-600">-{totalLinesChanged.removed}</span>
             </div>
           }
@@ -345,8 +345,8 @@ export default async function GitHubAnalysisPage({ searchParams }: Props) {
           desc="Open PRs awaiting your review"
           value={reviewRequestedCount}
           icon={
-            <div className="w-10 h-10 bg-[#EA5DEE]/15 border border-[#EA5DEE]/25 rounded-2xl flex items-center justify-center">
-              <MessageSquareCode className="w-5 h-5 text-[#A21CAF]" />
+            <div className="w-10 h-10 bg-brand-orchid/15 border border-brand-orchid/25 rounded-2xl flex items-center justify-center">
+              <MessageSquareCode className="w-5 h-5 text-brand-orchid-ink" />
             </div>
           }
         />
@@ -355,8 +355,8 @@ export default async function GitHubAnalysisPage({ searchParams }: Props) {
           desc="Closed issues assigned to you"
           value={closedIssuesCount}
           icon={
-            <div className="w-10 h-10 bg-[#418CFF]/15 border border-[#418CFF]/25 rounded-2xl flex items-center justify-center">
-              <CircleDot className="w-5 h-5 text-[#2563EB]" />
+            <div className="w-10 h-10 bg-brand-blue/15 border border-brand-blue/25 rounded-2xl flex items-center justify-center">
+              <CircleDot className="w-5 h-5 text-brand-blue-ink" />
             </div>
           }
         />

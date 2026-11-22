@@ -189,15 +189,15 @@ const SyncButton = () => {
             ) : isRefreshing ? (
               <>
                 <Spinner size={3} />
-                <p className="text-sm text-[#6E6E77]">{statusMessage}</p>
+                <p className="text-sm text-ink-muted">{statusMessage}</p>
               </>
             ) : (
               <>
-                <h2 className="text-2xl font-bold text-[#1C1C1F] tabular-nums">{progress}%</h2>
-                <p className="text-sm text-[#6E6E77]">{statusMessage || "Starting..."}</p>
-                <div className="w-full bg-[#EEEEEE] rounded-full h-2.5 overflow-hidden">
+                <h2 className="text-2xl font-bold text-ink tabular-nums">{progress}%</h2>
+                <p className="text-sm text-ink-muted">{statusMessage || "Starting..."}</p>
+                <div className="w-full bg-canvas rounded-full h-2.5 overflow-hidden">
                   <div
-                    className="bg-[#1C1C1F] h-2.5 rounded-full transition-all duration-300"
+                    className="bg-ink h-2.5 rounded-full transition-all duration-300"
                     style={{ width: `${progress}%` }}
                   />
                 </div>

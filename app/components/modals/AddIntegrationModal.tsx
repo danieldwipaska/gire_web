@@ -65,11 +65,11 @@ const AddIntegrationModal = ({ open, onClose }: Props) => {
           {error && <div className="text-rose-600 text-xs font-medium bg-rose-50 border border-rose-200 rounded-2xl p-3">{error}</div>}
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-[#1C1C1F]">Account Label</label>
+            <label className="text-xs font-semibold text-ink">Account Label</label>
             <select
               value={label}
               onChange={(e) => setLabel(e.target.value)}
-              className="px-3.5 py-2.5 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-[#5432EE]/20 focus:border-[#5432EE] text-[#1C1C1F] text-sm"
+              className="px-3.5 py-2.5 bg-highlight border border-line rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-brand-violet/20 focus:border-brand-violet text-ink text-sm"
             >
               <option value="Office">Office</option>
               <option value="Freelance">Freelance</option>
@@ -78,12 +78,12 @@ const AddIntegrationModal = ({ open, onClose }: Props) => {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-[#1C1C1F]">
-              GitHub Username <span className="text-xs text-[#8A8A93] font-normal">(optional, auto-detected from token)</span>
+            <label className="text-xs font-semibold text-ink">
+              GitHub Username <span className="text-xs text-ink-subtle font-normal">(optional, auto-detected from token)</span>
             </label>
             <input
               type="text"
-              className="px-3.5 py-2.5 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-[#5432EE]/20 focus:border-[#5432EE] text-[#1C1C1F] text-sm"
+              className="px-3.5 py-2.5 bg-highlight border border-line rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-brand-violet/20 focus:border-brand-violet text-ink text-sm"
               placeholder="e.g. johndoe"
               value={githubUsername}
               onChange={(e) => setGithubUsername(e.target.value)}
@@ -91,16 +91,16 @@ const AddIntegrationModal = ({ open, onClose }: Props) => {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-[#1C1C1F]">Personal Access Token</label>
+            <label className="text-xs font-semibold text-ink">Personal Access Token</label>
             <input
               type="password"
               required
-              className="px-3.5 py-2.5 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-[#5432EE]/20 focus:border-[#5432EE] text-[#1C1C1F] text-sm"
+              className="px-3.5 py-2.5 bg-highlight border border-line rounded-2xl focus:outline-hidden focus:ring-2 focus:ring-brand-violet/20 focus:border-brand-violet text-ink text-sm"
               placeholder="ghp_..."
               value={accessToken}
               onChange={(e) => setAccessToken(e.target.value)}
             />
-            <p className="text-xs text-[#6E6E77]">
+            <p className="text-xs text-ink-muted">
               Generate a token with `repo` scope in GitHub Developer Settings. You can connect multiple accounts (e.g., Office &amp; Freelance).
             </p>
           </div>
@@ -109,7 +109,7 @@ const AddIntegrationModal = ({ open, onClose }: Props) => {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-[#6E6E77] hover:text-[#1C1C1F] transition-colors cursor-pointer"
+              className="px-4 py-2 text-xs font-semibold text-ink-muted hover:text-ink transition-colors cursor-pointer"
               disabled={loading}
             >
               Cancel

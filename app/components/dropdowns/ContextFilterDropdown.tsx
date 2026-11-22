@@ -49,18 +49,18 @@ export default function ContextFilterDropdown({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="px-4 py-2 bg-[#FFFFFF] hover:bg-[#EEEEEE] border border-[#E2E2E2] rounded-full text-xs font-semibold text-[#1C1C1F] transition-all flex items-center gap-2 cursor-pointer shadow-[0_2px_8px_rgba(28,28,31,0.03)]"
+        className="px-4 py-2 bg-card hover:bg-highlight border border-line rounded-full text-xs font-semibold text-ink transition-all flex items-center gap-2 cursor-pointer shadow-[0_2px_8px_rgba(28,28,31,0.04)]"
       >
-        <FolderKanban className="w-3.5 h-3.5 text-[#5432EE]" />
+        <FolderKanban className="w-3.5 h-3.5 text-brand-violet" />
         <span>{currentLabel}</span>
         <ChevronDown
-          className={`w-3.5 h-3.5 text-[#6E6E77] transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`w-3.5 h-3.5 text-ink-muted transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1.5 w-60 bg-[#FFFFFF] border border-[#E2E2E2] rounded-2xl shadow-[0_16px_40px_rgba(28,28,31,0.12)] z-50 overflow-hidden py-1.5 animate-scale-in">
-          <div className="px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#8A8A93]">
+        <div className="absolute right-0 top-full mt-1.5 w-60 bg-highlight border border-line rounded-2xl shadow-[0_16px_40px_rgba(28,28,31,0.12)] z-50 overflow-hidden py-1.5 animate-scale-in">
+          <div className="px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-ink-subtle">
             Workspace Context
           </div>
           {[
@@ -76,23 +76,23 @@ export default function ContextFilterDropdown({
                 onClick={() => applyFilter({ context: value })}
                 className={`w-full text-left px-3.5 py-2 text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer ${
                   isSelected
-                    ? "bg-[#F4F4F6] text-[#5432EE]"
-                    : "text-[#1C1C1F] hover:bg-[#F9F9F9]"
+                    ? "bg-card text-brand-violet"
+                    : "text-ink hover:bg-card/70"
                 }`}
               >
                 <span className="flex items-center gap-2">
-                  <Icon className="w-3.5 h-3.5 text-[#6E6E77]" />
+                  <Icon className="w-3.5 h-3.5 text-ink-muted" />
                   {label}
                 </span>
-                {isSelected && <Check className="w-3.5 h-3.5 text-[#5432EE]" />}
+                {isSelected && <Check className="w-3.5 h-3.5 text-brand-violet" />}
               </button>
             );
           })}
 
           {projects.length > 0 && (
             <>
-              <div className="my-1 border-t border-[#EEEEEE]" />
-              <div className="px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#8A8A93]">
+              <div className="my-1 border-t border-line" />
+              <div className="px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-ink-subtle">
                 By Project
               </div>
               <div className="max-h-48 overflow-y-auto">
@@ -105,12 +105,12 @@ export default function ContextFilterDropdown({
                       onClick={() => applyFilter({ project: p._id })}
                       className={`w-full text-left px-3.5 py-2 text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer ${
                         isSelected
-                          ? "bg-[#F4F4F6] text-[#5432EE]"
-                          : "text-[#1C1C1F] hover:bg-[#F9F9F9]"
+                          ? "bg-card text-brand-violet"
+                          : "text-ink hover:bg-card/70"
                       }`}
                     >
                       <span className="truncate pr-2">{p.name}</span>
-                      <span className="text-[10px] uppercase text-[#8A8A93] shrink-0">
+                      <span className="text-[10px] uppercase text-ink-subtle shrink-0">
                         {p.category}
                       </span>
                     </button>

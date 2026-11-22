@@ -42,27 +42,27 @@ const TYPE_META: Record<
 > = {
   pr_created: {
     label: "PR Created",
-    badgeClass: "bg-[#5432EE]/12 text-[#5432EE] border-[#5432EE]/25",
+    badgeClass: "bg-brand-violet/12 text-brand-violet border-brand-violet/25",
     icon: GitPullRequest,
   },
   pr_updated: {
     label: "PR Updated",
-    badgeClass: "bg-[#418CFF]/15 text-[#2563EB] border-[#418CFF]/30",
+    badgeClass: "bg-brand-blue/15 text-brand-blue-ink border-brand-blue/30",
     icon: GitPullRequest,
   },
   pr_reviewed: {
     label: "PR Reviewed",
-    badgeClass: "bg-[#EA5DEE]/15 text-[#A21CAF] border-[#EA5DEE]/30",
+    badgeClass: "bg-brand-orchid/15 text-brand-orchid-ink border-brand-orchid/30",
     icon: ShieldCheck,
   },
   pr_commented: {
     label: "PR Commented",
-    badgeClass: "bg-[#EEEEEE] text-[#1C1C1F] border-[#E2E2E2]",
+    badgeClass: "bg-card text-ink border-canvas",
     icon: MessageSquare,
   },
   pr_merged: {
     label: "PR Merged",
-    badgeClass: "bg-[#69D7D8]/25 text-[#0F766E] border-[#69D7D8]/50",
+    badgeClass: "bg-brand-mint/25 text-brand-mint-ink border-brand-mint/50",
     icon: GitMerge,
   },
   pr_closed: {
@@ -72,22 +72,22 @@ const TYPE_META: Record<
   },
   issue_opened: {
     label: "Issue Opened",
-    badgeClass: "bg-[#418CFF]/15 text-[#2563EB] border-[#418CFF]/30",
+    badgeClass: "bg-brand-blue/15 text-brand-blue-ink border-brand-blue/30",
     icon: CircleDot,
   },
   issue_closed: {
     label: "Issue Closed",
-    badgeClass: "bg-[#69D7D8]/25 text-[#0F766E] border-[#69D7D8]/50",
+    badgeClass: "bg-brand-mint/25 text-brand-mint-ink border-brand-mint/50",
     icon: CircleDot,
   },
   issue_commented: {
     label: "Issue Comment",
-    badgeClass: "bg-[#EEEEEE] text-[#1C1C1F] border-[#E2E2E2]",
+    badgeClass: "bg-card text-ink border-canvas",
     icon: MessageSquare,
   },
   pushed: {
     label: "Commit Pushed",
-    badgeClass: "bg-[#69D7D8]/25 text-[#0F766E] border-[#69D7D8]/50",
+    badgeClass: "bg-brand-mint/25 text-brand-mint-ink border-brand-mint/50",
     icon: GitCommit,
   },
 };
@@ -346,8 +346,8 @@ export default function ActivityClient({
       {/* Header */}
       <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between items-start md:items-center animate-fade-up">
         <div className="flex flex-col gap-1">
-          <h2 className="text-2xl font-bold text-[#1C1C1F] tracking-tight">Activity</h2>
-          <p className="text-sm text-[#6E6E77]">
+          <h2 className="text-2xl font-bold text-ink tracking-tight">Activity</h2>
+          <p className="text-sm text-ink-muted">
             Track every PR you created, updated, reviewed, merged, or closed
           </p>
         </div>
@@ -356,16 +356,16 @@ export default function ActivityClient({
           <button
             type="button"
             onClick={handleCopyStandup}
-            className="px-4 py-2 bg-[#FFFFFF] hover:bg-[#EEEEEE] border border-[#E2E2E2] rounded-full text-xs font-semibold text-[#1C1C1F] transition-all flex items-center gap-2 cursor-pointer shadow-[0_2px_8px_rgba(28,28,31,0.03)]"
+            className="px-4 py-2 bg-card hover:bg-highlight border border-line rounded-full text-xs font-semibold text-ink transition-all flex items-center gap-2 cursor-pointer shadow-[0_2px_8px_rgba(28,28,31,0.04)]"
           >
             {copied ? (
               <>
-                <Check className="w-3.5 h-3.5 text-[#0F766E]" />
+                <Check className="w-3.5 h-3.5 text-brand-mint-ink" />
                 Copied Standup
               </>
             ) : (
               <>
-                <Copy className="w-3.5 h-3.5 text-[#5432EE]" />
+                <Copy className="w-3.5 h-3.5 text-brand-violet" />
                 Copy Standup
               </>
             )}
@@ -381,8 +381,8 @@ export default function ActivityClient({
           desc="Opened in selected period"
           value={stats.created}
           icon={
-            <div className="w-9 h-9 bg-[#5432EE]/12 border border-[#5432EE]/20 rounded-2xl flex items-center justify-center">
-              <GitPullRequest className="w-4 h-4 text-[#5432EE]" />
+            <div className="w-9 h-9 bg-brand-violet/12 border border-brand-violet/20 rounded-2xl flex items-center justify-center">
+              <GitPullRequest className="w-4 h-4 text-brand-violet" />
             </div>
           }
         />
@@ -391,8 +391,8 @@ export default function ActivityClient({
           desc="PR edits & commits pushed"
           value={stats.updated}
           icon={
-            <div className="w-9 h-9 bg-[#418CFF]/15 border border-[#418CFF]/25 rounded-2xl flex items-center justify-center">
-              <Activity className="w-4 h-4 text-[#2563EB]" />
+            <div className="w-9 h-9 bg-brand-blue/15 border border-brand-blue/25 rounded-2xl flex items-center justify-center">
+              <Activity className="w-4 h-4 text-brand-blue-ink" />
             </div>
           }
         />
@@ -401,8 +401,8 @@ export default function ActivityClient({
           desc="Feedback & review activity"
           value={stats.reviewed}
           icon={
-            <div className="w-9 h-9 bg-[#EA5DEE]/15 border border-[#EA5DEE]/25 rounded-2xl flex items-center justify-center">
-              <ShieldCheck className="w-4 h-4 text-[#A21CAF]" />
+            <div className="w-9 h-9 bg-brand-orchid/15 border border-brand-orchid/25 rounded-2xl flex items-center justify-center">
+              <ShieldCheck className="w-4 h-4 text-brand-orchid-ink" />
             </div>
           }
         />
@@ -411,18 +411,18 @@ export default function ActivityClient({
           desc="Completed or closed PRs"
           value={stats.mergedOrClosed}
           icon={
-            <div className="w-9 h-9 bg-[#69D7D8]/25 border border-[#69D7D8]/40 rounded-2xl flex items-center justify-center">
-              <GitMerge className="w-4 h-4 text-[#0F766E]" />
+            <div className="w-9 h-9 bg-brand-mint/25 border border-brand-mint/40 rounded-2xl flex items-center justify-center">
+              <GitMerge className="w-4 h-4 text-brand-mint-ink" />
             </div>
           }
         />
       </div>
 
       {/* Controls */}
-      <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-4 mb-6 space-y-4 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
+      <div className="bg-card border border-line rounded-3xl p-4 mb-6 space-y-4 shadow-[0_2px_12px_rgba(28,28,31,0.04)]">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           {/* Time Filter */}
-          <div className="flex flex-wrap items-center gap-1 bg-[#EEEEEE] p-1 border border-[#E2E2E2] rounded-full w-fit">
+          <div className="flex flex-wrap items-center gap-1 bg-canvas p-1 border border-line rounded-full w-fit">
             {(
               [
                 { value: "today", label: "Today" },
@@ -438,8 +438,8 @@ export default function ActivityClient({
                 onClick={() => setTimeFilter(opt.value)}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                   timeFilter === opt.value
-                    ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
-                    : "text-[#6E6E77] hover:text-[#1C1C1F]"
+                    ? "bg-highlight text-ink shadow-xs"
+                    : "text-ink-muted hover:text-ink"
                 }`}
               >
                 {opt.label}
@@ -450,24 +450,24 @@ export default function ActivityClient({
           {/* View Mode + Search */}
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative flex-1 sm:w-64">
-              <Search className="w-3.5 h-3.5 text-[#8A8A93] absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-3.5 h-3.5 text-ink-subtle absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Filter by repo or title..."
-                className="w-full pl-9 pr-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-full text-xs text-[#1C1C1F] placeholder-[#8A8A93] focus:outline-none focus:bg-white focus:border-[#5432EE]"
+                className="w-full pl-9 pr-3.5 py-2 bg-highlight border border-line rounded-full text-xs text-ink placeholder-ink-subtle focus:outline-none focus:bg-white focus:border-brand-violet"
               />
             </div>
 
-            <div className="flex items-center gap-1 bg-[#EEEEEE] p-1 border border-[#E2E2E2] rounded-full">
+            <div className="flex items-center gap-1 bg-canvas p-1 border border-line rounded-full">
               <button
                 type="button"
                 onClick={() => setViewMode("timeline")}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                   viewMode === "timeline"
-                    ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
-                    : "text-[#6E6E77] hover:text-[#1C1C1F]"
+                    ? "bg-highlight text-ink shadow-xs"
+                    : "text-ink-muted hover:text-ink"
                 }`}
               >
                 Timeline ({filteredEvents.length})
@@ -477,8 +477,8 @@ export default function ActivityClient({
                 onClick={() => setViewMode("prs")}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                   viewMode === "prs"
-                    ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
-                    : "text-[#6E6E77] hover:text-[#1C1C1F]"
+                    ? "bg-highlight text-ink shadow-xs"
+                    : "text-ink-muted hover:text-ink"
                 }`}
               >
                 PRs Touched ({touchedPRs.length})
@@ -488,7 +488,7 @@ export default function ActivityClient({
         </div>
 
         {/* Category Filter */}
-        <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-[#EEEEEE]">
+        <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-line">
           {(
             [
               { value: "all", label: "All Actions" },
@@ -506,8 +506,8 @@ export default function ActivityClient({
               onClick={() => setCategoryFilter(cat.value)}
               className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors cursor-pointer ${
                 categoryFilter === cat.value
-                  ? "bg-[#1C1C1F] text-white border-[#1C1C1F]"
-                  : "bg-[#F9F9F9] text-[#6E6E77] border-[#E2E2E2] hover:text-[#1C1C1F]"
+                  ? "bg-ink text-white border-ink"
+                  : "bg-highlight text-ink-muted border-line hover:text-ink"
               }`}
             >
               {cat.label}
@@ -519,11 +519,11 @@ export default function ActivityClient({
       {/* Content */}
       {viewMode === "timeline" ? (
         groupedEvents.length === 0 ? (
-          <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-10 text-center space-y-2 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
-            <p className="text-[#1C1C1F] font-bold">
+          <div className="bg-card border border-line rounded-3xl p-10 text-center space-y-2 shadow-[0_2px_12px_rgba(28,28,31,0.04)]">
+            <p className="text-ink font-bold">
               No recorded activity in this range
             </p>
-            <p className="text-xs text-[#6E6E77]">
+            <p className="text-xs text-ink-muted">
               Try clicking Sync Now to pull your latest GitHub events, or switch the time range.
             </p>
           </div>
@@ -532,13 +532,13 @@ export default function ActivityClient({
             {groupedEvents.map(([dateKey, dayEvents]) => (
               <div key={dateKey} className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <h3 className="text-sm font-bold text-[#1C1C1F]">
+                  <h3 className="text-sm font-bold text-ink">
                     {formatGroupHeading(dateKey)}
                   </h3>
-                  <span className="text-xs text-[#6E6E77] font-medium">
+                  <span className="text-xs text-ink-muted font-medium">
                     {dayEvents.length} {dayEvents.length === 1 ? "event" : "events"}
                   </span>
-                  <div className="flex-1 h-px bg-[#E2E2E2]" />
+                  <div className="flex-1 h-px bg-line" />
                 </div>
 
                 <div className="space-y-2.5">
@@ -557,15 +557,15 @@ export default function ActivityClient({
                             window.open(ev.url, "_blank", "noopener,noreferrer");
                           }
                         }}
-                        className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-2xl p-4 hover:border-[#5432EE]/45 hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(28,28,31,0.06)] transition-all cursor-pointer flex items-start gap-3"
+                        className="bg-card border border-line rounded-2xl p-4 hover:border-brand-violet/45 hover:bg-highlight hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(28,28,31,0.06)] transition-all cursor-pointer flex items-start gap-3"
                       >
-                        <div className="w-9 h-9 rounded-xl bg-[#F4F4F6] border border-[#E2E2E2] flex items-center justify-center shrink-0">
-                          <Icon className="w-4 h-4 text-[#5432EE]" />
+                        <div className="w-9 h-9 rounded-xl bg-highlight border border-line flex items-center justify-center shrink-0">
+                          <Icon className="w-4 h-4 text-brand-violet" />
                         </div>
 
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2 mb-1">
-                            <p className="text-sm font-bold text-[#1C1C1F] truncate">
+                            <p className="text-sm font-bold text-ink truncate">
                               {ev.title}
                             </p>
                             <div className="flex items-center gap-1.5 shrink-0">
@@ -579,7 +579,7 @@ export default function ActivityClient({
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={(e) => e.stopPropagation()}
-                                className="p-1.5 rounded-full text-[#6E6E77] hover:text-[#1C1C1F] hover:bg-[#EEEEEE]"
+                                className="p-1.5 rounded-full text-ink-muted hover:text-ink hover:bg-card"
                                 title="Open on GitHub"
                               >
                                 <ExternalLink className="w-3.5 h-3.5" />
@@ -588,14 +588,14 @@ export default function ActivityClient({
                           </div>
 
                           {ev.description && (
-                            <p className="text-xs text-[#6E6E77] mb-2 line-clamp-2">
+                            <p className="text-xs text-ink-muted mb-2 line-clamp-2">
                               {ev.description}
                             </p>
                           )}
 
-                          <div className="flex items-center gap-2 text-xs text-[#6E6E77]">
-                            <span className="flex items-center gap-1 text-[#1C1C1F] font-medium">
-                              <GitBranch className="w-3 h-3 text-[#6E6E77]" />
+                          <div className="flex items-center gap-2 text-xs text-ink-muted">
+                            <span className="flex items-center gap-1 text-ink font-medium">
+                              <GitBranch className="w-3 h-3 text-ink-muted" />
                               {ev.repoName}
                             </span>
                             {ev.targetNumber && (
@@ -619,11 +619,11 @@ export default function ActivityClient({
           </div>
         )
       ) : touchedPRs.length === 0 ? (
-        <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-10 text-center space-y-2 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
-          <p className="text-[#1C1C1F] font-bold">
+        <div className="bg-card border border-line rounded-3xl p-10 text-center space-y-2 shadow-[0_2px_12px_rgba(28,28,31,0.04)]">
+          <p className="text-ink font-bold">
             No pull requests touched in this range
           </p>
-          <p className="text-xs text-[#6E6E77]">
+          <p className="text-xs text-ink-muted">
             Click Sync Now or adjust your filters to see PRs you created, updated, reviewed, or closed.
           </p>
         </div>

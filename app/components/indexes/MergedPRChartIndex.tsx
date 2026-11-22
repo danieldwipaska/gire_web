@@ -30,7 +30,7 @@ const CustomTooltip = ({
 }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-xl p-3 text-xs shadow-[0_10px_25px_rgba(28,28,31,0.08)]">
+    <div className="bg-[#F9F9F9] border border-[#D4D4D8] rounded-xl p-3 text-xs shadow-[0_10px_25px_rgba(28,28,31,0.08)]">
       <p className="text-[#1C1C1F] font-bold mb-1">{label}</p>
       {payload.map((p, i) => (
         <p key={i} style={{ color: p.color }} className="capitalize font-medium">
@@ -48,7 +48,7 @@ const MergedPRChartIndex = ({ data }: { data: IMergedPRData[] }) => {
         <BarChart data={data} barSize={24}>
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke="rgba(28,28,31,0.06)"
+            stroke="var(--ui-chart-grid)"
           />
           <XAxis
             dataKey="week"

@@ -42,10 +42,10 @@ const TaskChartIndex = ({ data }: { data: ITaskChartData[] }) => {
           </Pie>
           <Tooltip
             contentStyle={{
-              backgroundColor: "#FFFFFF",
-              border: "1px solid #E2E2E2",
+              backgroundColor: "#F9F9F9",
+              border: "1px solid #D4D4D8",
               borderRadius: "12px",
-              boxShadow: "0 10px 25px rgba(28,28,31,0.08)",
+              boxShadow: "var(--ui-shadow-tooltip)",
               color: "#1C1C1F",
               fontSize: "12px",
             }}

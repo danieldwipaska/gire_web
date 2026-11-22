@@ -84,7 +84,7 @@ export default function TopProgressBar() {
       style={{
         width: `${progress}%`,
         opacity: visible ? 1 : 0,
-        background: "linear-gradient(90deg, #5432EE, #418CFF, #69D7D8, #EA5DEE)",
+        background: "linear-gradient(90deg, var(--ui-violet), var(--ui-blue), var(--ui-mint), var(--ui-orchid))",
         boxShadow: "0 0 12px rgba(84, 50, 238, 0.45)",
       }}
     />

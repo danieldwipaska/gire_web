@@ -49,19 +49,19 @@ const STATUS_META: Record<
 > = {
   todo: {
     label: "To Do",
-    badgeClass: "bg-[#EEEEEE] text-[#1C1C1F] border-[#E2E2E2]",
+    badgeClass: "bg-card text-ink border-canvas",
   },
   in_progress: {
     label: "In Progress",
-    badgeClass: "bg-[#418CFF]/15 text-[#2563EB] border-[#418CFF]/30",
+    badgeClass: "bg-brand-blue/15 text-brand-blue-ink border-brand-blue/30",
   },
   in_review: {
     label: "In Review",
-    badgeClass: "bg-[#EA5DEE]/15 text-[#A21CAF] border-[#EA5DEE]/30",
+    badgeClass: "bg-brand-orchid/15 text-brand-orchid-ink border-brand-orchid/30",
   },
   done: {
     label: "Done",
-    badgeClass: "bg-[#69D7D8]/25 text-[#0F766E] border-[#69D7D8]/50",
+    badgeClass: "bg-brand-mint/25 text-brand-mint-ink border-brand-mint/50",
   },
 };
 
@@ -71,15 +71,15 @@ const PRIORITY_META: Record<
 > = {
   low: {
     label: "Low",
-    badgeClass: "bg-[#EEEEEE] text-[#6E6E77] border-[#E2E2E2]",
+    badgeClass: "bg-card text-ink-muted border-canvas",
   },
   medium: {
     label: "Medium",
-    badgeClass: "bg-[#5432EE]/12 text-[#5432EE] border-[#5432EE]/25",
+    badgeClass: "bg-brand-violet/12 text-brand-violet border-brand-violet/25",
   },
   high: {
     label: "High",
-    badgeClass: "bg-[#EA5DEE]/15 text-[#A21CAF] border-[#EA5DEE]/30",
+    badgeClass: "bg-brand-orchid/15 text-brand-orchid-ink border-brand-orchid/30",
   },
   urgent: {
     label: "Urgent",
@@ -586,23 +586,23 @@ export default function NotesClient({
       {/* Header */}
       <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between items-start md:items-center animate-fade-up">
         <div className="flex flex-col gap-1">
-          <h2 className="text-2xl font-bold text-[#1C1C1F] tracking-tight">
+          <h2 className="text-2xl font-bold text-ink tracking-tight">
             Notes &amp; Task Delegation
           </h2>
-          <p className="text-sm text-[#6E6E77]">
+          <p className="text-sm text-ink-muted">
             Rich technical notes with images &amp; code blocks, plus direct task delegation across GiRe users
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-1 bg-[#EEEEEE] p-1 border border-[#E2E2E2] rounded-full">
+          <div className="flex items-center gap-1 bg-card p-1 border border-line rounded-full">
             <button
               type="button"
               onClick={() => setMainTab("notes")}
               className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 mainTab === "notes"
-                  ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
-                  : "text-[#6E6E77] hover:text-[#1C1C1F]"
+                  ? "bg-highlight text-ink shadow-xs"
+                  : "text-ink-muted hover:text-ink"
               }`}
             >
               <FileText className="w-3.5 h-3.5" />
@@ -613,8 +613,8 @@ export default function NotesClient({
               onClick={() => setMainTab("tasks")}
               className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 mainTab === "tasks"
-                  ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
-                  : "text-[#6E6E77] hover:text-[#1C1C1F]"
+                  ? "bg-highlight text-ink shadow-xs"
+                  : "text-ink-muted hover:text-ink"
               }`}
             >
               <ListTodo className="w-3.5 h-3.5" />
@@ -625,14 +625,14 @@ export default function NotesClient({
               onClick={() => setMainTab("integrations")}
               className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 mainTab === "integrations"
-                  ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
-                  : "text-[#6E6E77] hover:text-[#1C1C1F]"
+                  ? "bg-highlight text-ink shadow-xs"
+                  : "text-ink-muted hover:text-ink"
               }`}
             >
               <HardDrive className="w-3.5 h-3.5" />
               Integrations
               {storageIntegrations.some((s) => s.isActive) && (
-                <span className="w-2 h-2 rounded-full bg-[#69D7D8]" />
+                <span className="w-2 h-2 rounded-full bg-brand-mint" />
               )}
             </button>
           </div>
@@ -654,22 +654,22 @@ export default function NotesClient({
       {mainTab === "notes" ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start animate-fade-up-delay-1">
           {/* Notes Sidebar */}
-          <div className="lg:col-span-4 xl:col-span-3 bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-4 space-y-3 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
+          <div className="lg:col-span-4 xl:col-span-3 bg-card border border-line rounded-3xl p-4 space-y-3 shadow-[0_2px_12px_rgba(28,28,31,0.04)]">
             <div className="relative">
-              <Search className="w-3.5 h-3.5 text-[#8A8A93] absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-3.5 h-3.5 text-ink-subtle absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={noteSearch}
                 onChange={(e) => setNoteSearch(e.target.value)}
                 placeholder="Search notes..."
-                className="w-full pl-9 pr-3 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-full text-xs text-[#1C1C1F] placeholder-[#8A8A93] focus:outline-none focus:bg-white focus:border-[#5432EE]"
+                className="w-full pl-9 pr-3 py-2 bg-highlight border border-line rounded-full text-xs text-ink placeholder-ink-subtle focus:outline-none focus:bg-white focus:border-brand-violet"
               />
             </div>
 
             <select
               value={projectFilter}
               onChange={(e) => setProjectFilter(e.target.value)}
-              className="w-full px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-full text-xs font-medium text-[#1C1C1F]"
+              className="w-full px-3.5 py-2 bg-highlight border border-line rounded-full text-xs font-medium text-ink"
             >
               <option value="all">All Notes</option>
               <option value="standalone">Standalone (No Project)</option>
@@ -683,11 +683,11 @@ export default function NotesClient({
             <div className="space-y-2 max-h-[65vh] overflow-y-auto pr-1">
               {filteredNotes.length === 0 ? (
                 <div className="text-center py-8 space-y-2">
-                  <p className="text-xs text-[#6E6E77]">No notes found.</p>
+                  <p className="text-xs text-ink-muted">No notes found.</p>
                   <button
                     type="button"
                     onClick={handleCreateNote}
-                    className="text-xs text-[#5432EE] hover:text-[#418CFF] font-semibold cursor-pointer"
+                    className="text-xs text-brand-violet hover:text-brand-blue font-semibold cursor-pointer"
                   >
                     + Create your first note
                   </button>
@@ -702,8 +702,8 @@ export default function NotesClient({
                       onClick={() => setActiveNoteId(n._id)}
                       className={`w-full text-left p-3.5 rounded-2xl border transition-all cursor-pointer space-y-1 ${
                         isActive
-                          ? "bg-[#1C1C1F] text-white border-[#1C1C1F] shadow-sm"
-                          : "bg-[#F9F9F9] border-[#E2E2E2] hover:bg-[#FFFFFF] hover:border-[#5432EE]/40 text-[#1C1C1F]"
+                          ? "bg-ink text-white border-ink shadow-sm"
+                          : "bg-highlight border-line hover:bg-white hover:border-brand-violet/40 text-ink"
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2">
@@ -713,15 +713,15 @@ export default function NotesClient({
                         <div className="flex items-center gap-1 shrink-0">
                           {n.isEncrypted && (
                             <span title="End-to-End Encrypted">
-                              <Lock className={`w-3 h-3 ${isActive ? "text-[#69D7D8]" : "text-[#0F766E]"}`} />
+                              <Lock className={`w-3 h-3 ${isActive ? "text-brand-mint" : "text-brand-mint-ink"}`} />
                             </span>
                           )}
                           {n.isPinned && (
-                            <Pin className={`w-3 h-3 ${isActive ? "text-[#EA5DEE]" : "text-[#A21CAF]"}`} />
+                            <Pin className={`w-3 h-3 ${isActive ? "text-brand-orchid" : "text-brand-orchid-ink"}`} />
                           )}
                         </div>
                       </div>
-                      <div className={`flex items-center justify-between gap-2 text-[11px] ${isActive ? "text-white/70" : "text-[#6E6E77]"}`}>
+                      <div className={`flex items-center justify-between gap-2 text-[11px] ${isActive ? "text-white/70" : "text-ink-muted"}`}>
                         <span className="truncate">
                           {n.projectName || "Personal"}
                         </span>
@@ -739,12 +739,12 @@ export default function NotesClient({
           {/* Note Editor Canvas */}
           <div className="lg:col-span-8 xl:col-span-9 space-y-5">
             {!activeNote ? (
-              <div className="bg-[#FFFFFF] border border-dashed border-[#D2D2DA] rounded-3xl p-12 text-center space-y-3">
-                <FileText className="w-8 h-8 text-[#5432EE] mx-auto" />
-                <p className="text-base font-bold text-[#1C1C1F]">
+              <div className="bg-card border border-dashed border-line-dashed rounded-3xl p-12 text-center space-y-3">
+                <FileText className="w-8 h-8 text-brand-violet mx-auto" />
+                <p className="text-base font-bold text-ink">
                   Create a Notion-style Note
                 </p>
-                <p className="text-xs text-[#6E6E77] max-w-md mx-auto">
+                <p className="text-xs text-ink-muted max-w-md mx-auto">
                   Write specs with headings, checklists, tables, syntax-highlighted code blocks, paste screenshots directly, and delegate tasks to teammates.
                 </p>
                 <div className="flex justify-center pt-2">
@@ -756,7 +756,7 @@ export default function NotesClient({
               </div>
             ) : (
               <>
-                <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-5 space-y-4 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
+                <div className="bg-card border border-line rounded-3xl p-5 space-y-4 shadow-[0_2px_12px_rgba(28,28,31,0.04)]">
                   {/* Note Meta Bar */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <input
@@ -774,11 +774,11 @@ export default function NotesClient({
                         );
                       }}
                       placeholder="Note title..."
-                      className="flex-1 bg-transparent text-xl font-bold text-[#1C1C1F] focus:outline-none border-b border-transparent focus:border-[#5432EE] pb-1"
+                      className="flex-1 bg-transparent text-xl font-bold text-ink focus:outline-none border-b border-transparent focus:border-brand-violet pb-1"
                     />
 
                     <div className="flex flex-wrap items-center gap-2 shrink-0">
-                      <span className="text-[11px] font-medium text-[#6E6E77] px-2">
+                      <span className="text-[11px] font-medium text-ink-muted px-2">
                         {saveState === "saving"
                           ? "Saving..."
                           : saveState === "saved"
@@ -800,7 +800,7 @@ export default function NotesClient({
                             tags,
                           });
                         }}
-                        className="px-3.5 py-1.5 bg-[#F4F4F6] hover:bg-[#EEEEEE] border border-[#E2E2E2] rounded-full text-xs font-semibold text-[#1C1C1F] flex items-center gap-1 cursor-pointer"
+                        className="px-3.5 py-1.5 bg-highlight hover:bg-white border border-line rounded-full text-xs font-semibold text-ink flex items-center gap-1 cursor-pointer"
                         title="Save Note"
                       >
                         <Save className="w-3.5 h-3.5" />
@@ -816,8 +816,8 @@ export default function NotesClient({
                         }
                         className={`p-1.5 rounded-full border cursor-pointer ${
                           activeNote.isPinned
-                            ? "bg-[#EA5DEE]/15 border-[#EA5DEE]/30 text-[#A21CAF]"
-                            : "bg-[#F4F4F6] border-[#E2E2E2] text-[#6E6E77] hover:text-[#1C1C1F]"
+                            ? "bg-brand-orchid/15 border-brand-orchid/30 text-brand-orchid-ink"
+                            : "bg-highlight border-line text-ink-muted hover:text-ink"
                         }`}
                         title={activeNote.isPinned ? "Unpin Note" : "Pin Note"}
                       >
@@ -831,10 +831,10 @@ export default function NotesClient({
                       <button
                         type="button"
                         onClick={() => setMainTab("integrations")}
-                        className="px-3 py-1.5 bg-[#F4F4F6] hover:bg-[#EEEEEE] border border-[#E2E2E2] rounded-full text-[11px] font-semibold text-[#1C1C1F] flex items-center gap-1.5 cursor-pointer"
+                        className="px-3 py-1.5 bg-highlight hover:bg-white border border-line rounded-full text-[11px] font-semibold text-ink flex items-center gap-1.5 cursor-pointer"
                         title="Configure image storage (Cloudflare R2, GCP, or Local Server)"
                       >
-                        <Cloud className="w-3 h-3 text-[#418CFF]" />
+                        <Cloud className="w-3 h-3 text-brand-blue" />
                         {(() => {
                           const active = storageIntegrations.find(
                             (s) => s.isActive,
@@ -850,7 +850,7 @@ export default function NotesClient({
                       {activeNote.userId === currentUserId &&
                         (activeNote.isEncrypted ? (
                           isActiveNoteLocked ? (
-                            <span className="px-3 py-1.5 bg-[#69D7D8]/25 border border-[#69D7D8]/50 rounded-full text-[11px] font-semibold text-[#0F766E] flex items-center gap-1.5">
+                            <span className="px-3 py-1.5 bg-brand-mint/25 border border-brand-mint/50 rounded-full text-[11px] font-semibold text-brand-mint-ink flex items-center gap-1.5">
                               <Lock className="w-3 h-3" />
                               E2EE Locked
                             </span>
@@ -859,7 +859,7 @@ export default function NotesClient({
                               <button
                                 type="button"
                                 onClick={() => handleLockNote(activeNote._id)}
-                                className="px-3 py-1.5 bg-[#69D7D8]/25 hover:bg-[#69D7D8]/40 border border-[#69D7D8]/50 rounded-full text-xs font-semibold text-[#0F766E] flex items-center gap-1 cursor-pointer"
+                                className="px-3 py-1.5 bg-brand-mint/25 hover:bg-brand-mint/40 border border-brand-mint/50 rounded-full text-xs font-semibold text-brand-mint-ink flex items-center gap-1 cursor-pointer"
                                 title="Clear decrypted note from memory and lock it"
                               >
                                 <Lock className="w-3.5 h-3.5" />
@@ -870,7 +870,7 @@ export default function NotesClient({
                                 onClick={() =>
                                   void handleDisableE2ee(activeNote._id)
                                 }
-                                className="px-3 py-1.5 bg-[#F4F4F6] hover:bg-[#EEEEEE] border border-[#E2E2E2] rounded-full text-xs font-semibold text-[#1C1C1F] flex items-center gap-1 cursor-pointer"
+                                className="px-3 py-1.5 bg-highlight hover:bg-white border border-line rounded-full text-xs font-semibold text-ink flex items-center gap-1 cursor-pointer"
                                 title="Remove E2EE and store unencrypted"
                               >
                                 <Unlock className="w-3.5 h-3.5" />
@@ -888,7 +888,7 @@ export default function NotesClient({
                                 setEncryptError("");
                                 setEncryptModalOpen(true);
                               }}
-                              className="px-3 py-1.5 bg-[#69D7D8]/25 hover:bg-[#69D7D8]/40 border border-[#69D7D8]/50 rounded-full text-xs font-semibold text-[#0F766E] flex items-center gap-1 cursor-pointer"
+                              className="px-3 py-1.5 bg-brand-mint/25 hover:bg-brand-mint/40 border border-brand-mint/50 rounded-full text-xs font-semibold text-brand-mint-ink flex items-center gap-1 cursor-pointer"
                               title="Encrypt this note end-to-end in your browser"
                             >
                               <Lock className="w-3.5 h-3.5" />
@@ -900,7 +900,7 @@ export default function NotesClient({
                                 setShareError("");
                                 setShareOpen(true);
                               }}
-                              className="px-3 py-1.5 bg-[#F4F4F6] hover:bg-[#EEEEEE] border border-[#E2E2E2] rounded-full text-xs font-semibold text-[#1C1C1F] flex items-center gap-1 cursor-pointer"
+                              className="px-3 py-1.5 bg-highlight hover:bg-white border border-line rounded-full text-xs font-semibold text-ink flex items-center gap-1 cursor-pointer"
                             >
                               <Share2 className="w-3.5 h-3.5" />
                               Share
@@ -924,7 +924,7 @@ export default function NotesClient({
                   {/* Project & Tags Bar */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="flex items-center gap-2">
-                      <FolderKanban className="w-3.5 h-3.5 text-[#6E6E77] shrink-0" />
+                      <FolderKanban className="w-3.5 h-3.5 text-ink-muted shrink-0" />
                       <select
                         value={draftProjectId}
                         onChange={(e) => {
@@ -938,7 +938,7 @@ export default function NotesClient({
                             draftTagsText,
                           );
                         }}
-                        className="w-full px-3 py-1.5 bg-[#F4F4F6] border border-[#E2E2E2] rounded-full text-xs font-medium text-[#1C1C1F]"
+                        className="w-full px-3 py-1.5 bg-highlight border border-line rounded-full text-xs font-medium text-ink"
                       >
                         <option value="">No Project (Standalone)</option>
                         {projects.map((p) => (
@@ -964,21 +964,21 @@ export default function NotesClient({
                         );
                       }}
                       placeholder="Tags (comma separated, e.g. api, spec, bug)"
-                      className="px-3.5 py-1.5 bg-[#F4F4F6] border border-[#E2E2E2] rounded-full text-xs text-[#1C1C1F] placeholder-[#8A8A93]"
+                      className="px-3.5 py-1.5 bg-highlight border border-line rounded-full text-xs text-ink placeholder-ink-subtle"
                     />
                   </div>
 
                   {/* Rich Editor or Locked E2EE Vault */}
                   {isActiveNoteLocked ? (
-                    <div className="min-h-[360px] bg-[#F9F9F9] border border-[#69D7D8]/50 rounded-2xl p-8 flex flex-col items-center justify-center text-center space-y-4">
-                      <div className="w-12 h-12 rounded-2xl bg-[#69D7D8]/25 border border-[#69D7D8]/50 flex items-center justify-center">
-                        <ShieldCheck className="w-6 h-6 text-[#0F766E]" />
+                    <div className="min-h-[360px] bg-highlight border border-brand-mint/50 rounded-2xl p-8 flex flex-col items-center justify-center text-center space-y-4">
+                      <div className="w-12 h-12 rounded-2xl bg-brand-mint/25 border border-brand-mint/50 flex items-center justify-center">
+                        <ShieldCheck className="w-6 h-6 text-brand-mint-ink" />
                       </div>
                       <div className="space-y-1 max-w-md">
-                        <h4 className="text-base font-bold text-[#1C1C1F]">
+                        <h4 className="text-base font-bold text-ink">
                           End-to-End Encrypted Note
                         </h4>
-                        <p className="text-xs text-[#6E6E77]">
+                        <p className="text-xs text-ink-muted">
                           Protected in your browser with PBKDF2 + AES-256-GCM.
                           Neither the server nor the database can read this
                           note.
@@ -993,7 +993,7 @@ export default function NotesClient({
                           <p className="text-xs text-rose-600 font-medium">{unlockError}</p>
                         )}
                         <div className="relative">
-                          <KeyRound className="w-4 h-4 text-[#8A8A93] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                          <KeyRound className="w-4 h-4 text-ink-subtle absolute left-3.5 top-1/2 -translate-y-1/2" />
                           <input
                             type="password"
                             required
@@ -1003,7 +1003,7 @@ export default function NotesClient({
                               setUnlockError("");
                             }}
                             placeholder="Enter encryption passphrase..."
-                            className="w-full pl-10 pr-3.5 py-2.5 bg-[#FFFFFF] border border-[#E2E2E2] rounded-full text-sm text-[#1C1C1F] placeholder-[#8A8A93] focus:outline-none focus:border-[#0F766E]"
+                            className="w-full pl-10 pr-3.5 py-2.5 bg-highlight border border-line rounded-full text-sm text-ink placeholder-ink-subtle focus:outline-none focus:border-brand-mint-ink"
                           />
                         </div>
                         <Button type="submit" disabled={unlocking} className="w-full">
@@ -1041,10 +1041,10 @@ export default function NotesClient({
                 </div>
 
                 {/* Delegated Tasks Linked to This Note */}
-                <div className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-5 space-y-3 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
+                <div className="bg-card border border-line rounded-3xl p-5 space-y-3 shadow-[0_2px_12px_rgba(28,28,31,0.04)]">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-[#1C1C1F] flex items-center gap-2">
-                      <ListTodo className="w-4 h-4 text-[#5432EE]" />
+                    <h3 className="text-sm font-bold text-ink flex items-center gap-2">
+                      <ListTodo className="w-4 h-4 text-brand-violet" />
                       Delegated Tasks from this Note ({noteTasks.length})
                     </h3>
                     {isSuperUser && !activeNote.isEncrypted && (
@@ -1058,12 +1058,12 @@ export default function NotesClient({
                   </div>
 
                   {activeNote.isEncrypted ? (
-                    <p className="text-xs text-[#0F766E] font-medium">
+                    <p className="text-xs text-brand-mint-ink font-medium">
                       End-to-End Encrypted notes are private to your account and
                       cannot be shared or delegated to other users.
                     </p>
                   ) : noteTasks.length === 0 ? (
-                    <p className="text-xs text-[#6E6E77]">
+                    <p className="text-xs text-ink-muted">
                       {isSuperUser
                         ? 'Highlight text in the editor above and click "Delegate Selection as Task", or click "Delegate Task" to assign action items to users in this Workspace.'
                         : "No tasks delegated from this note yet."}
@@ -1073,14 +1073,14 @@ export default function NotesClient({
                       {noteTasks.map((t) => (
                         <div
                           key={t._id}
-                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#F9F9F9] border border-[#E2E2E2] rounded-2xl px-4 py-3"
+                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-highlight border border-canvas rounded-2xl px-4 py-3"
                         >
                           <div className="min-w-0 space-y-1">
-                            <p className="text-sm font-bold text-[#1C1C1F] truncate">
+                            <p className="text-sm font-bold text-ink truncate">
                               {t.title}
                             </p>
-                            <div className="flex flex-wrap items-center gap-2 text-[11px] text-[#6E6E77]">
-                              <span className="flex items-center gap-1 text-[#5432EE] font-semibold">
+                            <div className="flex flex-wrap items-center gap-2 text-[11px] text-ink-muted">
+                              <span className="flex items-center gap-1 text-brand-violet font-semibold">
                                 <UserCheck className="w-3 h-3" />
                                 Assigned to {t.assignedToName}
                               </span>
@@ -1109,7 +1109,7 @@ export default function NotesClient({
                                   e.target.value as TaskStatus,
                                 )
                               }
-                              className="px-3 py-1 bg-[#FFFFFF] border border-[#E2E2E2] rounded-full text-xs font-semibold text-[#1C1C1F]"
+                              className="px-3 py-1 bg-highlight border border-line rounded-full text-xs font-semibold text-ink"
                             >
                               <option value="todo">To Do</option>
                               <option value="in_progress">In Progress</option>
@@ -1120,7 +1120,7 @@ export default function NotesClient({
                               <button
                                 type="button"
                                 onClick={() => handleDeleteTask(t._id)}
-                                className="p-1.5 text-[#8A8A93] hover:text-rose-600 cursor-pointer"
+                                className="p-1.5 text-ink-subtle hover:text-rose-600 cursor-pointer"
                                 title="Delete Task"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -1144,8 +1144,8 @@ export default function NotesClient({
       ) : (
         /* Delegated Tasks View */
         <div className="space-y-5 animate-fade-up">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-4 shadow-[0_2px_12px_rgba(28,28,31,0.03)]">
-            <div className="flex flex-wrap items-center gap-1 bg-[#EEEEEE] p-1 border border-[#E2E2E2] rounded-full w-fit">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-card border border-line rounded-3xl p-4 shadow-[0_2px_12px_rgba(28,28,31,0.04)]">
+            <div className="flex flex-wrap items-center gap-1 bg-canvas p-1 border border-line rounded-full w-fit">
               {(isSuperUser
                 ? ([
                     { value: "assigned_to_me", label: "Assigned to Me" },
@@ -1162,8 +1162,8 @@ export default function NotesClient({
                   onClick={() => setTaskScope(tab.value)}
                   className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                     taskScope === tab.value
-                      ? "bg-[#FFFFFF] text-[#1C1C1F] shadow-xs"
-                      : "text-[#6E6E77] hover:text-[#1C1C1F]"
+                      ? "bg-highlight text-ink shadow-xs"
+                      : "text-ink-muted hover:text-ink"
                   }`}
                 >
                   {tab.label}
@@ -1187,8 +1187,8 @@ export default function NotesClient({
                   onClick={() => setTaskStatusFilter(st.value)}
                   className={`px-3 py-1 rounded-full text-xs font-semibold border cursor-pointer transition-colors ${
                     taskStatusFilter === st.value
-                      ? "bg-[#1C1C1F] text-white border-[#1C1C1F]"
-                      : "bg-[#F9F9F9] text-[#6E6E77] border-[#E2E2E2] hover:text-[#1C1C1F]"
+                      ? "bg-ink text-white border-ink"
+                      : "bg-highlight text-ink-muted border-line hover:text-ink"
                   }`}
                 >
                   {st.label}
@@ -1198,12 +1198,12 @@ export default function NotesClient({
           </div>
 
           {filteredTasks.length === 0 ? (
-            <div className="bg-[#FFFFFF] border border-dashed border-[#D2D2DA] rounded-3xl p-12 text-center space-y-2">
-              <CheckCircle2 className="w-8 h-8 text-[#0F766E] mx-auto" />
-              <p className="text-sm font-bold text-[#1C1C1F]">
+            <div className="bg-card border border-dashed border-line-dashed rounded-3xl p-12 text-center space-y-2">
+              <CheckCircle2 className="w-8 h-8 text-brand-mint-ink mx-auto" />
+              <p className="text-sm font-bold text-ink">
                 No tasks in this view
               </p>
-              <p className="text-xs text-[#6E6E77]">
+              <p className="text-xs text-ink-muted">
                 Create a task or delegate items directly from any Note.
               </p>
             </div>
@@ -1221,11 +1221,11 @@ export default function NotesClient({
                 return (
                   <div
                     key={task._id}
-                    className="bg-[#FFFFFF] border border-[#E2E2E2] rounded-3xl p-5 space-y-3 flex flex-col justify-between shadow-[0_2px_10px_rgba(28,28,31,0.03)] hover:shadow-[0_12px_28px_rgba(28,28,31,0.07)] hover:-translate-y-0.5 transition-all"
+                    className="bg-card border border-line rounded-3xl p-5 space-y-3 flex flex-col justify-between shadow-[0_2px_10px_rgba(28,28,31,0.04)] hover:bg-highlight hover:shadow-[0_12px_28px_rgba(28,28,31,0.08)] hover:-translate-y-0.5 transition-all"
                   >
                     <div className="space-y-2.5">
                       <div className="flex items-start justify-between gap-2">
-                        <h4 className="text-base font-bold text-[#1C1C1F]">
+                        <h4 className="text-base font-bold text-ink">
                           {task.title}
                         </h4>
                         <span
@@ -1238,33 +1238,33 @@ export default function NotesClient({
                       </div>
 
                       {task.description && (
-                        <p className="text-xs text-[#6E6E77]">
+                        <p className="text-xs text-ink-muted">
                           {task.description}
                         </p>
                       )}
 
                       <div className="space-y-1 pt-1">
-                        <div className="flex items-center justify-between text-[11px] font-semibold text-[#6E6E77]">
+                        <div className="flex items-center justify-between text-[11px] font-semibold text-ink-muted">
                           <span>Progress</span>
-                          <span className="text-[#1C1C1F] tabular-nums">{progressPct}%</span>
+                          <span className="text-ink tabular-nums">{progressPct}%</span>
                         </div>
-                        <div className="w-full h-1.5 bg-[#EEEEEE] rounded-full overflow-hidden">
+                        <div className="w-full h-1.5 bg-card rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-[#1C1C1F] rounded-full transition-all duration-300"
+                            className="h-full bg-ink rounded-full transition-all duration-300"
                             style={{ width: `${progressPct}%` }}
                           />
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-[#6E6E77] pt-1">
-                        <span className="px-2.5 py-0.5 rounded-full bg-[#F4F4F6] border border-[#E2E2E2] text-[#1C1C1F]">
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-ink-muted pt-1">
+                        <span className="px-2.5 py-0.5 rounded-full bg-highlight border border-line text-ink">
                           From <strong>{task.createdByName}</strong> →{" "}
-                          <strong className="text-[#5432EE]">
+                          <strong className="text-brand-violet">
                             {task.assignedToName}
                           </strong>
                         </span>
                         {task.projectName && (
-                          <span className="px-2.5 py-0.5 rounded-full bg-[#EEEEEE] text-[#1C1C1F] font-medium">
+                          <span className="px-2.5 py-0.5 rounded-full bg-card text-ink font-medium">
                             {task.projectName}
                           </span>
                         )}
@@ -1277,7 +1277,7 @@ export default function NotesClient({
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between gap-2 pt-3 border-t border-[#EEEEEE]">
+                    <div className="flex items-center justify-between gap-2 pt-3 border-t border-card">
                       <div className="flex items-center gap-2">
                         {task.sourceNoteId && (
                           <button
@@ -1286,7 +1286,7 @@ export default function NotesClient({
                               setActiveNoteId(task.sourceNoteId!);
                               setMainTab("notes");
                             }}
-                            className="px-3 py-1 bg-[#F4F4F6] hover:bg-[#EEEEEE] border border-[#E2E2E2] rounded-full text-[11px] font-semibold text-[#5432EE] flex items-center gap-1 cursor-pointer"
+                            className="px-3 py-1 bg-highlight hover:bg-white border border-line rounded-full text-[11px] font-semibold text-brand-violet flex items-center gap-1 cursor-pointer"
                           >
                             <FileText className="w-3 h-3" />
                             {task.sourceNoteTitle || "Open Source Note"}
@@ -1316,7 +1316,7 @@ export default function NotesClient({
                           <button
                             type="button"
                             onClick={() => handleDeleteTask(task._id)}
-                            className="p-1.5 text-[#8A8A93] hover:text-rose-600 cursor-pointer"
+                            className="p-1.5 text-ink-subtle hover:text-rose-600 cursor-pointer"
                             title="Delete Task"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -1339,9 +1339,9 @@ export default function NotesClient({
         title="Enable End-to-End Encryption"
         body={
           <form onSubmit={handleEnableE2ee} className="space-y-4 min-w-[340px] max-w-md">
-            <div className="text-xs text-[#0F766E] bg-[#69D7D8]/20 border border-[#69D7D8]/50 rounded-2xl p-3.5 space-y-1">
+            <div className="text-xs text-brand-mint-ink bg-brand-mint/20 border border-brand-mint/50 rounded-2xl p-3.5 space-y-1">
               <p className="font-bold">Zero-Knowledge Encryption</p>
-              <p className="text-[#0F766E]/90">
+              <p className="text-brand-mint-ink/90">
                 Your passphrase stays in your browser and is never sent to the
                 server. If you forget it, this note cannot be recovered.
                 Encrypted notes are private to your account only.
@@ -1351,7 +1351,7 @@ export default function NotesClient({
               <p className="text-xs text-rose-600 font-medium">{encryptError}</p>
             )}
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-[#1C1C1F]">
+              <label className="text-xs font-semibold text-ink">
                 Encryption Passphrase (min 6 characters)
               </label>
               <input
@@ -1361,11 +1361,11 @@ export default function NotesClient({
                 value={encryptPassphrase}
                 onChange={(e) => setEncryptPassphrase(e.target.value)}
                 placeholder="Enter a strong passphrase"
-                className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F]"
+                className="px-3.5 py-2 bg-highlight border border-line rounded-2xl text-sm text-ink"
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-[#1C1C1F]">
+              <label className="text-xs font-semibold text-ink">
                 Confirm Passphrase
               </label>
               <input
@@ -1375,14 +1375,14 @@ export default function NotesClient({
                 value={encryptConfirm}
                 onChange={(e) => setEncryptConfirm(e.target.value)}
                 placeholder="Re-enter passphrase"
-                className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F]"
+                className="px-3.5 py-2 bg-highlight border border-line rounded-2xl text-sm text-ink"
               />
             </div>
             <div className="flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setEncryptModalOpen(false)}
-                className="px-3.5 py-1.5 text-xs font-semibold text-[#6E6E77] hover:text-[#1C1C1F] cursor-pointer"
+                className="px-3.5 py-1.5 text-xs font-semibold text-ink-muted hover:text-ink cursor-pointer"
                 disabled={encryptSubmitting}
               >
                 Cancel
@@ -1407,7 +1407,7 @@ export default function NotesClient({
               <p className="text-xs text-rose-600 font-medium">{shareError}</p>
             )}
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-[#1C1C1F]">
+              <label className="text-xs font-semibold text-ink">
                 User Email
               </label>
               <input
@@ -1416,14 +1416,14 @@ export default function NotesClient({
                 value={shareEmail}
                 onChange={(e) => setShareEmail(e.target.value)}
                 placeholder="teammate@company.com"
-                className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F]"
+                className="px-3.5 py-2 bg-highlight border border-line rounded-2xl text-sm text-ink"
               />
             </div>
             <div className="flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setShareOpen(false)}
-                className="px-3.5 py-1.5 text-xs font-semibold text-[#6E6E77] hover:text-[#1C1C1F] cursor-pointer"
+                className="px-3.5 py-1.5 text-xs font-semibold text-ink-muted hover:text-ink cursor-pointer"
               >
                 Cancel
               </button>
@@ -1448,7 +1448,7 @@ export default function NotesClient({
             )}
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-[#1C1C1F]">
+              <label className="text-xs font-semibold text-ink">
                 Task Title *
               </label>
               <input
@@ -1457,12 +1457,12 @@ export default function NotesClient({
                 value={taskTitle}
                 onChange={(e) => setTaskTitle(e.target.value)}
                 placeholder="e.g. Implement webhook signature check"
-                className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F]"
+                className="px-3.5 py-2 bg-highlight border border-line rounded-2xl text-sm text-ink"
               />
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-[#1C1C1F]">
+              <label className="text-xs font-semibold text-ink">
                 Instructions / Context
               </label>
               <textarea
@@ -1470,19 +1470,19 @@ export default function NotesClient({
                 value={taskDesc}
                 onChange={(e) => setTaskDesc(e.target.value)}
                 placeholder="Additional notes for the assignee..."
-                className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-sm text-[#1C1C1F]"
+                className="px-3.5 py-2 bg-highlight border border-line rounded-2xl text-sm text-ink"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-[#1C1C1F]">
+                <label className="text-xs font-semibold text-ink">
                   Delegate To (User) *
                 </label>
                 <select
                   value={taskAssigneeId}
                   onChange={(e) => setTaskAssigneeId(e.target.value)}
-                  className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F]"
+                  className="px-3.5 py-2 bg-highlight border border-line rounded-2xl text-xs text-ink"
                 >
                   {users.map((u) => (
                     <option key={u._id} value={u._id}>
@@ -1493,7 +1493,7 @@ export default function NotesClient({
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-[#1C1C1F]">
+                <label className="text-xs font-semibold text-ink">
                   Priority
                 </label>
                 <select
@@ -1501,7 +1501,7 @@ export default function NotesClient({
                   onChange={(e) =>
                     setTaskPriority(e.target.value as TaskPriority)
                   }
-                  className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F]"
+                  className="px-3.5 py-2 bg-highlight border border-line rounded-2xl text-xs text-ink"
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -1513,13 +1513,13 @@ export default function NotesClient({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-[#1C1C1F]">
+                <label className="text-xs font-semibold text-ink">
                   Project
                 </label>
                 <select
                   value={taskProjectId}
                   onChange={(e) => setTaskProjectId(e.target.value)}
-                  className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F]"
+                  className="px-3.5 py-2 bg-highlight border border-line rounded-2xl text-xs text-ink"
                 >
                   <option value="">No Project</option>
                   {projects.map((p) => (
@@ -1531,14 +1531,14 @@ export default function NotesClient({
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold text-[#1C1C1F]">
+                <label className="text-xs font-semibold text-ink">
                   Due Date
                 </label>
                 <input
                   type="date"
                   value={taskDueDate}
                   onChange={(e) => setTaskDueDate(e.target.value)}
-                  className="px-3.5 py-2 bg-[#F4F4F6] border border-[#E2E2E2] rounded-2xl text-xs text-[#1C1C1F]"
+                  className="px-3.5 py-2 bg-highlight border border-line rounded-2xl text-xs text-ink"
                 />
               </div>
             </div>
@@ -1547,7 +1547,7 @@ export default function NotesClient({
               <button
                 type="button"
                 onClick={() => setTaskModalOpen(false)}
-                className="px-4 py-2 text-xs font-semibold text-[#6E6E77] hover:text-[#1C1C1F] cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold text-ink-muted hover:text-ink cursor-pointer"
                 disabled={taskSubmitting}
               >
                 Cancel
