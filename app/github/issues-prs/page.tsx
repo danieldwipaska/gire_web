@@ -10,6 +10,7 @@ import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getDashboardData } from "@/lib/dashboard-service";
 import { getContextScope } from "@/lib/project-filter";
+import { requirePageWorkspaceContext } from "@/lib/workspace";
 
 interface Props {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -21,6 +22,8 @@ export default async function GitHubIssuesAndPRsPage({ searchParams }: Props) {
     redirect("/login");
   }
 
+  const ctx = await requirePageWorkspaceContext(session.id);
+
   const params = await searchParams;
   const contextParam =
     typeof params.context === "string" ? params.context : undefined;
@@ -31,6 +34,7 @@ export default async function GitHubIssuesAndPRsPage({ searchParams }: Props) {
     session.id,
     contextParam,
     projectParam,
+    ctx.activeWorkspace._id,
   );
 
   const {

@@ -1,5 +1,6 @@
-import { verifyAuth } from "@/lib/auth";
+import { verifyAuth, WORKSPACE_COOKIE_NAME } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
+import { getWorkspaceContext, isUserInWorkspace } from "@/lib/workspace";
 import Task from "@/models/Task";
 import User from "@/models/User";
 import mongoose from "mongoose";
@@ -20,9 +21,18 @@ export async function PATCH(
       return NextResponse.json({ error: "Invalid task ID" }, { status: 400 });
     }
 
+    const cookieWs = req.cookies.get(WORKSPACE_COOKIE_NAME)?.value;
+    const ctx = await getWorkspaceContext(session.id, cookieWs);
+    if (!ctx || !ctx.activeWorkspace) {
+      return NextResponse.json({ error: "Workspace required" }, { status: 400 });
+    }
+
     await connectDB();
 
-    const task = await Task.findById(id);
+    const task = await Task.findOne({
+      _id: id,
+      workspaceId: ctx.activeWorkspace._id,
+    });
     if (!task) {
       return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
@@ -44,7 +54,7 @@ export async function PATCH(
       task.status = body.status;
     }
 
-    if (isCreator) {
+    if (isCreator && ctx.isSuperUser) {
       if (typeof body.title === "string" && body.title.trim()) {
         task.title = body.title.trim();
       }
@@ -63,8 +73,14 @@ export async function PATCH(
         typeof body.assignedTo === "string" &&
         mongoose.Types.ObjectId.isValid(body.assignedTo)
       ) {
-        const target = await User.findById(body.assignedTo).select("_id");
-        if (target) task.assignedTo = target._id;
+        const inWorkspace = await isUserInWorkspace(
+          body.assignedTo,
+          ctx.activeWorkspace._id,
+        );
+        if (inWorkspace) {
+          const target = await User.findById(body.assignedTo).select("_id");
+          if (target) task.assignedTo = target._id;
+        }
       }
       if (body.dueDate === null || body.dueDate === "") {
         task.dueDate = null;
@@ -96,9 +112,19 @@ export async function DELETE(
       return NextResponse.json({ error: "Invalid task ID" }, { status: 400 });
     }
 
+    const cookieWs = req.cookies.get(WORKSPACE_COOKIE_NAME)?.value;
+    const ctx = await getWorkspaceContext(session.id, cookieWs);
+    if (!ctx || !ctx.activeWorkspace || !ctx.isSuperUser) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     await connectDB();
 
-    const result = await Task.deleteOne({ _id: id, createdBy: session.id });
+    const result = await Task.deleteOne({
+      _id: id,
+      workspaceId: ctx.activeWorkspace._id,
+      createdBy: session.id,
+    });
     if (result.deletedCount === 0) {
       return NextResponse.json(
         { error: "Task not found or forbidden" },
@@ -112,4 +138,3 @@ export async function DELETE(
     return NextResponse.json({ error: "Server Error" }, { status: 500 });
   }
 }
-

@@ -17,6 +17,7 @@ import { getSession } from "@/lib/auth";
 import { getDashboardData } from "@/lib/dashboard-service";
 import connectDB from "@/lib/mongodb";
 import { getContextScope } from "@/lib/project-filter";
+import { requirePageWorkspaceContext } from "@/lib/workspace";
 import {
   IActivityEvent,
   INote,
@@ -48,6 +49,9 @@ export default async function DashboardPage({ searchParams }: Props) {
     redirect("/login");
   }
 
+  const ctx = await requirePageWorkspaceContext(session.id);
+  const workspaceId = ctx.activeWorkspace._id;
+
   const params = await searchParams;
   const contextParam =
     typeof params.context === "string" ? params.context : undefined;
@@ -58,6 +62,7 @@ export default async function DashboardPage({ searchParams }: Props) {
     session.id,
     contextParam,
     projectParam,
+    workspaceId,
   );
 
   await connectDB();
@@ -69,6 +74,7 @@ export default async function DashboardPage({ searchParams }: Props) {
   const [dashboardData, rawTasks, rawNotes, rawEvents] = await Promise.all([
     getDashboardData(session.id, allowedRepos),
     Task.find({
+      workspaceId,
       assignedTo: session.id,
       status: { $ne: "done" },
       ...(projectParam ? { projectId: projectParam } : {}),
@@ -77,6 +83,7 @@ export default async function DashboardPage({ searchParams }: Props) {
       .limit(30)
       .lean(),
     Note.find({
+      workspaceId,
       $and: [
         {
           $or: [

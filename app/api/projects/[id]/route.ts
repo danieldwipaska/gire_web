@@ -1,20 +1,11 @@
-import { verifyAuth } from "@/lib/auth";
+import { verifyAuth, WORKSPACE_COOKIE_NAME } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import { isValidFigmaUrl } from "@/lib/utils";
+import { getWorkspaceContext, isUserInWorkspace } from "@/lib/workspace";
 import Project from "@/models/Project";
 import User from "@/models/User";
 import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
-
-const canAccessProject = (
-  project: { ownerId: mongoose.Types.ObjectId; members?: { userId: mongoose.Types.ObjectId }[] },
-  userId: string,
-) => {
-  if (project.ownerId.toString() === userId) return true;
-  return Boolean(
-    project.members?.some((m) => m.userId.toString() === userId),
-  );
-};
 
 export async function GET(
   req: NextRequest,
@@ -31,10 +22,19 @@ export async function GET(
       return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
     }
 
+    const cookieWs = req.cookies.get(WORKSPACE_COOKIE_NAME)?.value;
+    const ctx = await getWorkspaceContext(session.id, cookieWs);
+    if (!ctx || !ctx.activeWorkspace) {
+      return NextResponse.json({ error: "Workspace required" }, { status: 400 });
+    }
+
     await connectDB();
 
-    const project = await Project.findById(id).lean();
-    if (!project || !canAccessProject(project, session.id)) {
+    const project = await Project.findOne({
+      _id: id,
+      workspaceId: ctx.activeWorkspace._id,
+    }).lean();
+    if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
@@ -60,10 +60,19 @@ export async function PATCH(
       return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
     }
 
+    const cookieWs = req.cookies.get(WORKSPACE_COOKIE_NAME)?.value;
+    const ctx = await getWorkspaceContext(session.id, cookieWs);
+    if (!ctx || !ctx.activeWorkspace) {
+      return NextResponse.json({ error: "Workspace required" }, { status: 400 });
+    }
+
     await connectDB();
 
-    const project = await Project.findById(id);
-    if (!project || !canAccessProject(project, session.id)) {
+    const project = await Project.findOne({
+      _id: id,
+      workspaceId: ctx.activeWorkspace._id,
+    });
+    if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
@@ -106,7 +115,6 @@ export async function PATCH(
       );
     }
 
-    // Replace figmaLinks if supplied
     if (Array.isArray(body.figmaLinks)) {
       const nextLinks = [];
       for (const link of body.figmaLinks) {
@@ -130,8 +138,15 @@ export async function PATCH(
       project.figmaLinks = nextLinks;
     }
 
-    // Add member by email
+    // Add member by email — strictly within the SAME Workspace!
     if (typeof body.addMemberEmail === "string" && body.addMemberEmail.trim()) {
+      if (!ctx.isSuperUser) {
+        return NextResponse.json(
+          { error: "Only Super Users can manage project members" },
+          { status: 403 },
+        );
+      }
+
       const targetUser = await User.findOne({
         email: body.addMemberEmail.trim().toLowerCase(),
       }).select("_id name email");
@@ -140,6 +155,17 @@ export async function PATCH(
         return NextResponse.json(
           { error: `No GiRe user found with email ${body.addMemberEmail.trim()}` },
           { status: 404 },
+        );
+      }
+
+      const inSameWorkspace = await isUserInWorkspace(
+        targetUser._id.toString(),
+        ctx.activeWorkspace._id,
+      );
+      if (!inSameWorkspace) {
+        return NextResponse.json(
+          { error: "User does not belong to this Workspace" },
+          { status: 403 },
         );
       }
 
@@ -157,8 +183,13 @@ export async function PATCH(
       project.members.push({ userId: targetUser._id, role: "member" });
     }
 
-    // Remove member by userId (cannot remove owner)
     if (typeof body.removeMemberId === "string" && body.removeMemberId) {
+      if (!ctx.isSuperUser) {
+        return NextResponse.json(
+          { error: "Only Super Users can manage project members" },
+          { status: 403 },
+        );
+      }
       if (body.removeMemberId === project.ownerId.toString()) {
         return NextResponse.json(
           { error: "Cannot remove project owner" },
@@ -194,9 +225,19 @@ export async function DELETE(
       return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
     }
 
+    const cookieWs = req.cookies.get(WORKSPACE_COOKIE_NAME)?.value;
+    const ctx = await getWorkspaceContext(session.id, cookieWs);
+    if (!ctx || !ctx.activeWorkspace) {
+      return NextResponse.json({ error: "Workspace required" }, { status: 400 });
+    }
+
     await connectDB();
 
-    const result = await Project.deleteOne({ _id: id, ownerId: session.id });
+    const result = await Project.deleteOne({
+      _id: id,
+      workspaceId: ctx.activeWorkspace._id,
+      ownerId: session.id,
+    });
     if (result.deletedCount === 0) {
       return NextResponse.json(
         { error: "Project not found or forbidden" },
@@ -210,4 +251,3 @@ export async function DELETE(
     return NextResponse.json({ error: "Server Error" }, { status: 500 });
   }
 }
-

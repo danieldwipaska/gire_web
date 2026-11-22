@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
+import { getWorkspaceUsers, requirePageWorkspaceContext } from "@/lib/workspace";
 import Note from "@/models/Note";
 import Project from "@/models/Project";
 import Task from "@/models/Task";
-import User from "@/models/User";
 import { INote, INoteUser, IProject, ITask } from "@/lib/types";
 import NotesClient from "../components/notes/NotesClient";
 
@@ -18,6 +18,9 @@ export default async function NotesPage({ searchParams }: Props) {
     redirect("/login");
   }
 
+  const ctx = await requirePageWorkspaceContext(session.id);
+  const workspaceId = ctx.activeWorkspace._id;
+
   const params = await searchParams;
   const initialTab = params.tab === "tasks" ? "tasks" : "notes";
   const initialNoteId =
@@ -27,16 +30,16 @@ export default async function NotesPage({ searchParams }: Props) {
 
   await connectDB();
 
-  const projectsRaw = await Project.find({
-    $or: [{ ownerId: session.id }, { "members.userId": session.id }],
-  })
-    .sort({ updatedAt: -1 })
-    .lean();
+  const [projectsRaw, workspaceUsers] = await Promise.all([
+    Project.find({ workspaceId }).sort({ updatedAt: -1 }).lean(),
+    getWorkspaceUsers(workspaceId),
+  ]);
 
   const accessibleProjectIds = projectsRaw.map((p) => p._id);
 
-  const [notesRaw, tasksRaw, usersRaw] = await Promise.all([
+  const [notesRaw, tasksRaw] = await Promise.all([
     Note.find({
+      workspaceId,
       $or: [
         { userId: session.id },
         { sharedWith: session.id },
@@ -49,23 +52,16 @@ export default async function NotesPage({ searchParams }: Props) {
       .limit(200)
       .lean(),
     Task.find({
+      workspaceId,
       $or: [{ assignedTo: session.id }, { createdBy: session.id }],
     })
       .sort({ updatedAt: -1 })
       .limit(200)
       .lean(),
-    User.find({})
-      .select("_id name email")
-      .sort({ name: 1 })
-      .limit(100)
-      .lean(),
   ]);
 
   const userMap = new Map(
-    usersRaw.map((u) => [
-      u._id.toString(),
-      { name: u.name, email: u.email },
-    ]),
+    workspaceUsers.map((u) => [u._id, { name: u.name, email: u.email }]),
   );
   const projectMap = new Map(
     projectsRaw.map((p) => [p._id.toString(), p.name]),
@@ -98,14 +94,14 @@ export default async function NotesPage({ searchParams }: Props) {
   return (
     <NotesClient
       currentUserId={session.id}
+      isSuperUser={ctx.isSuperUser}
       initialNotes={notes}
       initialTasks={tasks}
       projects={JSON.parse(JSON.stringify(projectsRaw)) as IProject[]}
-      users={JSON.parse(JSON.stringify(usersRaw)) as INoteUser[]}
+      users={workspaceUsers as INoteUser[]}
       initialTab={initialTab}
       initialNoteId={initialNoteId}
       initialProjectId={initialProjectId}
     />
   );
 }
-

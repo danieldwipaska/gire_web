@@ -25,6 +25,7 @@ import {
 } from "@/lib/types";
 import { isAnyUser, isIssueAssignedTo, isPRNeedingReview } from "@/lib/utils";
 import { getContextScope } from "@/lib/project-filter";
+import { requirePageWorkspaceContext } from "@/lib/workspace";
 
 interface Props {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -197,6 +198,8 @@ export default async function GitHubAnalysisPage({ searchParams }: Props) {
     redirect("/login");
   }
 
+  const ctx = await requirePageWorkspaceContext(session.id);
+
   const params = await searchParams;
   const range = (params.range as string) || "this-month";
   const contextParam =
@@ -205,7 +208,12 @@ export default async function GitHubAnalysisPage({ searchParams }: Props) {
     typeof params.project === "string" ? params.project : undefined;
 
   const [{ projects, allowedRepos }, githubIntegrations] = await Promise.all([
-    getContextScope(session.id as string, contextParam, projectParam),
+    getContextScope(
+      session.id as string,
+      contextParam,
+      projectParam,
+      ctx.activeWorkspace._id,
+    ),
     getGithubIntegrations(session.id as string),
   ]);
 

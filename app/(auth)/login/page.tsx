@@ -3,21 +3,27 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Target, Mail, Shield, RefreshCw } from "lucide-react";
+import { Mail, RefreshCw, Shield } from "lucide-react";
 import Field from "@/app/components/form/Field";
 
+interface LoginErrors {
+  email?: string;
+  password?: string;
+  form?: string;
+}
+
 export default function LoginPage() {
-  const [form, setForm] = useState<any>({
+  const [form, setForm] = useState({
     email: "",
     password: "",
   });
   const [showPw, setShowPw] = useState(false);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<LoginErrors>({});
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const validate = () => {
-    const e: any = {};
+    const e: LoginErrors = {};
     if (!form.email) e.email = "Email is required.";
     else if (!/\S+@\S+\.\S+/.test(form.email))
       e.email = "Enter a valid email address.";
@@ -54,19 +60,22 @@ export default function LoginPage() {
         throw new Error(data.message || "Something went wrong");
       }
 
-      router.push("/dashboard");
+      router.push(data.hasWorkspace ? "/dashboard" : "/onboarding/workspace");
       router.refresh();
-    } catch (err: any) {
-      setErrors(err.message);
+    } catch (err) {
+      setErrors({
+        form: err instanceof Error ? err.message : "Something went wrong",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const mkChange = (id: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm((f: any) => ({ ...f, [id]: e.target.value }));
-    setErrors((v: any) => ({ ...v, [id]: "" }));
-  };
+  const mkChange =
+    (id: "email" | "password") => (e: React.ChangeEvent<HTMLInputElement>) => {
+      setForm((f) => ({ ...f, [id]: e.target.value }));
+      setErrors((v) => ({ ...v, [id]: "", form: "" }));
+    };
 
   return (
     <div className="min-h-screen bg-[#0b0f19] flex items-center justify-center px-4 py-12">
@@ -82,8 +91,16 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <div className="bg-[#131924] border border-slate-800/80 rounded-2xl p-8 shadow-xl">
-          {/* Form */}
+        <form
+          onSubmit={handleSubmit}
+          className="bg-[#131924] border border-slate-800/80 rounded-2xl p-8 shadow-xl"
+        >
+          {errors.form && (
+            <div className="mb-4 text-xs text-rose-400 bg-rose-950/40 border border-rose-800/50 rounded-lg p-3">
+              {errors.form}
+            </div>
+          )}
+
           <div className="space-y-4">
             <Field
               id="email"
@@ -116,10 +133,8 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Submit */}
           <button
-            type="button"
-            onClick={handleSubmit}
+            type="submit"
             disabled={loading}
             className="w-full mt-6 bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-semibold transition-all disabled:opacity-60 flex items-center justify-center gap-2 cursor-pointer shadow-sm"
           >
@@ -131,11 +146,10 @@ export default function LoginPage() {
               "Sign In"
             )}
           </button>
-        </div>
+        </form>
 
-        {/* Footer */}
         <p className="text-center text-sm text-slate-400 mt-6">
-          Don't have an account?{" "}
+          Don&apos;t have a Super User account?{" "}
           <Link
             href="/register"
             className="text-indigo-400 hover:text-indigo-300 font-semibold transition-colors"

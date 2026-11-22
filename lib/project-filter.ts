@@ -13,12 +13,15 @@ export const getContextScope = async (
   userId: string,
   contextParam?: string,
   projectParam?: string,
+  workspaceId?: string,
 ): Promise<ContextScope> => {
   await connectDB();
 
-  const projectsRaw = await Project.find({
-    $or: [{ ownerId: userId }, { "members.userId": userId }],
-  })
+  const query = workspaceId
+    ? { workspaceId }
+    : { $or: [{ ownerId: userId }, { "members.userId": userId }] };
+
+  const projectsRaw = await Project.find(query)
     .sort({ updatedAt: -1 })
     .lean();
 
@@ -65,4 +68,3 @@ export const getContextScope = async (
     activeProjectId: "",
   };
 };
-

@@ -3,22 +3,30 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Mail, RefreshCw, Shield, Target, User } from "lucide-react";
+import { Mail, RefreshCw, Shield, User } from "lucide-react";
 import Field from "@/app/components/form/Field";
 
+interface RegisterErrors {
+  name?: string;
+  email?: string;
+  password?: string;
+  form?: string;
+}
+
 export default function RegisterPage() {
-  const [form, setForm] = useState<any>({
+  const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
   });
   const [showPw, setShowPw] = useState(false);
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<RegisterErrors>({});
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const validate = () => {
-    const e: any = {};
+    const e: RegisterErrors = {};
+    if (!form.name.trim()) e.name = "Name is required.";
     if (!form.email) e.email = "Email is required.";
     else if (!/\S+@\S+\.\S+/.test(form.email))
       e.email = "Enter a valid email address.";
@@ -59,18 +67,23 @@ export default function RegisterPage() {
         throw new Error(data.message || "Something went wrong");
       }
 
-      router.push("/login");
-    } catch (err: any) {
-      setErrors(err.message);
+      router.push("/onboarding/workspace");
+      router.refresh();
+    } catch (err) {
+      setErrors({
+        form: err instanceof Error ? err.message : "Something went wrong",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const mkChange = (id: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm((f: any) => ({ ...f, [id]: e.target.value }));
-    setErrors((v: any) => ({ ...v, [id]: "" }));
-  };
+  const mkChange =
+    (id: "name" | "email" | "password") =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setForm((f) => ({ ...f, [id]: e.target.value }));
+      setErrors((v) => ({ ...v, [id]: "", form: "" }));
+    };
 
   return (
     <div className="min-h-screen bg-[#0b0f19] flex items-center justify-center px-4 py-12">
@@ -80,14 +93,24 @@ export default function RegisterPage() {
           <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-sm text-white font-bold text-xl">
             G
           </div>
-          <h2 className="text-2xl font-bold text-slate-100 mb-1">Create an account</h2>
+          <h2 className="text-2xl font-bold text-slate-100 mb-1">
+            Create Super User Account
+          </h2>
           <p className="text-slate-400 text-sm">
-            Sign up to get started with GiRe
+            Register as a Super User to create Workspaces and manage your team
           </p>
         </div>
 
-        <div className="bg-[#131924] border border-slate-800/80 rounded-2xl p-8 shadow-xl">
-          {/* Form */}
+        <form
+          onSubmit={handleSubmit}
+          className="bg-[#131924] border border-slate-800/80 rounded-2xl p-8 shadow-xl"
+        >
+          {errors.form && (
+            <div className="mb-4 text-xs text-rose-400 bg-rose-950/40 border border-rose-800/50 rounded-lg p-3">
+              {errors.form}
+            </div>
+          )}
+
           <div className="space-y-4">
             <Field
               id="name"
@@ -130,24 +153,21 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Submit */}
           <button
-            type="button"
-            onClick={handleSubmit}
+            type="submit"
             disabled={loading}
             className="w-full mt-6 bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-semibold transition-all disabled:opacity-60 flex items-center justify-center gap-2 cursor-pointer shadow-sm"
           >
             {loading ? (
               <>
-                <RefreshCw className="w-4 h-4 animate-spin" /> Registering...
+                <RefreshCw className="w-4 h-4 animate-spin" /> Creating account...
               </>
             ) : (
-              "Register"
+              "Create Super User"
             )}
           </button>
-        </div>
+        </form>
 
-        {/* Footer */}
         <p className="text-center text-sm text-slate-400 mt-6">
           Already have an account?{" "}
           <Link

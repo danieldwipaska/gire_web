@@ -25,6 +25,11 @@ const TaskSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    workspaceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Workspace",
+      default: null,
+    },
     projectId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Project",
@@ -39,6 +44,7 @@ const TaskSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+TaskSchema.index({ workspaceId: 1, updatedAt: -1 });
 TaskSchema.index({ assignedTo: 1, status: 1, updatedAt: -1 });
 TaskSchema.index({ createdBy: 1, updatedAt: -1 });
 TaskSchema.index({ sourceNoteId: 1 });

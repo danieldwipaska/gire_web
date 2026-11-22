@@ -1,5 +1,6 @@
-import { verifyAuth } from "@/lib/auth";
+import { verifyAuth, WORKSPACE_COOKIE_NAME } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
+import { getWorkspaceContext } from "@/lib/workspace";
 import Note from "@/models/Note";
 import Project from "@/models/Project";
 import mongoose from "mongoose";
@@ -12,19 +13,24 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const cookieWs = req.cookies.get(WORKSPACE_COOKIE_NAME)?.value;
+    const ctx = await getWorkspaceContext(session.id, cookieWs);
+    if (!ctx || !ctx.activeWorkspace) {
+      return NextResponse.json([]);
+    }
+
     await connectDB();
 
     const projectId = req.nextUrl.searchParams.get("projectId");
+    const workspaceId = ctx.activeWorkspace._id;
 
-    // Projects the user owns or belongs to
-    const memberProjects = await Project.find({
-      $or: [{ ownerId: session.id }, { "members.userId": session.id }],
-    })
+    const workspaceProjects = await Project.find({ workspaceId })
       .select("_id")
       .lean();
-    const accessibleProjectIds = memberProjects.map((p) => p._id);
+    const accessibleProjectIds = workspaceProjects.map((p) => p._id);
 
     const accessFilter = {
+      workspaceId,
       $or: [
         { userId: session.id },
         { sharedWith: session.id },
@@ -34,9 +40,10 @@ export async function GET(req: NextRequest) {
       ],
     };
 
-    const query: Record<string, unknown> = projectId && mongoose.Types.ObjectId.isValid(projectId)
-      ? { $and: [accessFilter, { projectId }] }
-      : accessFilter;
+    const query: Record<string, unknown> =
+      projectId && mongoose.Types.ObjectId.isValid(projectId)
+        ? { $and: [accessFilter, { projectId }] }
+        : accessFilter;
 
     const notes = await Note.find(query)
       .sort({ isPinned: -1, updatedAt: -1 })
@@ -57,6 +64,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const cookieWs = req.cookies.get(WORKSPACE_COOKIE_NAME)?.value;
+    const ctx = await getWorkspaceContext(session.id, cookieWs);
+    if (!ctx || !ctx.activeWorkspace) {
+      return NextResponse.json(
+        { error: "Please create a Workspace first" },
+        { status: 400 },
+      );
+    }
+
     const body = await req.json();
     const title =
       typeof body?.title === "string" && body.title.trim()
@@ -73,16 +89,23 @@ export async function POST(req: NextRequest) {
         )
       : [];
 
-    const projectId =
+    await connectDB();
+
+    let projectId: string | null = null;
+    if (
       typeof body?.projectId === "string" &&
       mongoose.Types.ObjectId.isValid(body.projectId)
-        ? body.projectId
-        : null;
-
-    await connectDB();
+    ) {
+      const validProj = await Project.exists({
+        _id: body.projectId,
+        workspaceId: ctx.activeWorkspace._id,
+      });
+      if (validProj) projectId = body.projectId;
+    }
 
     const note = await Note.create({
       userId: session.id,
+      workspaceId: ctx.activeWorkspace._id,
       projectId,
       title,
       content,
@@ -97,4 +120,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Server Error" }, { status: 500 });
   }
 }
-

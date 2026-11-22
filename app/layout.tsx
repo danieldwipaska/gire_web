@@ -4,6 +4,7 @@ import "./globals.css";
 import AppShell, { AppSession } from "./components/layout/AppShell";
 import { DetailDrawerProvider } from "./components/drawer/DetailDrawerProvider";
 import { getSession } from "@/lib/auth";
+import { getWorkspaceContext } from "@/lib/workspace";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
@@ -22,13 +23,24 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = (await getSession()) as AppSession | null;
+  const workspaceCtx = session?.id
+    ? await getWorkspaceContext(session.id)
+    : null;
+
   return (
     <html lang="en" className="dark">
       <body
         className={`${plusJakartaSans.variable} font-sans antialiased bg-[#0b0f19] text-slate-100 min-h-screen selection:bg-indigo-500/30 selection:text-indigo-200`}
       >
         <DetailDrawerProvider>
-          <AppShell session={session}>{children}</AppShell>
+          <AppShell
+            session={session}
+            isSuperUser={workspaceCtx?.isSuperUser ?? false}
+            workspaces={workspaceCtx?.workspaces ?? []}
+            activeWorkspace={workspaceCtx?.activeWorkspace ?? null}
+          >
+            {children}
+          </AppShell>
         </DetailDrawerProvider>
       </body>
     </html>

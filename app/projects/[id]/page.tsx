@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import mongoose from "mongoose";
 import { getSession } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
+import { requirePageWorkspaceContext } from "@/lib/workspace";
 import ActivityEvent from "@/models/ActivityEvent";
 import Issue from "@/models/Issue";
 import Note from "@/models/Note";
@@ -30,6 +31,8 @@ export default async function ProjectDetailPage({
     redirect("/login");
   }
 
+  const ctx = await requirePageWorkspaceContext(session.id);
+
   const { id } = await params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
     notFound();
@@ -37,19 +40,11 @@ export default async function ProjectDetailPage({
 
   await connectDB();
 
-  const projectDoc = await Project.findById(id).lean();
+  const projectDoc = await Project.findOne({
+    _id: id,
+    workspaceId: ctx.activeWorkspace._id,
+  }).lean();
   if (!projectDoc) {
-    notFound();
-  }
-
-  const hasAccess =
-    projectDoc.ownerId.toString() === session.id ||
-    projectDoc.members?.some(
-      (m: { userId: mongoose.Types.ObjectId }) =>
-        m.userId.toString() === session.id,
-    );
-
-  if (!hasAccess) {
     notFound();
   }
 
@@ -162,6 +157,7 @@ export default async function ProjectDetailPage({
     <ProjectDetailClient
       project={project}
       isOwner={projectDoc.ownerId.toString() === session.id}
+      isSuperUser={ctx.isSuperUser}
       pullRequests={JSON.parse(JSON.stringify(pullRequests)) as IPullRequest[]}
       issues={JSON.parse(JSON.stringify(issues)) as IIssue[]}
       events={JSON.parse(JSON.stringify(events)) as IActivityEvent[]}

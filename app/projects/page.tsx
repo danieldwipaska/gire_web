@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
+import { requirePageWorkspaceContext } from "@/lib/workspace";
 import ActivityEvent from "@/models/ActivityEvent";
 import Issue from "@/models/Issue";
 import Project from "@/models/Project";
@@ -14,12 +15,14 @@ export default async function ProjectsPage() {
     redirect("/login");
   }
 
+  const ctx = await requirePageWorkspaceContext(session.id);
+
   await connectDB();
 
   const [projectsRaw, openPrRepos, openIssueRepos, prDistinct, issueDistinct, eventDistinct] =
     await Promise.all([
       Project.find({
-        $or: [{ ownerId: session.id }, { "members.userId": session.id }],
+        workspaceId: ctx.activeWorkspace._id,
       })
         .sort({ updatedAt: -1 })
         .lean(),
