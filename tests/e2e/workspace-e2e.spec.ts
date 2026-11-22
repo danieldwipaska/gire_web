@@ -58,6 +58,14 @@ test.describe("GiRe Multi-Tenant Workspace, Notes, & Navigation E2E", () => {
     await page.fill('input[placeholder*="Core Payment API"]', "Core Auth API");
     await page.click('button[type="submit"]');
     await expect(page.getByText("Core Auth API")).toBeVisible();
+    await page.getByText("Core Auth API").first().click();
+    await expect(page).toHaveURL(/\/projects\/[a-f0-9]+/);
+    await expect(
+      page.getByRole("button", { name: /My GitHub Work/i }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /^Reviews \(/i }),
+    ).toBeVisible();
 
     // 4. Create Member A in Acme Office (via /workspaces)
     await page.click('a[href="/workspaces"]');

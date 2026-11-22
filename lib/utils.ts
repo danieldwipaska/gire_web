@@ -64,6 +64,46 @@ export const isPRNeedingReview = (
   return Boolean(pr.mentionedInDescription && !pr.reviewedByMe);
 };
 
+export type ProjectReviewStatus =
+  | "approved"
+  | "changes_requested"
+  | "reviewed"
+  | "needs_review";
+
+export const getProjectReviewStatus = (
+  pr: IPullRequest,
+  reviewedUrls?: Set<string>,
+): ProjectReviewStatus | null => {
+  const myState = pr.myReviewState?.toUpperCase();
+  if (myState === "APPROVED") return "approved";
+  if (myState === "CHANGES_REQUESTED") return "changes_requested";
+  if (pr.reviewedByMe || (pr.url && reviewedUrls?.has(pr.url))) {
+    return "reviewed";
+  }
+  if (
+    pr.state === "open" &&
+    (pr.reviewRequested || pr.mentionedInDescription)
+  ) {
+    return "needs_review";
+  }
+  return null;
+};
+
+export const isProjectReviewPR = (
+  pr: IPullRequest,
+  usernameOrList?: string | string[] | null,
+  reviewedUrls?: Set<string>,
+): boolean => {
+  if (!usernameOrList) return false;
+  const usernames = Array.isArray(usernameOrList)
+    ? usernameOrList
+    : [usernameOrList];
+  if (usernames.length === 0) return false;
+  if (isAnyUser(pr.author, usernames)) return false;
+
+  return getProjectReviewStatus(pr, reviewedUrls) !== null;
+};
+
 export const isValidFigmaUrl = (url: string): boolean => {
   try {
     const parsed = new URL(url.trim());

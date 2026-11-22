@@ -64,6 +64,7 @@ export interface IPullRequest {
   mentionedInDescription: boolean;
   reviewRequested: boolean;
   reviewedByMe?: boolean;
+  myReviewState?: string | null;
   author: string;
   assignee: string | null;
   githubCreatedAt?: string | Date;

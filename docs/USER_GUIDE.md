@@ -70,7 +70,8 @@ Click any PR card, Issue card, or GitHub Activity item to open the **Detail Draw
 1. Open **Projects** (`/projects`) and click **New Project**.
 2. Set a **Category** (`Office`, `Freelance`, or `Personal`), Client/Team name, and link your synced GitHub repositories.
 3. Open a Project to access:
-   - **GitHub Work:** PRs, issues, and activity filtered to that project's repos.
+   - **My GitHub Work:** PRs authored by you, assigned issues, and activity filtered to that project's repos.
+   - **Reviews:** PRs awaiting your review as well as PRs you have already reviewed or approved in that project.
    - **Figma Preview:** Paste any Figma `design` or `prototype` share URL (*Anyone with the link can view*) to inspect designs and click through interactive prototypes inline. Use **Open in Figma** whenever you need to download assets or inspect typography.
    - **Notes & Tasks:** Notes and delegated tasks linked to the project.
    - **Members:** Manage project collaborators within the same Workspace.
