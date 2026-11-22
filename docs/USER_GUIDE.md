@@ -86,6 +86,10 @@ GiRe includes a built-in rich editor to replace Notion for engineering notes:
   - Click the image icon in the toolbar, drag-and-drop an image file, or paste a screenshot directly (`Ctrl+V`).
   - By default, if no cloud storage provider is configured, images are stored automatically on the **Local Server (`uploads/`)**.
   - To store images in the cloud instead, open the **Integrations** tab at the top of `/notes` and configure either **Cloudflare R2** (Account ID, Bucket, Access Key ID, Secret Access Key) or **Google Cloud Storage (GCP)** (Bucket Name + Service Account JSON). You can optionally provide a **Public Base URL** for direct CDN links, or leave it empty to keep your bucket private and let GiRe serve images securely.
+- **End-to-End Encrypted Notes (Optional per Note):**
+  - For sensitive notes (passwords, API keys, company secrets), click **Encrypt (E2EE)** in the note toolbar and set a passphrase.
+  - Encryption happens entirely inside your browser using **PBKDF2 + AES-256-GCM**—neither the server nor MongoDB ever receives your passphrase or plaintext content.
+  - Encrypted notes are strictly private to your account (cannot be shared or seen by teammates) and can be locked anytime with **Lock**.
 - **Delegating Tasks (Super User only):**
   1. Highlight text inside a note and click **Delegate Selection as Task** (or click **Delegate Task** below the editor).
   2. Pick a **Member** in the same Workspace, set priority and due date, and submit.

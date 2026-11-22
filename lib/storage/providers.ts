@@ -1,5 +1,10 @@
 import crypto from "crypto";
 import { importPKCS8, SignJWT } from "jose";
+import {
+  assertPublicHttpsDestination,
+  validateR2AccountId,
+  validateSafeHttpsUrl,
+} from "@/lib/security/network";
 
 export interface R2Config {
   accountId?: string;
@@ -46,15 +51,9 @@ export function encodeS3Path(pathStr: string): string {
 export function buildR2Endpoint(accountId?: string, endpoint?: string): string {
   const custom = (endpoint || "").trim().replace(/\/+$/, "");
   if (custom) {
-    if (!/^https?:\/\//i.test(custom)) {
-      throw new Error("R2 endpoint must start with https://");
-    }
-    return custom;
+    return validateSafeHttpsUrl(custom, "Cloudflare R2 Endpoint");
   }
-  const acct = (accountId || "").trim();
-  if (!acct) {
-    throw new Error("Cloudflare R2 Account ID or Endpoint is required");
-  }
+  const acct = validateR2AccountId(accountId || "");
   return `https://${acct}.r2.cloudflarestorage.com`;
 }
 
@@ -153,7 +152,10 @@ export function signR2Request(params: {
 }
 
 export async function testR2Connection(config: R2Config): Promise<void> {
-  const endpoint = buildR2Endpoint(config.accountId, config.endpoint);
+  const endpoint = await assertPublicHttpsDestination(
+    buildR2Endpoint(config.accountId, config.endpoint),
+    "Cloudflare R2 Endpoint",
+  );
   const { url, headers } = signR2Request({
     method: "HEAD",
     endpoint,
@@ -162,7 +164,7 @@ export async function testR2Connection(config: R2Config): Promise<void> {
     secretAccessKey: config.secretAccessKey,
   });
 
-  const res = await fetch(url, { method: "HEAD", headers });
+  const res = await fetch(url, { method: "HEAD", headers, redirect: "error" });
   if (!res.ok) {
     throw new Error(
       `Cloudflare R2 connection failed (HTTP ${res.status}). Check Account ID, Bucket Name, and API Keys.`,
@@ -176,7 +178,10 @@ export async function uploadToR2(
   bytes: Uint8Array,
   contentType: string,
 ): Promise<void> {
-  const endpoint = buildR2Endpoint(config.accountId, config.endpoint);
+  const endpoint = await assertPublicHttpsDestination(
+    buildR2Endpoint(config.accountId, config.endpoint),
+    "Cloudflare R2 Endpoint",
+  );
   const { url, headers } = signR2Request({
     method: "PUT",
     endpoint,
@@ -192,6 +197,7 @@ export async function uploadToR2(
     method: "PUT",
     headers,
     body: Buffer.from(bytes),
+    redirect: "error",
   });
   if (!res.ok) {
     const text = await res.text().catch(() => "");
@@ -205,7 +211,10 @@ export async function downloadFromR2(
   config: R2Config,
   key: string,
 ): Promise<{ buffer: Buffer; contentType: string } | null> {
-  const endpoint = buildR2Endpoint(config.accountId, config.endpoint);
+  const endpoint = await assertPublicHttpsDestination(
+    buildR2Endpoint(config.accountId, config.endpoint),
+    "Cloudflare R2 Endpoint",
+  );
   const { url, headers } = signR2Request({
     method: "GET",
     endpoint,
@@ -215,7 +224,7 @@ export async function downloadFromR2(
     secretAccessKey: config.secretAccessKey,
   });
 
-  const res = await fetch(url, { method: "GET", headers });
+  const res = await fetch(url, { method: "GET", headers, redirect: "error" });
   if (res.status === 404) return null;
   if (!res.ok) {
     throw new Error(`Cloudflare R2 read failed (HTTP ${res.status})`);

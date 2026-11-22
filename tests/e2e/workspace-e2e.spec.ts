@@ -70,6 +70,7 @@ test.describe("GiRe Multi-Tenant Workspace, Notes, & Navigation E2E", () => {
 
     await page.getByRole("button", { name: /New Note/i }).first().click();
     const titleInput = page.locator('input[placeholder="Note title..."]');
+    await expect(titleInput).toHaveValue("Untitled Note");
     await titleInput.fill("Auth Migration Spec");
     await page.getByRole("button", { name: /^Save$/i }).click();
 
@@ -85,6 +86,26 @@ test.describe("GiRe Multi-Tenant Workspace, Notes, & Navigation E2E", () => {
     await page.getByRole("button", { name: /^Delegate Task$/i }).last().click();
 
     await expect(page.getByText("Rotate JWT secret")).toBeVisible();
+
+    // 5b. Create an End-to-End Encrypted secret Note
+    await page.getByRole("button", { name: /New Note/i }).first().click();
+    await expect(titleInput).toHaveValue("Untitled Note");
+    await titleInput.fill("Prod Secrets Vault");
+    await page.locator(".ProseMirror").click();
+    await page.keyboard.type("API_SECRET=top-secret-key-999");
+    await page.getByRole("button", { name: /^Save$/i }).click();
+    await expect(page.getByText("Saved")).toBeVisible();
+    await page.getByRole("button", { name: /Encrypt \(E2EE\)/i }).click();
+    await page.fill('input[placeholder="Enter a strong passphrase"]', "vaultPass123!");
+    await page.fill('input[placeholder="Re-enter passphrase"]', "vaultPass123!");
+    await page.getByRole("button", { name: /^Encrypt Note$/i }).click();
+    await page.getByRole("button", { name: /^Lock$/i }).click();
+    await expect(
+      page.getByRole("heading", { name: "End-to-End Encrypted Note" }),
+    ).toBeVisible();
+    await page.fill('input[placeholder="Enter encryption passphrase..."]', "vaultPass123!");
+    await page.getByRole("button", { name: /Unlock Note/i }).click();
+    await expect(page.getByText("API_SECRET=top-secret-key-999")).toBeVisible();
 
     // 6. Sign out & log in as Member A
     await page.locator('button[title="Sign Out"]').click();
@@ -124,10 +145,12 @@ test.describe("GiRe Multi-Tenant Workspace, Notes, & Navigation E2E", () => {
     });
     expect(delegateTaskStatus).toBe(403);
 
-    // Member can update their delegated task status on /notes?tab=tasks
+    // Member can view delegated task on /notes?tab=tasks, and cannot see Super User's E2EE note
     await page.goto("/notes?tab=tasks");
     await expect(page.getByText("Rotate JWT secret")).toBeVisible();
     await expect(page.getByRole("button", { name: /New Task/i })).toHaveCount(0);
+    await page.getByRole("button", { name: /^Notes \(/i }).click();
+    await expect(page.getByText("Prod Secrets Vault")).toHaveCount(0);
 
     // 7. Sign out & register Super User B -> completely isolated from Acme Office
     await page.locator('button[title="Sign Out"]').click();

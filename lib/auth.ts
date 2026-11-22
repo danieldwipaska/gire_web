@@ -2,8 +2,37 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
-const secretKey = process.env.JWT_SECRET || "your-secret-key";
-const key = new TextEncoder().encode(secretKey);
+declare global {
+  var __gireDevJwtKey: Uint8Array | undefined;
+}
+
+function getJwtKey(): Uint8Array {
+  const envSecret = process.env.JWT_SECRET?.trim() || "";
+  if (process.env.NODE_ENV === "production") {
+    if (
+      !envSecret ||
+      envSecret.length < 16 ||
+      envSecret === "your-secret-key"
+    ) {
+      throw new Error(
+        "A strong JWT_SECRET environment variable (minimum 16 characters) is required in production.",
+      );
+    }
+    return new TextEncoder().encode(envSecret);
+  }
+
+  if (envSecret) {
+    return new TextEncoder().encode(envSecret);
+  }
+
+  // Non-production ephemeral fallback when JWT_SECRET is unset (never hardcoded)
+  if (!globalThis.__gireDevJwtKey) {
+    const randomBytes = new Uint8Array(32);
+    globalThis.crypto.getRandomValues(randomBytes);
+    globalThis.__gireDevJwtKey = randomBytes;
+  }
+  return globalThis.__gireDevJwtKey;
+}
 
 export const WORKSPACE_COOKIE_NAME = "gire_workspace";
 
@@ -11,25 +40,26 @@ export const isSuperUserRole = (role?: string | null): boolean => {
   return role !== "member";
 };
 
-export async function signToken(payload: SessionPayload) {
-  return await new SignJWT(payload)
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime("1d")
-    .sign(key);
-}
-
 export interface SessionPayload {
   id: string;
   email: string;
   name: string;
   role: string;
+  tv?: number;
   [key: string]: unknown;
+}
+
+export async function signToken(payload: SessionPayload) {
+  return await new SignJWT(payload)
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("1d")
+    .sign(getJwtKey());
 }
 
 export async function verifyToken(token: string): Promise<SessionPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, key, {
+    const { payload } = await jwtVerify(token, getJwtKey(), {
       algorithms: ["HS256"],
     });
 

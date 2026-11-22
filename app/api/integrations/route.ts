@@ -1,7 +1,9 @@
 import connectDB from "@/lib/mongodb";
 import Integration from "@/models/Integration";
 import { NextRequest, NextResponse } from "next/server";
-import { verifyAuth } from "@/lib/auth";
+import { verifyActiveAuth } from "@/lib/auth-server";
+import { encryptSecret } from "@/lib/security/crypto";
+import mongoose from "mongoose";
 import { Octokit } from "octokit";
 
 type IntegrationPayload = {
@@ -14,7 +16,7 @@ type IntegrationPayload = {
 };
 
 export async function POST(req: NextRequest) {
-  const session = await verifyAuth(req);
+  const session = await verifyActiveAuth(req);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -79,7 +81,7 @@ export async function POST(req: NextRequest) {
       provider,
       label: label.trim() || "Personal",
       githubUsername: resolvedUsername,
-      accessToken: accessToken.trim(),
+      accessToken: encryptSecret(accessToken.trim()),
       lastSync: lastSync ? new Date(lastSync) : undefined,
       status,
     });
@@ -98,7 +100,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const session = await verifyAuth(req);
+  const session = await verifyActiveAuth(req);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -124,7 +126,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const session = await verifyAuth(req);
+  const session = await verifyActiveAuth(req);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -139,9 +141,9 @@ export async function PATCH(req: NextRequest) {
     }: { id?: string; label?: string; accessToken?: string } =
       await req.json();
 
-    if (!id) {
+    if (typeof id !== "string" || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
-        { error: "Integration id is required" },
+        { error: "Valid integration id is required" },
         { status: 400 },
       );
     }
@@ -160,7 +162,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     if (typeof label === "string" && label.trim()) {
-      integration.label = label.trim();
+      integration.label = label.trim().slice(0, 40);
     }
 
     if (typeof accessToken === "string" && accessToken.trim()) {
@@ -168,7 +170,7 @@ export async function PATCH(req: NextRequest) {
         const octokit = new Octokit({ auth: accessToken.trim() });
         const { data: ghUser } = await octokit.rest.users.getAuthenticated();
         integration.githubUsername = ghUser.login;
-        integration.accessToken = accessToken.trim();
+        integration.accessToken = encryptSecret(accessToken.trim());
         integration.status = "active";
       } catch {
         return NextResponse.json(
@@ -190,7 +192,7 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const session = await verifyAuth(req);
+  const session = await verifyActiveAuth(req);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -199,6 +201,12 @@ export async function DELETE(req: NextRequest) {
 
   try {
     const { id } = await req.json();
+    if (typeof id !== "string" || !mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { error: "Invalid integration id" },
+        { status: 400 },
+      );
+    }
 
     const result = await Integration.deleteOne({
       _id: id,

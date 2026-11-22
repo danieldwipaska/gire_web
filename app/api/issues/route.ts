@@ -2,13 +2,13 @@ import connectDB from "@/lib/mongodb";
 import Integration from "@/models/Integration";
 import Issue from "@/models/Issue";
 import { NextRequest, NextResponse } from "next/server";
-import { verifyAuth } from "@/lib/auth";
+import { verifyActiveAuth } from "@/lib/auth-server";
 import { IIssue } from "@/lib/types";
 import { isIssueAssignedTo } from "@/lib/utils";
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await verifyAuth(req);
+    const session = await verifyActiveAuth(req);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

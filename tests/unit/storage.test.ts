@@ -39,6 +39,10 @@ vi.mock("@/lib/auth", () => ({
   verifyAuth: mockVerifyAuth,
 }));
 
+vi.mock("@/lib/auth-server", () => ({
+  verifyActiveAuth: mockVerifyAuth,
+}));
+
 vi.mock("@/lib/mongodb", () => ({
   default: mockConnectDB,
 }));

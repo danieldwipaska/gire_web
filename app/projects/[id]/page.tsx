@@ -89,7 +89,11 @@ export default async function ProjectDetailPage({
           .limit(100)
           .lean()
       : Promise.resolve([]),
-    Note.find({ projectId: id, workspaceId: ctx.activeWorkspace._id })
+    Note.find({
+      projectId: id,
+      workspaceId: ctx.activeWorkspace._id,
+      $or: [{ userId: session.id }, { isEncrypted: { $ne: true } }],
+    })
       .sort({ isPinned: -1, updatedAt: -1 })
       .limit(100)
       .lean(),

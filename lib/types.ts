@@ -264,6 +264,7 @@ export interface INote {
   tags: string[];
   sharedWith: string[];
   isPinned: boolean;
+  isEncrypted?: boolean;
   createdAt?: string | Date;
   updatedAt?: string | Date;
 }

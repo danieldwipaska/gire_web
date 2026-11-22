@@ -25,6 +25,10 @@ const UserSchema = new mongoose.Schema({
     ref: 'User',
     default: null,
   },
+  tokenVersion: {
+    type: Number,
+    default: 0,
+  },
   createdAt: { type: Date, default: Date.now },
 });
 

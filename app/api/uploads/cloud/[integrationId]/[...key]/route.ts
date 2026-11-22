@@ -1,4 +1,4 @@
-import { verifyAuth } from "@/lib/auth";
+import { verifyActiveAuth } from "@/lib/auth-server";
 import connectDB from "@/lib/mongodb";
 import {
   readCloudUploadedImage,
@@ -25,7 +25,7 @@ export async function GET(
   }: { params: Promise<{ integrationId: string; key: string[] }> },
 ) {
   try {
-    const session = await verifyAuth(req);
+    const session = await verifyActiveAuth(req);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -81,6 +81,9 @@ export async function GET(
       headers: {
         "Content-Type": obj.contentType || fallbackType,
         "Cache-Control": "private, max-age=31536000, immutable",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Content-Security-Policy": "default-src 'none'; sandbox",
       },
     });
   } catch (error) {

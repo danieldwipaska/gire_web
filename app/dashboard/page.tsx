@@ -88,9 +88,14 @@ export default async function DashboardPage({ searchParams }: Props) {
         {
           $or: [
             { userId: session.id },
-            { sharedWith: session.id },
+            { isEncrypted: { $ne: true }, sharedWith: session.id },
             ...(accessibleProjectIds.length > 0
-              ? [{ projectId: { $in: accessibleProjectIds } }]
+              ? [
+                  {
+                    isEncrypted: { $ne: true },
+                    projectId: { $in: accessibleProjectIds },
+                  },
+                ]
               : []),
           ],
         },

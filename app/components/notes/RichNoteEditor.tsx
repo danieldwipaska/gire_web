@@ -10,6 +10,7 @@ import { TaskList } from "@tiptap/extension-task-list";
 import { TaskItem } from "@tiptap/extension-task-item";
 import { TableKit } from "@tiptap/extension-table";
 import { common, createLowlight } from "lowlight";
+import { isSafeUrl } from "@/lib/security/sanitize";
 import {
   Bold,
   CheckSquare,
@@ -226,6 +227,13 @@ export default function RichNoteEditor({
       editor.chain().focus().extendMarkRange("link").unsetLink().run();
       return;
     }
+    if (!isSafeUrl(url.trim(), true)) {
+      setUploadError(
+        "Only https://, http://, mailto:, or relative URLs are allowed in links.",
+      );
+      return;
+    }
+    setUploadError("");
     editor
       .chain()
       .focus()

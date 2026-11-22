@@ -1,4 +1,4 @@
-import { verifyAuth } from "@/lib/auth";
+import { verifyActiveAuth } from "@/lib/auth-server";
 import { runWithRepoOctokit } from "@/lib/github/client";
 import connectDB from "@/lib/mongodb";
 import ActivityEvent from "@/models/ActivityEvent";
@@ -17,9 +17,11 @@ type ActionPayload = {
   mergeMethod?: "merge" | "squash" | "rebase";
 };
 
+const GITHUB_REPO_REGEX = /^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/;
+
 export async function POST(req: NextRequest) {
   try {
-    const session = await verifyAuth(req);
+    const session = await verifyActiveAuth(req);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -30,7 +32,8 @@ export async function POST(req: NextRequest) {
     if (
       (kind !== "pr" && kind !== "issue") ||
       !repo ||
-      !repo.includes("/") ||
+      !GITHUB_REPO_REGEX.test(repo) ||
+      repo.includes("..") ||
       !Number.isInteger(number) ||
       number <= 0
     ) {
@@ -289,8 +292,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unsupported action" }, { status: 400 });
   } catch (error) {
     console.error("Error performing GitHub action:", error);
-    const message =
-      error instanceof Error ? error.message : "Failed to perform GitHub action";
-    return NextResponse.json({ error: message }, { status: 500 });
+    const status = (error as { status?: number })?.status;
+    if (status === 401 || status === 403 || status === 404 || status === 422) {
+      return NextResponse.json(
+        { error: "GitHub rejected this action. Check permissions or PR state." },
+        { status },
+      );
+    }
+    return NextResponse.json(
+      { error: "Failed to perform GitHub action" },
+      { status: 500 },
+    );
   }
 }

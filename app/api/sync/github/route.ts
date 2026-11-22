@@ -1,12 +1,13 @@
+import { verifyActiveAuth } from "@/lib/auth-server";
 import { syncGitHubData } from "@/lib/github/sync";
 import connectDB from "@/lib/mongodb";
+import { decryptSecret } from "@/lib/security/crypto";
 import Integration from "@/models/Integration";
 import { NextRequest, NextResponse } from "next/server";
-import { verifyAuth } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await verifyAuth(req);
+    const session = await verifyActiveAuth(req);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -51,7 +52,7 @@ export async function POST(req: NextRequest) {
 
         await syncGitHubData(
           account.userId.toString(),
-          account.accessToken,
+          decryptSecret(account.accessToken),
           async (progress, message) => {
             try {
               const overallProgress = Math.floor(

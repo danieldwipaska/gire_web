@@ -27,6 +27,7 @@ const NoteSchema = new mongoose.Schema(
       },
     ],
     isPinned: { type: Boolean, default: false },
+    isEncrypted: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

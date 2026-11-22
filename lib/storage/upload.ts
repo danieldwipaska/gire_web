@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import connectDB from "@/lib/mongodb";
+import { decryptSecret } from "@/lib/security/crypto";
 import { IStorageIntegration, StorageProviderType } from "@/lib/types";
 import StorageIntegration from "@/models/StorageIntegration";
 import {
@@ -135,7 +136,7 @@ export async function storeUploadedImage(params: {
         accountId: active.r2AccountId,
         endpoint: active.r2Endpoint,
         accessKeyId: active.r2AccessKeyId || "",
-        secretAccessKey: active.r2SecretAccessKey || "",
+        secretAccessKey: decryptSecret(active.r2SecretAccessKey || ""),
         bucket: active.bucket,
       },
       objectKey,
@@ -148,7 +149,7 @@ export async function storeUploadedImage(params: {
         bucket: active.bucket,
         projectId: active.gcpProjectId,
         clientEmail: active.gcpClientEmail || "",
-        privateKey: active.gcpPrivateKey || "",
+        privateKey: decryptSecret(active.gcpPrivateKey || ""),
       },
       objectKey,
       bytes,
@@ -177,7 +178,7 @@ export async function readCloudUploadedImage(
         accountId: doc.r2AccountId,
         endpoint: doc.r2Endpoint,
         accessKeyId: doc.r2AccessKeyId || "",
-        secretAccessKey: doc.r2SecretAccessKey || "",
+        secretAccessKey: decryptSecret(doc.r2SecretAccessKey || ""),
         bucket: doc.bucket,
       },
       objectKey,
@@ -188,7 +189,7 @@ export async function readCloudUploadedImage(
       bucket: doc.bucket,
       projectId: doc.gcpProjectId,
       clientEmail: doc.gcpClientEmail || "",
-      privateKey: doc.gcpPrivateKey || "",
+      privateKey: decryptSecret(doc.gcpPrivateKey || ""),
     },
     objectKey,
   );

@@ -154,6 +154,7 @@ export async function POST(req: NextRequest) {
       const validNote = await Note.exists({
         _id: body.sourceNoteId,
         workspaceId: ctx.activeWorkspace._id,
+        isEncrypted: { $ne: true },
       });
       if (validNote) sourceNoteId = body.sourceNoteId;
     }
